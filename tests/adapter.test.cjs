@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 test('non-Tauri startup is safe and unsupported shortcuts do not report success', async () => {
-  const { invokeDesktop, listenDesktop } = await import('../src/desktop-adapter.js');
+  const { invokePlatform: invokeDesktop, listenPlatformEvent: listenDesktop } = await import('../src/platform/browser-adapter.js');
   global.window = { open: () => {} };
   try {
     assert.deepEqual(await invokeDesktop('get_shortcut_settings'), { enabled: false, shortcuts: [] });

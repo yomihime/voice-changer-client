@@ -1,0 +1,5 @@
+* text=auto eol=lf
+# Preserve the recovered reference byte-for-byte, including original line endings.
+reference/v2.1.4-alpha/app.js -text
+reference/v2.1.4-alpha/app.css -text
+reference/v2.1.4-alpha/browser-ponyfill-8xTspxQN.js -text

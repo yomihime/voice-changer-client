@@ -1,3 +1,3 @@
-// Fork-owned entry point. Keep platform and connection behavior out of the bundle.
+// Application entry: connection status and the independently maintained page tree.
 import './connection-status.js';
-import '../recovered/app.js';
+import './app/mount.js';

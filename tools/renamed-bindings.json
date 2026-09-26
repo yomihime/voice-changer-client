@@ -1,0 +1,4754 @@
+[
+  {
+    "module": "platform/bridge.js",
+    "original": "invokeDesktop",
+    "readable": "invokePlatform",
+    "reason": "public module name"
+  },
+  {
+    "module": "platform/bridge.js",
+    "original": "listenDesktop",
+    "readable": "listenPlatformEvent",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/app-root-context.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/app-root-context.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "shared/logger.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "C",
+    "readable": "setUnhandledRejectionToastEnabled",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "E",
+    "readable": "isAutoRefreshEnabled",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "w",
+    "readable": "setAutoRefreshEnabledState",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "R",
+    "readable": "autoRefreshEnabledRef",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "_",
+    "readable": "setAutoRefreshEnabled",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "x",
+    "readable": "logText",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "T",
+    "readable": "setLogText",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "A",
+    "readable": "visibleLineLimit",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "O",
+    "readable": "setVisibleLineLimit",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "H",
+    "readable": "logEndRef",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "ee",
+    "readable": "lineCount",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "te",
+    "readable": "logRows",
+    "reason": "semantic map: LogViewer"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/LogViewer.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/app-state-context.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/app-state-context.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "S",
+    "readable": "displayColorMode",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "C",
+    "readable": "setDisplayColorMode",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "E",
+    "readable": "setSelectedLanguage",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "w",
+    "readable": "selectedLanguage",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "R",
+    "readable": "initializeServer",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "_",
+    "readable": "guiSetting",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "A",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/LinkArea.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "S",
+    "readable": "isOpen",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "C",
+    "readable": "title",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "E",
+    "readable": "message",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "w",
+    "readable": "confirmButtonText",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "R",
+    "readable": "cancelButtonText",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "_",
+    "readable": "onConfirm",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "x",
+    "readable": "onCancel",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "A",
+    "readable": "messageExtra",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/common/ConfirmationDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "C",
+    "readable": "baseUrl",
+    "reason": "semantic map: FileUploaderClient.setBaseUrl"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "C",
+    "readable": "enabled",
+    "reason": "semantic map: FileUploaderClient.setEnableFlatPath"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: FileUploaderClient.generatePath"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "C",
+    "readable": "filenamePrefix",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "E",
+    "readable": "file",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "w",
+    "readable": "onProgress",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "R",
+    "readable": "uploadUrl",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "_",
+    "readable": "chunkSize",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "x",
+    "readable": "chunkIndex",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "T",
+    "readable": "fileSize",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "A",
+    "readable": "uploadFilename",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "O",
+    "readable": "chunkCount",
+    "reason": "semantic map: FileUploaderClient.uploadFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "C",
+    "readable": "filename",
+    "reason": "semantic map: FileUploaderClient.concatUploadedFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "E",
+    "readable": "chunkCount",
+    "reason": "semantic map: FileUploaderClient.concatUploadedFile"
+  },
+  {
+    "module": "api/FileUploaderClient.js",
+    "original": "w",
+    "readable": "concatUrl",
+    "reason": "semantic map: FileUploaderClient.concatUploadedFile"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "C",
+    "readable": "baseUrl",
+    "reason": "semantic map: RestClient.setBaseUrl"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "C",
+    "readable": "request",
+    "reason": "semantic map: RestClient.execFetch"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "E",
+    "readable": "responseType",
+    "reason": "semantic map: RestClient.execFetch"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: RestClient.getRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "E",
+    "readable": "responseType",
+    "reason": "semantic map: RestClient.getRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "w",
+    "readable": "requestUrl",
+    "reason": "semantic map: RestClient.getRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "R",
+    "readable": "request",
+    "reason": "semantic map: RestClient.getRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "_",
+    "readable": "result",
+    "reason": "semantic map: RestClient.getRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: RestClient.postRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "E",
+    "readable": "body",
+    "reason": "semantic map: RestClient.postRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "w",
+    "readable": "responseType",
+    "reason": "semantic map: RestClient.postRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "R",
+    "readable": "requestUrl",
+    "reason": "semantic map: RestClient.postRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "_",
+    "readable": "request",
+    "reason": "semantic map: RestClient.postRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "x",
+    "readable": "result",
+    "reason": "semantic map: RestClient.postRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: RestClient.putRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "E",
+    "readable": "body",
+    "reason": "semantic map: RestClient.putRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "w",
+    "readable": "responseType",
+    "reason": "semantic map: RestClient.putRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "R",
+    "readable": "requestUrl",
+    "reason": "semantic map: RestClient.putRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "_",
+    "readable": "request",
+    "reason": "semantic map: RestClient.putRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "x",
+    "readable": "result",
+    "reason": "semantic map: RestClient.putRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: RestClient.deleteRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "E",
+    "readable": "body",
+    "reason": "semantic map: RestClient.deleteRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "w",
+    "readable": "responseType",
+    "reason": "semantic map: RestClient.deleteRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "R",
+    "readable": "requestUrl",
+    "reason": "semantic map: RestClient.deleteRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "_",
+    "readable": "request",
+    "reason": "semantic map: RestClient.deleteRequest"
+  },
+  {
+    "module": "api/RestClient.js",
+    "original": "x",
+    "readable": "result",
+    "reason": "semantic map: RestClient.deleteRequest"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "baseUrl",
+    "reason": "semantic map: VCRestClient.setBaseUrl"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "enabled",
+    "reason": "semantic map: VCRestClient.setEnableFlatPath"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.generatePath"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.initializeServer"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "reload",
+    "reason": "semantic map: VCRestClient.getServerAudioInputDevices"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerAudioInputDevices"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "reload",
+    "reason": "semantic map: VCRestClient.getServerAudioOutputDevices"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerAudioOutputDevices"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerConfiguration"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "configuration",
+    "reason": "semantic map: VCRestClient.updateServerConfiguration"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.updateServerConfiguration"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerGPUInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "reload",
+    "reason": "semantic map: VCRestClient.getServerModuleStatus"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerModuleStatus"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.downloadApplioModules"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getSamples"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.downloadSample"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "sampleId",
+    "reason": "semantic map: VCRestClient.downloadSample"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.downloadSample"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.downloadSample"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerSlotInfos"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.getServerSlotInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getServerSlotInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "filenamePrefix",
+    "reason": "semantic map: VCRestClient.uploadFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "file",
+    "reason": "semantic map: VCRestClient.uploadFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "onProgress",
+    "reason": "semantic map: VCRestClient.uploadFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "chunkCount",
+    "reason": "semantic map: VCRestClient.uploadFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "modelFile",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "indexFile",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "embedder",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "_",
+    "readable": "onProgress",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "x",
+    "readable": "fileCount",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "T",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "A",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.uploadRVCModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2ModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "zipFile",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2ModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "onProgress",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2ModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2ModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "_",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2ModelFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.uploadIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "iconFile",
+    "reason": "semantic map: VCRestClient.uploadIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "onProgress",
+    "reason": "semantic map: VCRestClient.uploadIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.uploadIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "_",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.uploadIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotInfo",
+    "reason": "semantic map: VCRestClient.updateServerSlotInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.updateServerSlotInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.deleteServerSlotInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.deleteServerSlotInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.mergeModels"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.mergeModels"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.exportToOnnx"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.exportToOnnx"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.export"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.export"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.moveMergedModel"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.moveMergedModel"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.moveExportedOnnxModel"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.moveExportedOnnxModel"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.moveModel"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.moveModel"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.refreshQueue"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.startServerDevice"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.stopServerDevice"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.truncateOutputBuffer"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getVoiceChangerManagerInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getLocalVoiceChangerInterfaceInfo"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "taskId",
+    "reason": "semantic map: VCRestClient.getTask"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.getTask"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "taskId",
+    "reason": "semantic map: VCRestClient.deleteTask"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.deleteTask"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2VoiceIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "voiceIndex",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2VoiceIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "iconFile",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2VoiceIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "onProgress",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2VoiceIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "_",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2VoiceIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "x",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.uploadBeatriceV2VoiceIconFile"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceName"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "voiceIndex",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceName"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "voiceName",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceName"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceName"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "_",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceName"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "slotIndex",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceDescription"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "voiceIndex",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceDescription"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "voiceDescription",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceDescription"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "R",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceDescription"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "_",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.updateBeatriceV2VoiceDescription"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "C",
+    "readable": "audioUrl",
+    "reason": "semantic map: VCRestClient.setLocalVoiceChangerDummyInput"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "E",
+    "readable": "endpointPath",
+    "reason": "semantic map: VCRestClient.setLocalVoiceChangerDummyInput"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "w",
+    "readable": "requestBody",
+    "reason": "semantic map: VCRestClient.setLocalVoiceChangerDummyInput"
+  },
+  {
+    "module": "api/VoiceChangerApiClient.js",
+    "original": "VCRestClient",
+    "readable": "VoiceChangerApiClient",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "S",
+    "readable": "model",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "C",
+    "readable": "isMoving",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "E",
+    "readable": "setIsMoving",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "w",
+    "readable": "isMovingTarget",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "R",
+    "readable": "onUploadClick",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "_",
+    "readable": "onSampleModelClick",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "x",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "A",
+    "readable": "deleteServerSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "O",
+    "readable": "moveModel",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "H",
+    "readable": "exportModel",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "ee",
+    "readable": "exportToOnnx",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "te",
+    "readable": "moveExportedOnnxModel",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "ie",
+    "readable": "triggerToast",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "ne",
+    "readable": "serverSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelActions.js",
+    "original": "RightButtonArea",
+    "readable": "ModelActions",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "S",
+    "readable": "model",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "E",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "w",
+    "readable": "uploadIconFile",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "R",
+    "readable": "triggerToast",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelIcon.js",
+    "original": "IconArea",
+    "readable": "ModelIcon",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/icons.js",
+    "original": "S",
+    "readable": "label",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/icons.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/icons.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "S",
+    "readable": "model",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "C",
+    "readable": "serverSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "E",
+    "readable": "updateServerSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "R",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelInfo.js",
+    "original": "InfoArea",
+    "readable": "ModelInfo",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "E",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "S",
+    "readable": "props",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "w",
+    "readable": "theme",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "R",
+    "readable": "voiceChangerType",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "_",
+    "readable": "setVoiceChangerType",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "x",
+    "readable": "modelFile",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "T",
+    "readable": "setModelFile",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "A",
+    "readable": "indexFile",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "O",
+    "readable": "setIndexFile",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "H",
+    "readable": "beatriceZipFile",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "ee",
+    "readable": "setBeatriceZipFile",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "te",
+    "readable": "modelFileInputRef",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "ie",
+    "readable": "indexFileInputRef",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "ne",
+    "readable": "zipFileInputRef",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "ae",
+    "readable": "appRoot",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "se",
+    "readable": "isUploading",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "ce",
+    "readable": "setUploading",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "fe",
+    "readable": "uploadProgress",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "pe",
+    "readable": "setUploadProgress",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "le",
+    "readable": "isUploadCompleteDialogOpen",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "de",
+    "readable": "setUploadCompleteDialogOpen",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "he",
+    "readable": "uploadModel",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "me",
+    "readable": "closeUploadCompleteDialog",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "ye",
+    "readable": "uploadDialog",
+    "reason": "semantic map: ModelUploadDialog"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelUploadDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/common/DownloadProgressDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/DownloadProgressDialog.js",
+    "original": "C",
+    "readable": "sampleName",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/DownloadProgressDialog.js",
+    "original": "E",
+    "readable": "progress",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/DownloadProgressDialog.js",
+    "original": "R",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/DownloadProgressDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "E",
+    "readable": "slotIndex",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "w",
+    "readable": "samples",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "R",
+    "readable": "downloadSample",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "_",
+    "readable": "triggerToast",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "x",
+    "readable": "reloadServerSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "T",
+    "readable": "getTask",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "O",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/SampleModelDialog.js",
+    "original": "SampleModelDailog",
+    "readable": "SampleModelDialog",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "C",
+    "readable": "serverSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "E",
+    "readable": "theme",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "w",
+    "readable": "movingSlotIndex",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "R",
+    "readable": "setMovingSlotIndex",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "_",
+    "readable": "visibleModelCount",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "x",
+    "readable": "setVisibleModelCount",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "T",
+    "readable": "isUploadDialogOpen",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "A",
+    "readable": "setUploadDialogOpen",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "O",
+    "readable": "uploadSlotIndex",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "H",
+    "readable": "setUploadSlotIndex",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "ee",
+    "readable": "isSampleDialogOpen",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "te",
+    "readable": "setSampleDialogOpen",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "ie",
+    "readable": "sampleSlotIndex",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "ne",
+    "readable": "setSampleSlotIndex",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "ae",
+    "readable": "sortedModels",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "se",
+    "readable": "openUploadDialog",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "ce",
+    "readable": "openSampleDialog",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "fe",
+    "readable": "modelRows",
+    "reason": "semantic map: ModelList"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "RightButtonArea",
+    "readable": "ModelActions",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "IconArea",
+    "readable": "ModelIcon",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "InfoArea",
+    "readable": "ModelInfo",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelList.js",
+    "original": "SampleModelDailog",
+    "readable": "SampleModelDialog",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelEditDialog.js",
+    "original": "S",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelEditDialog.js",
+    "original": "C",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelEditDialog.js",
+    "original": "E",
+    "readable": "serverSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelEditDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelEditDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "te",
+    "readable": "serverSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "ie",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "ne",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "ae",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "ce",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "S",
+    "readable": "isModelEditorOpen",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "C",
+    "readable": "setModelEditorOpen",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "E",
+    "readable": "isUploadDialogOpen",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "w",
+    "readable": "setUploadDialogOpen",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "R",
+    "readable": "uploadSlotIndex",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "_",
+    "readable": "setUploadSlotIndex",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "x",
+    "readable": "currentPage",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "T",
+    "readable": "setCurrentPage",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "A",
+    "readable": "modelsPerPage",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "O",
+    "readable": "setModelsPerPage",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "H",
+    "readable": "modelCardWidth",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "ee",
+    "readable": "modelCardGap",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "se",
+    "readable": "theme",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "fe",
+    "readable": "availableModels",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "pe",
+    "readable": "visibleModels",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "le",
+    "readable": "pageCount",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "de",
+    "readable": "selectModel",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "he",
+    "readable": "openUploadDialogForEmptySlot",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "me",
+    "readable": "modelCards",
+    "reason": "semantic map: ModelSelector"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/models/ModelSelector.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/HeaderArea.js",
+    "original": "S",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/HeaderArea.js",
+    "original": "C",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/HeaderArea.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/HeaderArea.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "E",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "w",
+    "readable": "updateBeatriceV2VoiceName",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "R",
+    "readable": "updateBeatriceV2VoiceDescription",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "_",
+    "readable": "uploadBeatriceV2VoiceIconFile",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "x",
+    "readable": "triggerToast",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "T",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/VoiceCharacterEditDialog.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "S",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "C",
+    "readable": "updateServerSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "E",
+    "readable": "setOutputBufferSizeCallback",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "_",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/PortraitArea.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/common/WaitingDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/WaitingDialog.js",
+    "original": "C",
+    "readable": "message",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/WaitingDialog.js",
+    "original": "E",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/WaitingDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "E",
+    "readable": "setSelectedInputAudioDeviceId",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "w",
+    "readable": "setOutputAudio",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "R",
+    "readable": "setMonitorAudio",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "_",
+    "readable": "selectedInputAudioDeviceId",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "x",
+    "readable": "outputAudio",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "T",
+    "readable": "monitorAudio",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "A",
+    "readable": "enableEchoCancellation",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "O",
+    "readable": "setEnableEchoCancellation",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "H",
+    "readable": "enableNoiseSuppression",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ee",
+    "readable": "setEnableNoiseSuppression",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "te",
+    "readable": "enableNoiseSuppression2",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ie",
+    "readable": "setEnableNoiseSuppression2",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ne",
+    "readable": "isOutputRecording",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ae",
+    "readable": "isPassthrough",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "se",
+    "readable": "abortAllRequests",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ce",
+    "readable": "isStarted",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "fe",
+    "readable": "audioInputs",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "pe",
+    "readable": "audioOutputs",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "le",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "de",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "he",
+    "readable": "serverAudioInputDevices",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "me",
+    "readable": "serverAudioOutputDevices",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ye",
+    "readable": "serverGpuInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "be",
+    "readable": "localVoiceChangerInterfaceInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "ve",
+    "readable": "stopServerDevice",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "xe",
+    "readable": "startServerDevice",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "Ce",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/SettingsDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "S",
+    "readable": "isStarted",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "C",
+    "readable": "setIsStarted",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "E",
+    "readable": "isOutputRecording",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "w",
+    "readable": "setIsOutputRecording",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "R",
+    "readable": "isPassthrough",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "_",
+    "readable": "setIsPassthrough",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "x",
+    "readable": "recordForAnalysis",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "T",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "H",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "ee",
+    "readable": "serverGpuInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "te",
+    "readable": "startServerDevice",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "ie",
+    "readable": "stopServerDevice",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "ne",
+    "readable": "localVoiceChangerInterfaceInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "ae",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "se",
+    "readable": "triggerToast",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "A",
+    "readable": "isSettingsDialogOpen",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "O",
+    "readable": "setSettingsDialogOpen",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "ce",
+    "readable": "isServerInputMode",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "fe",
+    "readable": "isServerDeviceActive",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "pe",
+    "readable": "isConversionRunning",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "le",
+    "readable": "isConversionStopped",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "de",
+    "readable": "isPassthroughActive",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "he",
+    "readable": "isRecordingActive",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "me",
+    "readable": "startConversion",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "ye",
+    "readable": "stopConversion",
+    "reason": "semantic map: MainControls"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/MainControls.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "S",
+    "readable": "settingsLoaded",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "C",
+    "readable": "setSettingsLoaded",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "E",
+    "readable": "displayColorMode",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "w",
+    "readable": "setDisplayColorMode",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "R",
+    "readable": "selectedInputAudioDeviceId",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "_",
+    "readable": "setSelectedInputAudioDeviceId",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "x",
+    "readable": "inputAudio",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "T",
+    "readable": "setInputAudio",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "A",
+    "readable": "outputAudio",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "O",
+    "readable": "setOutputAudio",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "H",
+    "readable": "monitorAudio",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ee",
+    "readable": "setMonitorAudio",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "te",
+    "readable": "outputAudioElementId",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ie",
+    "readable": "setOutputAudioElementId",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ne",
+    "readable": "monitorAudioElementId",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ae",
+    "readable": "setMonitorAudioElementId",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "se",
+    "readable": "inputAudioType",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ce",
+    "readable": "setInputAudioType",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "fe",
+    "readable": "nodeInputGain",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "pe",
+    "readable": "setNodeInputGain",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "le",
+    "readable": "nodeOutputGain",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "de",
+    "readable": "setNodeOutputGain",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "he",
+    "readable": "nodeMonitorGain",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "me",
+    "readable": "setNodeMonitorGain",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ye",
+    "readable": "selectedLanguage",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "be",
+    "readable": "setSelectedLanguage",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ve",
+    "readable": "isOutputRecording",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "xe",
+    "readable": "setIsOutputRecording",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ce",
+    "readable": "outputRecord",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "_e",
+    "readable": "setOutputRecord",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Be",
+    "readable": "isStarted",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ve",
+    "readable": "setIsStarted",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ke",
+    "readable": "isPassthrough",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Le",
+    "readable": "setIsPassthrough",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "qe",
+    "readable": "enableEchoCancellation",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "ze",
+    "readable": "setEnableEchoCancellation",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ae",
+    "readable": "enableNoiseSuppression",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ne",
+    "readable": "setEnableNoiseSuppression",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "We",
+    "readable": "enableNoiseSuppression2",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ie",
+    "readable": "setEnableNoiseSuppression2",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "$e",
+    "readable": "realtimeOutputStatusEnabled",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Me",
+    "readable": "setRealtimeOutputStatusEnabled",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ge",
+    "readable": "realtimeOutputStatusSendIntervalSec",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "er",
+    "readable": "setRealtimeOutputStatusSendIntervalSec",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Ht",
+    "readable": "protocol",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "rr",
+    "readable": "setProtocol",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Jt",
+    "readable": "recordForAnalysis",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "Kt",
+    "readable": "setRecordForAnalysis",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "dr",
+    "readable": "showSampleAudioButton",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "or",
+    "readable": "setShowSampleAudioButton",
+    "reason": "semantic map: useGlobalSetting"
+  },
+  {
+    "module": "hooks/useGlobalSetting.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "S",
+    "readable": "setInputAudio",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "C",
+    "readable": "inputAudioType",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "E",
+    "readable": "setInputAudioType",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "w",
+    "readable": "selectedInputAudioDeviceId",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "R",
+    "readable": "showSampleAudioButton",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "_",
+    "readable": "audioContext",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "x",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "T",
+    "readable": "serverAudioInputDevices",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "A",
+    "readable": "audioInputs",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "O",
+    "readable": "setLocalVoiceChangerDummyInput",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "ee",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "H",
+    "readable": "theme",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "ae",
+    "readable": "isEchobackEnabled",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "se",
+    "readable": "setEchobackEnabled",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "ce",
+    "readable": "isLoopEnabled",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "fe",
+    "readable": "setLoopEnabled",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "pe",
+    "readable": "sampleVoices",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "le",
+    "readable": "setSampleVoices",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "de",
+    "readable": "selectedSampleVoice",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "he",
+    "readable": "setSelectedSampleVoice",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "me",
+    "readable": "audioFile",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "ye",
+    "readable": "setAudioFile",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "be",
+    "readable": "mediaElementSourceRef",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "ve",
+    "readable": "isServerInputMode",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "xe",
+    "readable": "selectedServerInputDevice",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "Ce",
+    "readable": "selectedBrowserInputDevice",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "_e",
+    "readable": "sendSampleToServer",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "Be",
+    "readable": "microphoneDeviceLabel",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "Ve",
+    "readable": "loopToggleButton",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "ke",
+    "readable": "echobackToggleButton",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "Le",
+    "readable": "fileInputControls",
+    "reason": "semantic map: InputControls"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/InputControls.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "C",
+    "readable": "nodeInputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "E",
+    "readable": "nodeOutputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "w",
+    "readable": "nodeMonitorGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "R",
+    "readable": "setNodeInputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "_",
+    "readable": "setNodeOutputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "x",
+    "readable": "setNodeMonitorGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "T",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "A",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "O",
+    "readable": "isServerInputMode",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "H",
+    "readable": "isExpanded",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "ee",
+    "readable": "setExpanded",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "te",
+    "readable": "inputGain",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "ie",
+    "readable": "outputGain",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "ne",
+    "readable": "monitorGain",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "ae",
+    "readable": "updateInputGain",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "se",
+    "readable": "updateOutputGain",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "ce",
+    "readable": "updateMonitorGain",
+    "reason": "semantic map: VolumeControls"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/VolumeControls.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "C",
+    "readable": "guiSettingLoaded",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "E",
+    "readable": "setGuiSettingLoaded",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "w",
+    "readable": "guiSetting",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "R",
+    "readable": "setGuiSetting",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "_",
+    "readable": "version",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "x",
+    "readable": "setVersion",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "T",
+    "readable": "edition",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "A",
+    "readable": "setEdition",
+    "reason": "semantic map: useAppGuiSetting"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useAppGuiSetting.js",
+    "original": "defaultAppGuiSettin",
+    "readable": "defaultAppGuiSettings",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "S",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "C",
+    "readable": "updateServerSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "E",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "w",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "R",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "T",
+    "readable": "guiSetting",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "_",
+    "readable": "isExpanded",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "x",
+    "readable": "setExpanded",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "A",
+    "readable": "isEmbedderConfirmationOpen",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "O",
+    "readable": "setEmbedderConfirmationOpen",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "H",
+    "readable": "pendingEmbedderChange",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "ee",
+    "readable": "setPendingEmbedderChange",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "te",
+    "readable": "pitchEstimatorControl",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "ie",
+    "readable": "embedderControl",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "ne",
+    "readable": "pitchControl",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "ae",
+    "readable": "indexRatioControl",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "se",
+    "readable": "formantControl",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "ce",
+    "readable": "chunkDurationControl",
+    "reason": "semantic map: VoiceControls"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/voice/VoiceControls.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/Controls.js",
+    "original": "S",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/audio-controls/Controls.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/audio-controls/Controls.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "C",
+    "readable": "isClientInitialized",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "E",
+    "readable": "setVoiceChangerStatusListener",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "w",
+    "readable": "outputBufferSizeHistory",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "R",
+    "readable": "resetOutputBuffer",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "_",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "x",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "T",
+    "readable": "truncateOutputBuffer",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "A",
+    "readable": "refreshVoiceChangerIOQueue",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "O",
+    "readable": "inputLevelCanvasRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "H",
+    "readable": "inputLevelLabelRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "ee",
+    "readable": "outputLevelCanvasRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "te",
+    "readable": "outputLevelLabelRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "ie",
+    "readable": "bufferChartCanvasRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "ne",
+    "readable": "inputBufferLabelRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "ae",
+    "readable": "outputBufferLabelRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "se",
+    "readable": "realtimeFactorCanvasRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "ce",
+    "readable": "realtimeFactorLabelRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "fe",
+    "readable": "inputBufferHistoryRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "pe",
+    "readable": "outputBufferHistoryRef",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "le",
+    "readable": "formatLevel",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "de",
+    "readable": "drawLevelMeter",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "he",
+    "readable": "drawBufferChart",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "me",
+    "readable": "drawRealtimeFactor",
+    "reason": "semantic map: PerformanceArea"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/performance/PerformanceArea.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/ControlArea.js",
+    "original": "S",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/ControlArea.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/ControlArea.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "E",
+    "readable": "realtimeOutputStatusEnabled",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "w",
+    "readable": "setRealtimeOutputStatusEnabled",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "R",
+    "readable": "realtimeOutputStatusSendIntervalSec",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "_",
+    "readable": "setRealtimeOutputStatusSendIntervalSec",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "x",
+    "readable": "recordForAnalysis",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "T",
+    "readable": "setRecordForAnalysis",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "A",
+    "readable": "showSampleAudioButton",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "O",
+    "readable": "setShowSampleAudioButton",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "H",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "ee",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "te",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/AdvancedSettingDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/hotkey-context.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/hotkey-context.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "E",
+    "readable": "config",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "w",
+    "readable": "updateShortcut",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "R",
+    "readable": "setShorcutEnabled",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "_",
+    "readable": "checkDuplicationKey",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "x",
+    "readable": "hotKeySettingError",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "T",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/ShortcutSettingDialog.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "S",
+    "readable": "open",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "C",
+    "readable": "onClose",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "E",
+    "readable": "onConfirm",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "w",
+    "readable": "title",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "R",
+    "readable": "message",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "_",
+    "readable": "confirmText",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "x",
+    "readable": "cancelText",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "T",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "components/common/ConfirmDialog.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "C",
+    "readable": "isAdvancedSettingsOpen",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "E",
+    "readable": "setAdvancedSettingsOpen",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "w",
+    "readable": "isShortcutSettingsOpen",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "R",
+    "readable": "setShortcutSettingsOpen",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "_",
+    "readable": "isClearDataConfirmationOpen",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "x",
+    "readable": "setClearDataConfirmationOpen",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "T",
+    "readable": "openLogViewer",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "A",
+    "readable": "openAdvancedSettings",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "O",
+    "readable": "openShortcutSettings",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "H",
+    "readable": "openClearDataConfirmation",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "ee",
+    "readable": "clearSiteDataAndStopApp",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "te",
+    "readable": "openExternalUrl",
+    "reason": "semantic map: AdvancedArea"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "features/settings/AdvancedArea.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "S",
+    "readable": "edition",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "C",
+    "readable": "version",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "E",
+    "readable": "setOutputAudioElementId",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "w",
+    "readable": "setMonitorAudioElementId",
+    "reason": "destructured property"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "pages/VoiceChangerPage.js",
+    "original": "Demo",
+    "readable": "VoiceChangerPage",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/App.js",
+    "original": "S",
+    "readable": "appMode",
+    "reason": "destructured property"
+  },
+  {
+    "module": "app/App.js",
+    "original": "C",
+    "readable": "displayColorMode",
+    "reason": "destructured property"
+  },
+  {
+    "module": "app/App.js",
+    "original": "E",
+    "readable": "theme",
+    "reason": "semantic map: App"
+  },
+  {
+    "module": "app/App.js",
+    "original": "w",
+    "readable": "page",
+    "reason": "semantic map: App"
+  },
+  {
+    "module": "app/App.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/App.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/App.js",
+    "original": "Lt",
+    "readable": "ToastContainer",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/App.js",
+    "original": "Demo",
+    "readable": "VoiceChangerPage",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "C",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "S",
+    "readable": "options",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "E",
+    "readable": "audioContext",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "w",
+    "readable": "setAudioContext",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "R",
+    "readable": "audioInputs",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "_",
+    "readable": "setAudioInputs",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "x",
+    "readable": "audioOutputs",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "T",
+    "readable": "setAudioOutputs",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "A",
+    "readable": "audioContextCreationStartedRef",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "O",
+    "readable": "reloadDeviceInfo",
+    "reason": "semantic map: useAudioConfig"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useAudioConfig.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "C",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "S",
+    "readable": "options",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "E",
+    "readable": "restClient",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "w",
+    "readable": "serverConfiguration",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "R",
+    "readable": "setServerConfiguration",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "_",
+    "readable": "serverAudioInputDevices",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "x",
+    "readable": "setServerAudioInputDevices",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "T",
+    "readable": "serverAudioOutputDevices",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "A",
+    "readable": "setServerAudioOutputDevices",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "O",
+    "readable": "serverGpuInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "H",
+    "readable": "setServerGpuInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ee",
+    "readable": "serverModuleStatus",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "te",
+    "readable": "setServerModuleStatus",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ie",
+    "readable": "serverSlotInfos",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ne",
+    "readable": "setServerSlotInfos",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ae",
+    "readable": "samples",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "se",
+    "readable": "setSamples",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ce",
+    "readable": "localVoiceChangerInterfaceInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "fe",
+    "readable": "setLocalVoiceChangerInterfaceInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "pe",
+    "readable": "reloadServerConfiguration",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "le",
+    "readable": "reloadServerAudioInputDevices",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "de",
+    "readable": "reloadServerAudioOutputDevices",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "he",
+    "readable": "reloadServerGpuInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "me",
+    "readable": "reloadServerModuleStatus",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ye",
+    "readable": "reloadSamples",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "be",
+    "readable": "reloadServerSlotInfos",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ve",
+    "readable": "reloadLocalVoiceChangerInterfaceInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "xe",
+    "readable": "withHttpErrorToast",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "_e",
+    "readable": "updateServerConfiguration",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Be",
+    "readable": "downloadApplioModules",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Ve",
+    "readable": "downloadSample",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ke",
+    "readable": "uploadModelFile",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Le",
+    "readable": "updateServerSlotInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "qe",
+    "readable": "deleteServerSlotInfo",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ze",
+    "readable": "uploadIconFile",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Ae",
+    "readable": "uploadBeatriceV2VoiceIconFile",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Ne",
+    "readable": "updateBeatriceV2VoiceName",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "We",
+    "readable": "updateBeatriceV2VoiceDescription",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Ie",
+    "readable": "getTask",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "$e",
+    "readable": "deleteTask",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Me",
+    "readable": "initializeServer",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Ge",
+    "readable": "mergeModels",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "er",
+    "readable": "exportToOnnx",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Ht",
+    "readable": "exportModel",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "rr",
+    "readable": "moveMergedModel",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Jt",
+    "readable": "moveExportedOnnxModel",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "Kt",
+    "readable": "moveModel",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "dr",
+    "readable": "startServerDevice",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "or",
+    "readable": "stopServerDevice",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ar",
+    "readable": "setLocalVoiceChangerDummyInput",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "ur",
+    "readable": "truncateOutputBuffer",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "pr",
+    "readable": "refreshVoiceChangerIOQueue",
+    "reason": "semantic map: useServerConfig"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useServerConfig.js",
+    "original": "VCRestClient",
+    "readable": "VoiceChangerApiClient",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "S",
+    "readable": "children",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "C",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "E",
+    "readable": "triggerToast",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "w",
+    "readable": "isUnhandledRejectionToastEnabled",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "R",
+    "readable": "setUnhandledRejectionToastEnabled",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "_",
+    "readable": "audioConfig",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "x",
+    "readable": "guiConfig",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "T",
+    "readable": "serverConfigOptions",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "A",
+    "readable": "serverConfig",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "O",
+    "readable": "appMode",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "H",
+    "readable": "setAppMode",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "ee",
+    "readable": "currentSlotInfo",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "te",
+    "readable": "setCurrentSlotInfo",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "ie",
+    "readable": "origin",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "ne",
+    "readable": "handleUnhandledRejection",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "ae",
+    "readable": "contextValue",
+    "reason": "semantic map: AppRootProvider"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/AppRootProvider.js",
+    "original": "y",
+    "readable": "toast",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "C",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "w",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "R",
+    "readable": "reloadLocalVoiceChangerInterfaceInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "S",
+    "readable": "options",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "E",
+    "readable": "triggerToast",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "_",
+    "readable": "voiceChangerClient",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "x",
+    "readable": "isClientInitialized",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "T",
+    "readable": "setClientInitialized",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "A",
+    "readable": "outputBufferSizeHistory",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "O",
+    "readable": "setOutputBufferSizeHistory",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "H",
+    "readable": "outputBufferSizeMonitoringEnabled",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "ee",
+    "readable": "setOutputBufferMonitoringEnabledState",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "te",
+    "readable": "outputBufferSizeCallbackRef",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "ie",
+    "readable": "getLatestOutputBufferSize",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "ne",
+    "readable": "clearOutputBufferSizeHistory",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "ae",
+    "readable": "setOutputBufferSizeMonitoringEnabled",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "se",
+    "readable": "getPendingRequestCount",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "ce",
+    "readable": "abortAllRequests",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "fe",
+    "readable": "setOutputBufferSizeCallback",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "pe",
+    "readable": "resetOutputBuffer",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "le",
+    "readable": "setVoiceChangerStatusListener",
+    "reason": "semantic map: useVoiceChangerClient"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useVoiceChangerClient.js",
+    "original": "log$1",
+    "readable": "logMessage",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "S",
+    "readable": "children",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "C",
+    "readable": "audioContext",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "E",
+    "readable": "triggerToast",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "w",
+    "readable": "globalSettings",
+    "reason": "semantic map: AppStateProvider"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "R",
+    "readable": "voiceChangerClientState",
+    "reason": "semantic map: AppStateProvider"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "_",
+    "readable": "contextValue",
+    "reason": "semantic map: AppStateProvider"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/AppStateProvider.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "S",
+    "readable": "t",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "_",
+    "readable": "serverConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "x",
+    "readable": "localVoiceChangerInterfaceInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "T",
+    "readable": "startServerDevice",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "A",
+    "readable": "stopServerDevice",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "O",
+    "readable": "updateServerConfiguration",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "H",
+    "readable": "serverSlotInfos",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ee",
+    "readable": "currentSlotInfo",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "te",
+    "readable": "origin",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ie",
+    "readable": "isStarted",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ne",
+    "readable": "isPassthrough",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ae",
+    "readable": "setIsStarted",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "se",
+    "readable": "setIsPassthrough",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ce",
+    "readable": "setNodeInputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "fe",
+    "readable": "nodeInputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "pe",
+    "readable": "setNodeOutputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "le",
+    "readable": "nodeOutputGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "de",
+    "readable": "setNodeMonitorGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "he",
+    "readable": "nodeMonitorGain",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Jt",
+    "readable": "action",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Kt",
+    "readable": "volumeType",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "dr",
+    "readable": "delta",
+    "reason": "destructured property"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "C",
+    "readable": "config",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "E",
+    "readable": "setConfig",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "w",
+    "readable": "hotKeySettingError",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "R",
+    "readable": "setHotKeySettingError",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "me",
+    "readable": "isServerInputMode",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ye",
+    "readable": "isServerDeviceActive",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "be",
+    "readable": "isConversionRunning",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ve",
+    "readable": "isPassthroughActive",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "xe",
+    "readable": "startConversion",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Ce",
+    "readable": "stopConversion",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "_e",
+    "readable": "enablePassthrough",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Be",
+    "readable": "disablePassthrough",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Ve",
+    "readable": "adjustInputGain",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ke",
+    "readable": "adjustOutputGain",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Le",
+    "readable": "adjustMonitorGain",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Ae",
+    "readable": "checkDuplicationKey",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "Ne",
+    "readable": "updateShortcut",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "We",
+    "readable": "setShorcutEnabled",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "qe",
+    "readable": "loadShortcutSettings",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "ze",
+    "readable": "saveShortcutSettings",
+    "reason": "semantic map: useHotKeySetting"
+  },
+  {
+    "module": "hooks/useHotKeySetting.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "state/HotkeyProvider.js",
+    "original": "S",
+    "readable": "children",
+    "reason": "destructured property"
+  },
+  {
+    "module": "state/HotkeyProvider.js",
+    "original": "E",
+    "readable": "contextValue",
+    "reason": "semantic map: HotkeyProvider"
+  },
+  {
+    "module": "state/HotkeyProvider.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/mount.js",
+    "original": "jsxRuntimeExports",
+    "readable": "jsxRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/mount.js",
+    "original": "reactExports",
+    "readable": "ReactRuntime",
+    "reason": "public module name"
+  },
+  {
+    "module": "app/mount.js",
+    "original": "clientExports",
+    "readable": "ReactDOMClient",
+    "reason": "public module name"
+  }
+]

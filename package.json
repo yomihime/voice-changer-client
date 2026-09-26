@@ -6,7 +6,16 @@
   "scripts": {
     "build": "node build.cjs",
     "dev": "node build.cjs && node dev.cjs",
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs",
+    "test:browser": "node tests/browser-smoke.cjs"
   },
-  "engines": { "node": ">=24.20.0 <25" }
+  "engines": {
+    "node": ">=24.20.0 <25"
+  },
+  "devDependencies": {
+    "@babel/generator": "8.0.0",
+    "@babel/parser": "8.0.4",
+    "@babel/traverse": "8.0.4",
+    "playwright-core": "1.63.0"
+  }
 }

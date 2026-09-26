@@ -1,70 +1,77 @@
-# 新前端（2.1.4-alpha 基线）
+# Voice Changer Client
 
-后续前端开发从本目录开始。所有运行所需的界面源码、翻译与图标
-均在仓库中，不依赖本机 E:\AI 下的 EXE、安装包或逆向生成目录。
-这是可编辑的发布版 JavaScript 恢复基线，尚未恢复原始 TSX 工程，详见 [NOTICE](NOTICE.md)。
+独立开发的变声客户端前端，基于 w-okada Voice Changer **2.1.4-alpha 发布版恢复代码**。
+这里不是原作者的 TypeScript / TSX 源码；来源、修改和第三方许可证见 [NOTICE](NOTICE.md)。
 
-## 开发
+仓库：[yomihime/voice-changer-client](https://github.com/yomihime/voice-changer-client)。
+本仓库只包含前端、开发服务和构建工具，**不包含 Electron、Python 推理服务或模型**。
+将来采用哪一种桌面打包方式另行决定。
 
-需要仓库规定的 Node 24.20+（24.x），无需 npm install。
+## 独立开发
 
-```powershell
-npm --prefix client/frontend run dev -- --backend http://127.0.0.1:18000/
+需要 Node.js 24.20+（24.x）。在本仓库目录中执行：
+
+```sh
+npm ci
+npm run dev -- --backend http://127.0.0.1:18000/
 ```
 
-页面位于 http://127.0.0.1:21416/。修改后重新执行 build 并刷新页面。
-纯界面开发可省略 backend；界面会提示未连接。停止终端即释放预览服务。
+页面地址为 `http://127.0.0.1:21416/`。省略 `--backend` 可以离线查看界面，
+界面会显示未连接提示。修改源码后重新构建并刷新；目前没有热更新。
 
-| 文件 | 用途 |
+```sh
+npm run build
+npm test
+npm run test:browser
+```
+
+`dist/` 是本仓库自己的构建产物，不提交到 Git。开发服务只监听本机，
+通过同源 HTTP / WebSocket 代理连接指定后端，不负责启动或停止推理服务。
+浏览器测试需要已安装 Chrome，或通过 `CHROME_PATH` 指定 Chromium 程序。
+
+## 与服务端仓库的关系
+
+`voice-changer` 仓库的 `client/frontend` 是指向本仓库的 Git 子模块。
+源码、依赖安装、测试与构建都在本仓库内进行；服务端的构建流程不构建或打包这个新客户端。
+从服务端仓库开始时，先执行 `git submodule update --init client/frontend`，然后进入该目录开发。
+前端变更先在本仓库提交并推送，再由父仓库更新子模块指针。
+
+## 代码与恢复参考
+
+- `src/`：应用模块、平台适配及样式覆盖。模块职责与原声明映射见 [代码导航](CODE_INDEX.md)。
+- `public/`：翻译、图标、第三方许可证等静态资源。
+- `tools/`：恢复拆分工具及命名映射，供追溯过程；普通构建不会重新生成或覆盖 `src/`。
+- `reference/v2.1.4-alpha/`：拆分前恢复 bundle、CSS、ponyfill 与 SHA-256 校验清单。
+  该参考目录不参与构建，后续开发不要改写它。
+- `server.cjs`：本机静态文件服务及代理。
+- `assets.json`：构建输入清单，明确排除恢复参考、测试和个人文件。
+
+恢复出来的第三方运行库仍保留其内部压缩变量；应用页面与业务模块按真实依赖拆分、命名。
+这些代码不是原始源码。验证范围见 [VALIDATION](VALIDATION.md)。
+
+`src/` 的职责如下：
+
+| 目录 | 职责 |
 | --- | --- |
-| `src/main.js` | 本 fork 的启动入口 |
-| `recovered/app.js` | 可执行的恢复代码；保留具名组件、状态 hooks、REST 客户端，可按名称搜索 |
-| `recovered/app.css`、`src/overrides.css` | 原始样式与本 fork 样式 |
-| `src/desktop-adapter.js` | 平台命令适配，避免浏览器 / Electron 调用不存在的 Tauri API |
-| `src/connection-status.js` | 2.x API 连接提示 |
-| `public/` | 翻译、图标、许可证 |
-| `server.cjs` | 浏览器开发和 Electron 共用的静态服务及同源 HTTP/WebSocket 代理 |
-| `assets.json` | 浏览器构建与 Electron 打包共用的资源布局 |
-| `build.cjs` | 零依赖构建与 JS 语法检查；`dist/` 是忽略的生成物 |
+| `app/`、`pages/` | React 挂载、应用入口、变声主页与日志页 |
+| `features/` | 模型管理、角色展示、音频控制和设置窗口 |
+| `components/` | 共享弹窗与图标 |
+| `state/`、`hooks/` | Context、Provider、配置同步与客户端生命周期 |
+| `api/` | HTTP 协议与文件上传 |
+| `audio/` | 音频流、Worker、Worklet 与队列 |
+| `platform/` | 浏览器能力与原生协议桥接边界 |
+| `domain/`、`storage/`、`shared/`、`i18n/` | 常量、存储、通用工具与翻译初始化 |
+| `vendor/` | 从发布包保留的第三方运行库 |
 
-具名组件和客户端类的位置见 [代码导航](CODE_INDEX.md)。
-恢复 bundle、原始 CSS 与 ponyfill 位于 `recovered/`；手写适配、连接提示和覆盖样式位于 `src/`。
-今后应逐步把应用组件从恢复代码抽成独立模块；不要编辑逆向目录中的参考摘录，
-它们没有完整依赖，也不会进入构建。
+组件使用明确名称，业务状态采用 `is…` / `set…` 等含义清楚的局部变量。
+服务端 JSON 字段、命令名称与协议中的历史拼写保留原样；来源映射记录在 `tools/`。
+这次共提取 60 个业务模块和 1 个 vendor 模块，完成 792 处作用域内重命名；
+部分嵌套回调仍保留恢复名称，可在后续功能开发中逐步整理。
 
-## Electron 启动和打包
+## 当前接口边界
 
-复用 `client/desktop`。仓库根目录执行：
+需要兼容 2.1.4 的 `/api/...` 后端。旧版 `voice-changer` 的 `/info`、`/update_settings`
+接口尚未适配；新客户端不能直接替代旧前端操作该后端。
+浏览器模式尚未实现全局快捷键与原生浮窗，相关能力不会报告虚假的成功状态。
 
-```powershell
-.\build-frontend-windows.bat
-.\start-frontend-windows.bat --backend http://127.0.0.1:18000/
-```
-
-双击桌面 EXE 或无参数启动默认使用新前端，后端地址为 `127.0.0.1:18000`。
-前端服务由 Electron 管理，窗口退出后关闭；占用端口 21416 时会明确报错。
-后端需要单独启动，关闭前端不会结束外部推理服务。
-原有 `start-client-windows.bat` 仍通过 `--url` 打开旧后端自带界面。
-
-输出是 `.runtime/desktop/` 和 `dist/vcclient-desktop-win-x64.zip`。
-分发时保留完整目录，不能只复制 EXE；包含前端、固定版本 Electron 及许可证，
-不包含 Python 后端和模型。同名 ZIP 已存在时不会覆盖，可传
-`--output dist/自定义名字.zip`。打包只需 Python 标准库，首次需下载校验过的 Electron。
-此入口采用 Electron 官方支持的 [resources/app 目录打包方式](https://www.electronjs.org/docs/latest/tutorial/application-distribution)。
-
-```powershell
-node --test client/frontend/tests/*.test.cjs client/desktop/tests/*.test.cjs
-python -m unittest discover -s scripts/tests -p test_desktop.py
-python scripts/desktop.py verify
-```
-
-## 当前边界
-
-- 必须连接兼容 2.1.4 的 `/api/...` 后端；仓库目前 `/info`、`/update_settings`
-  后端尚未适配，不能仅替换页面就认为整套迁移完成。
-- 麦克风沿用 Electron 的授权与隔离策略；浏览器模式依赖浏览器自身权限。
-- 全局快捷键与 Tauri 浮窗尚未移植，设置默认关闭，不会伪装成注册成功。
-- 清除界面缓存会清除 Web Storage / Cache Storage 并重载界面，不会停止独立后端。
-- 日志在受控的同源 Electron 子窗口内打开，随主窗口关闭；日志窗口不获得麦克风权限。
-
-官方示例音频不是变声必需项，默认样例列表为空。个人模型、截图、推理输出与麦克风测试资料不纳入版本管理。
+个人模型、检索索引、录音、运行日志和构建包不属于源码仓库。官方示例音频不是必需项，默认样例列表为空。

@@ -1,0 +1,598 @@
+{
+  "FileUploaderClient.setBaseUrl": {
+    "C": "baseUrl"
+  },
+  "RestClient.setBaseUrl": {
+    "C": "baseUrl"
+  },
+  "VCRestClient.setBaseUrl": {
+    "C": "baseUrl"
+  },
+  "FileUploaderClient.setEnableFlatPath": {
+    "C": "enabled"
+  },
+  "FileUploaderClient.generatePath": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.setEnableFlatPath": {
+    "C": "enabled"
+  },
+  "VCRestClient.generatePath": {
+    "C": "endpointPath"
+  },
+  "FileUploaderClient.uploadFile": {
+    "C": "filenamePrefix",
+    "E": "file",
+    "w": "onProgress",
+    "R": "uploadUrl",
+    "_": "chunkSize",
+    "x": "chunkIndex",
+    "T": "fileSize",
+    "A": "uploadFilename",
+    "O": "chunkCount"
+  },
+  "FileUploaderClient.concatUploadedFile": {
+    "C": "filename",
+    "E": "chunkCount",
+    "w": "concatUrl"
+  },
+  "RestClient.execFetch": {
+    "C": "request",
+    "E": "responseType"
+  },
+  "RestClient.getRequest": {
+    "C": "endpointPath",
+    "E": "responseType",
+    "w": "requestUrl",
+    "R": "request",
+    "_": "result"
+  },
+  "VCRestClient.uploadFile": {
+    "C": "filenamePrefix",
+    "E": "file",
+    "w": "onProgress",
+    "R": "chunkCount"
+  },
+  "VCRestClient.uploadRVCModelFile": {
+    "C": "slotIndex",
+    "E": "modelFile",
+    "w": "indexFile",
+    "R": "embedder",
+    "_": "onProgress",
+    "x": "fileCount",
+    "T": "endpointPath",
+    "A": "requestBody"
+  },
+  "VCRestClient.uploadBeatriceV2ModelFile": {
+    "C": "slotIndex",
+    "E": "zipFile",
+    "w": "onProgress",
+    "R": "endpointPath",
+    "_": "requestBody"
+  },
+  "VCRestClient.uploadIconFile": {
+    "C": "slotIndex",
+    "E": "iconFile",
+    "w": "onProgress",
+    "R": "endpointPath",
+    "_": "requestBody"
+  },
+  "VCRestClient.downloadSample": {
+    "C": "slotIndex",
+    "E": "sampleId",
+    "w": "endpointPath",
+    "R": "requestBody"
+  },
+  "VCRestClient.uploadBeatriceV2VoiceIconFile": {
+    "C": "slotIndex",
+    "E": "voiceIndex",
+    "w": "iconFile",
+    "R": "onProgress",
+    "_": "endpointPath",
+    "x": "requestBody"
+  },
+  "VCRestClient.updateBeatriceV2VoiceName": {
+    "C": "slotIndex",
+    "E": "voiceIndex",
+    "w": "voiceName",
+    "R": "endpointPath",
+    "_": "requestBody"
+  },
+  "VCRestClient.updateBeatriceV2VoiceDescription": {
+    "C": "slotIndex",
+    "E": "voiceIndex",
+    "w": "voiceDescription",
+    "R": "endpointPath",
+    "_": "requestBody"
+  },
+  "VCRestClient.setLocalVoiceChangerDummyInput": {
+    "C": "audioUrl",
+    "E": "endpointPath",
+    "w": "requestBody"
+  },
+  "RestClient.postRequest": {
+    "C": "endpointPath",
+    "E": "body",
+    "w": "responseType",
+    "R": "requestUrl",
+    "_": "request",
+    "x": "result"
+  },
+  "RestClient.putRequest": {
+    "C": "endpointPath",
+    "E": "body",
+    "w": "responseType",
+    "R": "requestUrl",
+    "_": "request",
+    "x": "result"
+  },
+  "RestClient.deleteRequest": {
+    "C": "endpointPath",
+    "E": "body",
+    "w": "responseType",
+    "R": "requestUrl",
+    "_": "request",
+    "x": "result"
+  },
+  "VCRestClient.getServerAudioInputDevices": {
+    "C": "reload",
+    "E": "endpointPath"
+  },
+  "VCRestClient.getServerAudioOutputDevices": {
+    "C": "reload",
+    "E": "endpointPath"
+  },
+  "VCRestClient.getServerModuleStatus": {
+    "C": "reload",
+    "E": "endpointPath"
+  },
+  "VCRestClient.initializeServer": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.getServerConfiguration": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.getServerGPUInfo": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.downloadApplioModules": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.getSamples": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.getServerSlotInfos": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.refreshQueue": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.startServerDevice": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.stopServerDevice": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.truncateOutputBuffer": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.getVoiceChangerManagerInfo": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.getLocalVoiceChangerInterfaceInfo": {
+    "C": "endpointPath"
+  },
+  "VCRestClient.updateServerConfiguration": {
+    "C": "configuration",
+    "E": "endpointPath"
+  },
+  "VCRestClient.getServerSlotInfo": {
+    "C": "slotIndex",
+    "E": "endpointPath"
+  },
+  "VCRestClient.updateServerSlotInfo": {
+    "C": "slotInfo",
+    "E": "endpointPath"
+  },
+  "VCRestClient.deleteServerSlotInfo": {
+    "C": "slotIndex",
+    "E": "endpointPath"
+  },
+  "VCRestClient.mergeModels": {
+    "C": "requestBody",
+    "E": "endpointPath"
+  },
+  "VCRestClient.exportToOnnx": {
+    "C": "requestBody",
+    "E": "endpointPath"
+  },
+  "VCRestClient.export": {
+    "C": "requestBody",
+    "E": "endpointPath"
+  },
+  "VCRestClient.moveMergedModel": {
+    "C": "requestBody",
+    "E": "endpointPath"
+  },
+  "VCRestClient.moveExportedOnnxModel": {
+    "C": "requestBody",
+    "E": "endpointPath"
+  },
+  "VCRestClient.moveModel": {
+    "C": "requestBody",
+    "E": "endpointPath"
+  },
+  "VCRestClient.getTask": {
+    "C": "taskId",
+    "E": "endpointPath"
+  },
+  "VCRestClient.deleteTask": {
+    "C": "taskId",
+    "E": "endpointPath"
+  },
+  "App": {
+    "E": "theme",
+    "w": "page"
+  },
+  "Demo": {},
+  "AdvancedArea": {
+    "C": "isAdvancedSettingsOpen",
+    "E": "setAdvancedSettingsOpen",
+    "w": "isShortcutSettingsOpen",
+    "R": "setShortcutSettingsOpen",
+    "_": "isClearDataConfirmationOpen",
+    "x": "setClearDataConfirmationOpen",
+    "T": "openLogViewer",
+    "A": "openAdvancedSettings",
+    "O": "openShortcutSettings",
+    "H": "openClearDataConfirmation",
+    "ee": "clearSiteDataAndStopApp",
+    "te": "openExternalUrl"
+  },
+  "ModelUploadDialog": {
+    "S": "props",
+    "w": "theme",
+    "R": "voiceChangerType",
+    "_": "setVoiceChangerType",
+    "x": "modelFile",
+    "T": "setModelFile",
+    "A": "indexFile",
+    "O": "setIndexFile",
+    "H": "beatriceZipFile",
+    "ee": "setBeatriceZipFile",
+    "te": "modelFileInputRef",
+    "ie": "indexFileInputRef",
+    "ne": "zipFileInputRef",
+    "ae": "appRoot",
+    "se": "isUploading",
+    "ce": "setUploading",
+    "fe": "uploadProgress",
+    "pe": "setUploadProgress",
+    "le": "isUploadCompleteDialogOpen",
+    "de": "setUploadCompleteDialogOpen",
+    "he": "uploadModel",
+    "me": "closeUploadCompleteDialog",
+    "ye": "uploadDialog"
+  },
+  "ModelList": {
+    "E": "theme",
+    "w": "movingSlotIndex",
+    "R": "setMovingSlotIndex",
+    "_": "visibleModelCount",
+    "x": "setVisibleModelCount",
+    "T": "isUploadDialogOpen",
+    "A": "setUploadDialogOpen",
+    "O": "uploadSlotIndex",
+    "H": "setUploadSlotIndex",
+    "ee": "isSampleDialogOpen",
+    "te": "setSampleDialogOpen",
+    "ie": "sampleSlotIndex",
+    "ne": "setSampleSlotIndex",
+    "ae": "sortedModels",
+    "se": "openUploadDialog",
+    "ce": "openSampleDialog",
+    "fe": "modelRows"
+  },
+  "ModelSelector": {
+    "S": "isModelEditorOpen",
+    "C": "setModelEditorOpen",
+    "E": "isUploadDialogOpen",
+    "w": "setUploadDialogOpen",
+    "R": "uploadSlotIndex",
+    "_": "setUploadSlotIndex",
+    "x": "currentPage",
+    "T": "setCurrentPage",
+    "A": "modelsPerPage",
+    "O": "setModelsPerPage",
+    "H": "modelCardWidth",
+    "ee": "modelCardGap",
+    "se": "theme",
+    "fe": "availableModels",
+    "pe": "visibleModels",
+    "le": "pageCount",
+    "de": "selectModel",
+    "he": "openUploadDialogForEmptySlot",
+    "me": "modelCards"
+  },
+  "MainControls": {
+    "A": "isSettingsDialogOpen",
+    "O": "setSettingsDialogOpen",
+    "ce": "isServerInputMode",
+    "fe": "isServerDeviceActive",
+    "pe": "isConversionRunning",
+    "le": "isConversionStopped",
+    "de": "isPassthroughActive",
+    "he": "isRecordingActive",
+    "me": "startConversion",
+    "ye": "stopConversion"
+  },
+  "InputControls": {
+    "H": "theme",
+    "ae": "isEchobackEnabled",
+    "se": "setEchobackEnabled",
+    "ce": "isLoopEnabled",
+    "fe": "setLoopEnabled",
+    "pe": "sampleVoices",
+    "le": "setSampleVoices",
+    "de": "selectedSampleVoice",
+    "he": "setSelectedSampleVoice",
+    "me": "audioFile",
+    "ye": "setAudioFile",
+    "be": "mediaElementSourceRef",
+    "ve": "isServerInputMode",
+    "xe": "selectedServerInputDevice",
+    "Ce": "selectedBrowserInputDevice",
+    "_e": "sendSampleToServer",
+    "Be": "microphoneDeviceLabel",
+    "Ve": "loopToggleButton",
+    "ke": "echobackToggleButton",
+    "Le": "fileInputControls"
+  },
+  "VolumeControls": {
+    "O": "isServerInputMode",
+    "H": "isExpanded",
+    "ee": "setExpanded",
+    "te": "inputGain",
+    "ie": "outputGain",
+    "ne": "monitorGain",
+    "ae": "updateInputGain",
+    "se": "updateOutputGain",
+    "ce": "updateMonitorGain"
+  },
+  "VoiceControls": {
+    "_": "isExpanded",
+    "x": "setExpanded",
+    "A": "isEmbedderConfirmationOpen",
+    "O": "setEmbedderConfirmationOpen",
+    "H": "pendingEmbedderChange",
+    "ee": "setPendingEmbedderChange",
+    "te": "pitchEstimatorControl",
+    "ie": "embedderControl",
+    "ne": "pitchControl",
+    "ae": "indexRatioControl",
+    "se": "formantControl",
+    "ce": "chunkDurationControl"
+  },
+  "PerformanceArea": {
+    "O": "inputLevelCanvasRef",
+    "H": "inputLevelLabelRef",
+    "ee": "outputLevelCanvasRef",
+    "te": "outputLevelLabelRef",
+    "ie": "bufferChartCanvasRef",
+    "ne": "inputBufferLabelRef",
+    "ae": "outputBufferLabelRef",
+    "se": "realtimeFactorCanvasRef",
+    "ce": "realtimeFactorLabelRef",
+    "fe": "inputBufferHistoryRef",
+    "pe": "outputBufferHistoryRef",
+    "le": "formatLevel",
+    "de": "drawLevelMeter",
+    "he": "drawBufferChart",
+    "me": "drawRealtimeFactor"
+  },
+  "LogViewer": {
+    "E": "isAutoRefreshEnabled",
+    "w": "setAutoRefreshEnabledState",
+    "R": "autoRefreshEnabledRef",
+    "_": "setAutoRefreshEnabled",
+    "x": "logText",
+    "T": "setLogText",
+    "A": "visibleLineLimit",
+    "O": "setVisibleLineLimit",
+    "H": "logEndRef",
+    "ee": "lineCount",
+    "te": "logRows"
+  },
+  "AppRootProvider": {
+    "E": "triggerToast",
+    "w": "isUnhandledRejectionToastEnabled",
+    "R": "setUnhandledRejectionToastEnabled",
+    "_": "audioConfig",
+    "x": "guiConfig",
+    "T": "serverConfigOptions",
+    "A": "serverConfig",
+    "O": "appMode",
+    "H": "setAppMode",
+    "ee": "currentSlotInfo",
+    "te": "setCurrentSlotInfo",
+    "ie": "origin",
+    "ne": "handleUnhandledRejection",
+    "ae": "contextValue"
+  },
+  "AppStateProvider": {
+    "w": "globalSettings",
+    "R": "voiceChangerClientState",
+    "_": "contextValue"
+  },
+  "HotkeyProvider": {
+    "E": "contextValue"
+  },
+  "useAudioConfig": {
+    "S": "options",
+    "E": "audioContext",
+    "w": "setAudioContext",
+    "R": "audioInputs",
+    "_": "setAudioInputs",
+    "x": "audioOutputs",
+    "T": "setAudioOutputs",
+    "A": "audioContextCreationStartedRef",
+    "O": "reloadDeviceInfo"
+  },
+  "useAppGuiSetting": {
+    "C": "guiSettingLoaded",
+    "E": "setGuiSettingLoaded",
+    "w": "guiSetting",
+    "R": "setGuiSetting",
+    "_": "version",
+    "x": "setVersion",
+    "T": "edition",
+    "A": "setEdition"
+  },
+  "useVoiceChangerClient": {
+    "S": "options",
+    "E": "triggerToast",
+    "_": "voiceChangerClient",
+    "x": "isClientInitialized",
+    "T": "setClientInitialized",
+    "A": "outputBufferSizeHistory",
+    "O": "setOutputBufferSizeHistory",
+    "H": "outputBufferSizeMonitoringEnabled",
+    "ee": "setOutputBufferMonitoringEnabledState",
+    "te": "outputBufferSizeCallbackRef",
+    "ie": "getLatestOutputBufferSize",
+    "ne": "clearOutputBufferSizeHistory",
+    "ae": "setOutputBufferSizeMonitoringEnabled",
+    "se": "getPendingRequestCount",
+    "ce": "abortAllRequests",
+    "fe": "setOutputBufferSizeCallback",
+    "pe": "resetOutputBuffer",
+    "le": "setVoiceChangerStatusListener"
+  },
+  "useGlobalSetting": {
+    "S": "settingsLoaded",
+    "C": "setSettingsLoaded",
+    "E": "displayColorMode",
+    "w": "setDisplayColorMode",
+    "R": "selectedInputAudioDeviceId",
+    "_": "setSelectedInputAudioDeviceId",
+    "x": "inputAudio",
+    "T": "setInputAudio",
+    "A": "outputAudio",
+    "O": "setOutputAudio",
+    "H": "monitorAudio",
+    "ee": "setMonitorAudio",
+    "te": "outputAudioElementId",
+    "ie": "setOutputAudioElementId",
+    "ne": "monitorAudioElementId",
+    "ae": "setMonitorAudioElementId",
+    "se": "inputAudioType",
+    "ce": "setInputAudioType",
+    "fe": "nodeInputGain",
+    "pe": "setNodeInputGain",
+    "le": "nodeOutputGain",
+    "de": "setNodeOutputGain",
+    "he": "nodeMonitorGain",
+    "me": "setNodeMonitorGain",
+    "ye": "selectedLanguage",
+    "be": "setSelectedLanguage",
+    "ve": "isOutputRecording",
+    "xe": "setIsOutputRecording",
+    "Ce": "outputRecord",
+    "_e": "setOutputRecord",
+    "Be": "isStarted",
+    "Ve": "setIsStarted",
+    "ke": "isPassthrough",
+    "Le": "setIsPassthrough",
+    "qe": "enableEchoCancellation",
+    "ze": "setEnableEchoCancellation",
+    "Ae": "enableNoiseSuppression",
+    "Ne": "setEnableNoiseSuppression",
+    "We": "enableNoiseSuppression2",
+    "Ie": "setEnableNoiseSuppression2",
+    "$e": "realtimeOutputStatusEnabled",
+    "Me": "setRealtimeOutputStatusEnabled",
+    "Ge": "realtimeOutputStatusSendIntervalSec",
+    "er": "setRealtimeOutputStatusSendIntervalSec",
+    "Ht": "protocol",
+    "rr": "setProtocol",
+    "Jt": "recordForAnalysis",
+    "Kt": "setRecordForAnalysis",
+    "dr": "showSampleAudioButton",
+    "or": "setShowSampleAudioButton"
+  },
+  "useServerConfig": {
+    "S": "options",
+    "E": "restClient",
+    "w": "serverConfiguration",
+    "R": "setServerConfiguration",
+    "_": "serverAudioInputDevices",
+    "x": "setServerAudioInputDevices",
+    "T": "serverAudioOutputDevices",
+    "A": "setServerAudioOutputDevices",
+    "O": "serverGpuInfo",
+    "H": "setServerGpuInfo",
+    "ee": "serverModuleStatus",
+    "te": "setServerModuleStatus",
+    "ie": "serverSlotInfos",
+    "ne": "setServerSlotInfos",
+    "ae": "samples",
+    "se": "setSamples",
+    "ce": "localVoiceChangerInterfaceInfo",
+    "fe": "setLocalVoiceChangerInterfaceInfo",
+    "pe": "reloadServerConfiguration",
+    "le": "reloadServerAudioInputDevices",
+    "de": "reloadServerAudioOutputDevices",
+    "he": "reloadServerGpuInfo",
+    "me": "reloadServerModuleStatus",
+    "ye": "reloadSamples",
+    "be": "reloadServerSlotInfos",
+    "ve": "reloadLocalVoiceChangerInterfaceInfo",
+    "xe": "withHttpErrorToast",
+    "_e": "updateServerConfiguration",
+    "Be": "downloadApplioModules",
+    "Ve": "downloadSample",
+    "ke": "uploadModelFile",
+    "Le": "updateServerSlotInfo",
+    "qe": "deleteServerSlotInfo",
+    "ze": "uploadIconFile",
+    "Ae": "uploadBeatriceV2VoiceIconFile",
+    "Ne": "updateBeatriceV2VoiceName",
+    "We": "updateBeatriceV2VoiceDescription",
+    "Ie": "getTask",
+    "$e": "deleteTask",
+    "Me": "initializeServer",
+    "Ge": "mergeModels",
+    "er": "exportToOnnx",
+    "Ht": "exportModel",
+    "rr": "moveMergedModel",
+    "Jt": "moveExportedOnnxModel",
+    "Kt": "moveModel",
+    "dr": "startServerDevice",
+    "or": "stopServerDevice",
+    "ar": "setLocalVoiceChangerDummyInput",
+    "ur": "truncateOutputBuffer",
+    "pr": "refreshVoiceChangerIOQueue"
+  },
+  "useHotKeySetting": {
+    "C": "config",
+    "E": "setConfig",
+    "w": "hotKeySettingError",
+    "R": "setHotKeySettingError",
+    "me": "isServerInputMode",
+    "ye": "isServerDeviceActive",
+    "be": "isConversionRunning",
+    "ve": "isPassthroughActive",
+    "xe": "startConversion",
+    "Ce": "stopConversion",
+    "_e": "enablePassthrough",
+    "Be": "disablePassthrough",
+    "Ve": "adjustInputGain",
+    "ke": "adjustOutputGain",
+    "Le": "adjustMonitorGain",
+    "Ae": "checkDuplicationKey",
+    "Ne": "updateShortcut",
+    "We": "setShorcutEnabled",
+    "qe": "loadShortcutSettings",
+    "ze": "saveShortcutSettings"
+  }
+}
