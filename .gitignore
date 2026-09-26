@@ -1,0 +1,16 @@
+/dist/
+/.runtime/
+/build/
+/node_modules/
+__pycache__/
+*.pyc
+*.pth
+*.index
+*.pt
+*.ckpt
+*.safetensors
+*.onnx
+*.wav
+*.zip
+*.exe
+/public/assets/voices/JVNV/partial/
