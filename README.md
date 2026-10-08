@@ -4,8 +4,8 @@
 这里不是原作者的 TypeScript / TSX 源码；来源、修改和第三方许可证见 [NOTICE](NOTICE.md)。
 
 仓库：[yomihime/voice-changer-client](https://github.com/yomihime/voice-changer-client)。
-本仓库只包含前端、开发服务和构建工具，**不包含 Electron、Python 推理服务或模型**。
-将来采用哪一种桌面打包方式另行决定。
+本仓库包含前端、开发服务和试验性的 Tauri 2 桌面入口，**不包含 Electron、Python 推理服务或模型**。
+Windows 打包和已验证范围见 [Tauri 试用说明](TAURI.md)。
 
 ## 独立开发
 
@@ -73,5 +73,6 @@ npm run test:browser
 需要兼容 2.1.4 的 `/api/...` 后端。旧版 `voice-changer` 的 `/info`、`/update_settings`
 接口尚未适配；新客户端不能直接替代旧前端操作该后端。
 浏览器模式尚未实现全局快捷键与原生浮窗，相关能力不会报告虚假的成功状态。
+Tauri 试用版提供原生快捷键注册和日志窗口，快捷键状态提示采用应用内通知。
 
 个人模型、检索索引、录音、运行日志和构建包不属于源码仓库。官方示例音频不是必需项，默认样例列表为空。

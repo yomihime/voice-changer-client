@@ -1,0 +1,28 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Voice Changer Client",
+  "version": "2.1.4-alpha.2",
+  "identifier": "io.github.yomihime.voicechanger.client",
+  "build": {
+    "beforeDevCommand": "npm run build",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "bootstrap"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": { "csp": null, "capabilities": ["client", "native-commands"] }
+  },
+  "bundle": {
+    "active": true,
+    "useLocalToolsDir": true,
+    "targets": ["nsis"],
+    "icon": ["../public/favicon.ico"],
+    "publisher": "yomihime",
+    "shortDescription": "Voice Changer Client (Tauri preview)",
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": { "installMode": "currentUser", "languages": ["SimpChinese", "English"] }
+    }
+  }
+}

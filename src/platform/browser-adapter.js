@@ -1,6 +1,6 @@
 // Keep platform integration outside the recovered React application.
 export async function invokePlatform(command, args = {}, options) {
-  if (window.__TAURI_INTERNALS__) return window.__TAURI_INTERNALS__.invoke(command, args, options);
+  if (window.__TAURI__?.core?.invoke) return window.__TAURI__.core.invoke(command, args, options);
   switch (command) {
     case 'get_shortcut_settings':
       return { enabled: false, shortcuts: [] };
@@ -11,6 +11,12 @@ export async function invokePlatform(command, args = {}, options) {
       const url = new URL(args.url);
       if (url.protocol !== 'https:') throw new Error('Only HTTPS links are supported');
       window.open(url.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    case 'open_log_window': {
+      const url = new URL(window.location.href);
+      url.searchParams.set('app_mode', 'LogViewer');
+      window.open(url.href, '_blank');
       return;
     }
     case 'set_clear_site_data_and_stop_app':
@@ -25,7 +31,9 @@ export async function invokePlatform(command, args = {}, options) {
   }
 }
 
-export async function listenPlatformEvent(event, callback) {
+export async function listenPlatformEvent(event, callback, options) {
+  if (window.__TAURI__?.event?.listen) return window.__TAURI__.event.listen(event, callback, options);
+  if (window.__TAURI__?.core?.invoke) throw new Error('Tauri event API is unavailable. Enable app.withGlobalTauri.');
   if (event !== 'shortcut-action') throw new Error(`Unsupported platform event: ${event}`);
   // Browser sessions do not register native global shortcuts.
   return () => {};

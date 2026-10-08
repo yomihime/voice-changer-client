@@ -1,5 +1,5 @@
 'use strict';
-// Shared by Node development and Electron. Never owns the inference process.
+// Browser development server. The Tauri build embeds its own Rust proxy.
 const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');

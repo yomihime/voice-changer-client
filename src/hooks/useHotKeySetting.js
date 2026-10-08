@@ -86,7 +86,7 @@ const useHotKeySetting = () => {
         const Ie = await invoke("get_shortcut_settings");
         console.log(t("common.shortcut_settings.config_load_success"), Ie);
         setConfig(Ie);
-        setHotKeySettingError(null);
+        setHotKeySettingError(Ie.warning || null);
       } catch (Ie) {
         setHotKeySettingError(`${t("common.shortcut_settings.config_load_failed")} ${Ie}`);
         console.error(t("common.shortcut_settings.settings_load_error"), Ie);

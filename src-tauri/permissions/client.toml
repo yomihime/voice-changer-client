@@ -1,0 +1,8 @@
+[[permission]]
+identifier = "allow-client-commands"
+description = "Client settings, log window, safe external links and application lifecycle."
+commands.allow = [
+  "get_shortcut_settings", "update_shortcut_settings", "register_shortcuts",
+  "open_browser_url", "open_log_window", "show_notification_window_with_message",
+  "set_clear_site_data_and_stop_app"
+]

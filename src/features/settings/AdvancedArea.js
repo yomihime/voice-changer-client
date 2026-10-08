@@ -11,10 +11,12 @@ const AdvancedArea = () => {
     [isAdvancedSettingsOpen, setAdvancedSettingsOpen] = ReactRuntime.useState(false),
     [isShortcutSettingsOpen, setShortcutSettingsOpen] = ReactRuntime.useState(false),
     [isClearDataConfirmationOpen, setClearDataConfirmationOpen] = ReactRuntime.useState(false),
-    openLogViewer = () => {
-      const ie = new URL(window.location.href);
-      ie.searchParams.set("app_mode", "LogViewer");
-      window.open(ie.toString(), "_blank");
+    openLogViewer = async () => {
+      try {
+        await invoke("open_log_window");
+      } catch (error) {
+        console.error("Failed to open log viewer:", error);
+      }
     },
     openAdvancedSettings = () => {
       setAdvancedSettingsOpen(true);

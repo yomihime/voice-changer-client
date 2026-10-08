@@ -7,7 +7,11 @@
     "build": "node build.cjs",
     "dev": "node build.cjs && node dev.cjs",
     "test": "node --test tests/*.test.cjs",
-    "test:browser": "node tests/browser-smoke.cjs"
+    "test:browser": "node tests/browser-smoke.cjs",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build --bundles nsis",
+    "test:desktop": "node tests/tauri-smoke.cjs"
   },
   "engines": {
     "node": ">=24.20.0 <25"
@@ -16,6 +20,8 @@
     "@babel/generator": "8.0.0",
     "@babel/parser": "8.0.4",
     "@babel/traverse": "8.0.4",
-    "playwright-core": "1.63.0"
+    "@tauri-apps/cli": "2.12.0",
+    "playwright-core": "1.63.0",
+    "ws": "8.22.0"
   }
 }

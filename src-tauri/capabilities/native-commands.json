@@ -1,0 +1,8 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "native-commands",
+  "description": "Only the main embedded UI can invoke native client operations; commands also verify the exact runtime origin.",
+  "windows": ["main"],
+  "remote": { "urls": ["http://127.0.0.1:*"] },
+  "permissions": ["allow-client-commands"]
+}

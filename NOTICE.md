@@ -13,7 +13,8 @@
 并保留来源映射与重命名清单。第三方运行库集中在 `src/vendor/recovered-runtime.js`。
 `recovered/app.js` 仅作兼容入口；`recovered/app.css` 与 ponyfill 仍用于运行。
 ponyfill 的主模块引用已指向 vendor，浏览器平台适配在 `src/platform/`，
-连接提示和样式覆盖也由本仓库维护。未迁移 Electron 或其他桌面打包壳。
+连接提示和样式覆盖也由本仓库维护。未迁移旧桌面壳；`src-tauri/` 是本仓库新增的
+Tauri 2 试验性桌面入口，其依赖版本记录于 Cargo.lock。
 
 保留上游版权注释、根目录 LICENSE、`public/licenses-js.json`、
 `public/licenses-py.json` 及 `public/assets/licenses/`；这些清单是发布包的来源记录，

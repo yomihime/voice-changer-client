@@ -1,6 +1,5 @@
 // Extracted from the preserved 2.1.4-alpha baseline; editable application source.
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation, Switch, Tooltip } from "../vendor/recovered-runtime.js";
-import { useAppRoot } from "../state/app-root-context.js";
 import { log$1 as logMessage } from "../shared/logger.js";
 const codeFilename$6 = import.meta.url.split("/").pop();
 const logPrefix$6 = `[${codeFilename$6}]`;
@@ -8,9 +7,6 @@ const LogViewer = () => {
   const {
       t
     } = useTranslation(),
-    {
-      setUnhandledRejectionToastEnabled
-    } = useAppRoot(),
     [isAutoRefreshEnabled, setAutoRefreshEnabledState] = ReactRuntime.useState(true),
     autoRefreshEnabledRef = ReactRuntime.useRef(isAutoRefreshEnabled),
     setAutoRefreshEnabled = ie => {
@@ -23,9 +19,6 @@ const LogViewer = () => {
     lineCount = ReactRuntime.useMemo(() => logText ? logText.split(`
 `).filter(ie => ie).length : 0, [logText]);
   ReactRuntime.useEffect(() => {
-    setUnhandledRejectionToastEnabled(false);
-  }, [setUnhandledRejectionToastEnabled]);
-  ReactRuntime.useEffect(() => {
     const ie = ne => {
       ne.ctrlKey && ne.key === "r" && (ne.preventDefault(), setAutoRefreshEnabled(!autoRefreshEnabledRef.current));
     };
@@ -34,12 +27,25 @@ const LogViewer = () => {
     };
   }, []);
   ReactRuntime.useEffect(() => {
-    let ie;
-    const ne = () => {
-      autoRefreshEnabledRef.current ? fetch("/vcclient.log").then(ae => ae.text()).then(ae => setLogText(ae)) : logMessage("info", logPrefix$6, "skip fetch");
-      ie = window.setTimeout(ne, 1e3);
+    const controller = new AbortController();
+    let timer;
+    const refreshLogs = async () => {
+      if (autoRefreshEnabledRef.current) {
+        try {
+          const response = await fetch("/vcclient.log", { signal: controller.signal });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          setLogText(await response.text());
+        } catch (error) {
+          if (!controller.signal.aborted) setLogText(`Unable to load logs: ${error.message}`);
+        }
+      }
+      if (!controller.signal.aborted) timer = window.setTimeout(refreshLogs, 1e3);
     };
-    return ne(), () => window.clearTimeout(ie);
+    refreshLogs();
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
   }, []);
   const logRows = ReactRuntime.useMemo(() => {
     const ne = logText.split(`

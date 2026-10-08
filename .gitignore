@@ -2,6 +2,8 @@
 /.runtime/
 /build/
 /node_modules/
+/src-tauri/target/
+/src-tauri/gen/
 __pycache__/
 *.pyc
 *.pth
