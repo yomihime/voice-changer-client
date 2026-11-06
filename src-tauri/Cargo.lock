@@ -4237,7 +4237,10 @@ checksum = "d25a406cddcc431a75d3d9afc6a7c0f7428d4891dd973e4d54c56b46127bf857"
 dependencies = [
  "futures-util",
  "log",
+ "rustls",
+ "rustls-pki-types",
  "tokio",
+ "tokio-rustls",
  "tungstenite 0.28.0",
 ]
 
@@ -4480,6 +4483,8 @@ dependencies = [
  "httparse",
  "log",
  "rand 0.9.5",
+ "rustls",
+ "rustls-pki-types",
  "sha1",
  "thiserror 2.0.21",
  "utf-8",
@@ -4619,6 +4624,7 @@ dependencies = [
  "mime_guess",
  "percent-encoding",
  "reqwest 0.12.28",
+ "rustls",
  "serde",
  "serde_json",
  "tauri",
@@ -4628,6 +4634,9 @@ dependencies = [
  "tokio",
  "tokio-tungstenite 0.28.0",
  "url",
+ "webpki-roots",
+ "webview2-com",
+ "windows 0.62.2",
 ]
 
 [[package]]

@@ -1,5 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod commands;
+mod connection;
+mod migration;
 mod profile;
 mod server;
 
@@ -10,6 +12,7 @@ use tauri::{Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 #[derive(Debug)]
 struct Options {
     backend: Option<String>,
+    offline: bool,
     port: u16,
     profile_dir: Option<PathBuf>,
     hidden: bool,
@@ -19,7 +22,8 @@ struct Options {
 impl Options {
     fn parse(args: impl IntoIterator<Item = String>) -> Result<Self, String> {
         let mut result = Self {
-            backend: Some("http://127.0.0.1:18000/".into()),
+            backend: None,
+            offline: false,
             port: 21416,
             profile_dir: None,
             hidden: false,
@@ -32,7 +36,7 @@ impl Options {
                 return Err(format!("Duplicate option: {arg}"));
             }
             match arg.as_str() {
-                "--offline" => result.backend = None,
+                "--offline" => result.offline = true,
                 "--hidden" => result.hidden = true,
                 "--deny-media" => result.deny_media = true,
                 "--backend" => result.backend = Some(args.next().ok_or("Missing --backend URL")?),
@@ -171,6 +175,8 @@ async fn set_clear_site_data_and_stop_app(
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let options = Options::parse(std::env::args().skip(1))?;
+    let connection_state =
+        connection::ConnectionState::new(options.backend.clone(), options.offline)?;
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
@@ -181,7 +187,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             commands::update_shortcut_settings,
             commands::register_shortcuts,
             commands::open_browser_url,
-            commands::show_notification_window_with_message
+            commands::show_notification_window_with_message,
+            connection::get_connection_profile,
+            connection::configure_backend,
+            connection::load_global_settings,
+            connection::save_global_settings
         ])
         .setup(move |app| {
             let profile_dir = options
@@ -192,7 +202,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             profile::apply_pending_reset(&profile_dir).map_err(std::io::Error::other)?;
             let server = tauri::async_runtime::block_on(server::start(
                 options.port,
-                options.backend.clone(),
+                if options.offline {
+                    None
+                } else {
+                    Some("http://localhost:18888/".into())
+                },
             ))
             .map_err(|e| std::io::Error::other(e.to_string()))?;
             app.manage(RuntimeState {
@@ -202,6 +216,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 deny_media: options.deny_media,
                 server: Mutex::new(Some(server)),
             });
+            connection_state.initialize(&app.state::<RuntimeState>().profile_dir);
+            app.manage(connection_state);
             commands::initialize(app.handle()).map_err(std::io::Error::other)?;
             open_window(app.handle(), "main")?;
             Ok(())
@@ -266,6 +282,17 @@ mod tests {
         assert!(
             Options::parse(["--hidden", "--deny-media", "--offline"].map(str::to_string)).is_ok()
         );
+    }
+    #[test]
+    fn cli_keeps_default_discovery_separate_from_address_prefill() {
+        let options = Options::parse(Vec::new()).unwrap();
+        assert!(!options.offline);
+        assert!(options.backend.is_none());
+        assert_eq!(options.port, 21416);
+        let options =
+            Options::parse(["--backend", "https://server.local/vcc"].map(str::to_string)).unwrap();
+        assert!(!options.offline);
+        assert_eq!(options.backend.as_deref(), Some("https://server.local/vcc"));
     }
     #[test]
     fn window_navigation_keeps_the_embedded_origin_and_document() {

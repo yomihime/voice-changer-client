@@ -2,6 +2,8 @@
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation, useTheme, Tooltip, IconButton, Box, Pagination, Stack } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { MAX_SLOT_INDEX } from "../../domain/constants.js";
+import { backendClient } from "../../api/BackendClient.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { ModelUploadDialog } from "./ModelUploadDialog.js";
 import { ModelEditDialog } from "./ModelEditDialog.js";
 const ModelSelector = () => {
@@ -22,6 +24,8 @@ const ModelSelector = () => {
     {
       t
     } = useTranslation(),
+    uploadCapability = capabilityProps('uploadRVCModelFile'),
+    slotCapacity = backendClient.state.protocol === 'legacy-vcc' ? serverSlotInfos.filter(slot => Number.isInteger(slot.slot_index)).length : MAX_SLOT_INDEX,
     availableModels = ReactRuntime.useMemo(() => serverSlotInfos.filter(be => be.voice_changer_type !== null) || [], [serverSlotInfos]);
   ReactRuntime.useEffect(() => {
     const be = () => {
@@ -53,10 +57,17 @@ const ModelSelector = () => {
     pageCount = ReactRuntime.useMemo(() => Math.max(1, Math.ceil(availableModels.length / modelsPerPage)), [availableModels.length, modelsPerPage]),
     selectModel = ReactRuntime.useCallback(be => {
       console.log("slotId", be);
-      serverConfiguration.current_slot_index = be;
-      updateServerConfiguration(serverConfiguration);
+      updateServerConfiguration({ ...serverConfiguration, current_slot_index: be });
     }, [serverConfiguration, updateServerConfiguration]),
     openUploadDialogForEmptySlot = ReactRuntime.useCallback(() => {
+      if (backendClient.state.protocol === 'legacy-vcc') {
+        const slot = serverSlotInfos.find(value => value.registration_available === true);
+        if (slot) {
+          setUploadSlotIndex(slot.slot_index);
+          setUploadDialogOpen(true);
+        } else alert('登録可能な空スロットがありません。保存済みファイルは保持しています。');
+        return;
+      }
       const be = serverSlotInfos.filter(xe => xe.voice_changer_type !== null).map(xe => xe.slot_index);
       let ve = null;
       for (let xe = 0; xe < MAX_SLOT_INDEX; xe++) if (!be.includes(xe)) {
@@ -69,6 +80,7 @@ const ModelSelector = () => {
       const ve = be.icon_file ? "model_dir/" + be.slot_index + "/" + be.icon_file.split(/[/\\]/).pop() : "./assets/icons/human.png",
         xe = `${be.slot_index + 1}.${be.name}`;
       return jsxRuntime.jsxs("div", {
+        'data-model-slot': be.slot_index,
         onClick: () => selectModel(be.slot_index),
         style: {
           position: "relative",
@@ -172,7 +184,7 @@ const ModelSelector = () => {
             fontSize: "14px",
             color: theme.palette.text.secondary
           },
-          children: [availableModels.length, " / ", MAX_SLOT_INDEX, " ", t("common.model.slots_in_use")]
+          children: [availableModels.length, " / ", slotCapacity, " ", t("common.model.slots_in_use")]
         })]
       }), jsxRuntime.jsxs("div", {
         style: {
@@ -243,6 +255,8 @@ const ModelSelector = () => {
               title: t("common.model.upload.tooltip"),
               children: jsxRuntime.jsx(IconButton, {
                 onClick: openUploadDialogForEmptySlot,
+                'data-testid': 'upload-empty-slot',
+                ...uploadCapability,
                 color: "default",
                 size: "large",
                 sx: {
@@ -345,6 +359,6 @@ const ModelSelector = () => {
       onClose: () => setUploadDialogOpen(false),
       slotIndex: uploadSlotIndex
     })]
-  }), [modelCards, isModelEditorOpen, setModelEditorOpen, isUploadDialogOpen, uploadSlotIndex, availableModels.length, t, theme.palette.background.default, theme.palette.background.paper, theme.palette.divider, theme.palette.mode, theme.palette.text.primary, theme.palette.text.secondary, openUploadDialogForEmptySlot, currentPage, pageCount, setCurrentPage]);
+  }), [modelCards, isModelEditorOpen, setModelEditorOpen, isUploadDialogOpen, uploadSlotIndex, availableModels.length, t, theme.palette.background.default, theme.palette.background.paper, theme.palette.divider, theme.palette.mode, theme.palette.text.primary, theme.palette.text.secondary, openUploadDialogForEmptySlot, currentPage, pageCount, setCurrentPage, slotCapacity, uploadCapability.disabled, uploadCapability.title]);
 };
 export { ModelSelector };

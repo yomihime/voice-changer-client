@@ -1,311 +1,225 @@
-// Extracted from the preserved 2.1.4-alpha baseline; editable application source.
-import { lookup } from "../vendor/recovered-runtime.js";
-const log = (S, C, ...E) => {
-  S === "info" ? console.log(C, ...E) : S === "warn" ? console.warn(C, ...E) : S === "error" && console.error(C, ...E);
+import { backendClient, BackendError } from '../api/BackendClient.js';
+import { AudioTransport, getAudioChunkGeometry } from './AudioTransport.js';
+
+const log = (level, prefix, ...values) => {
+  if (level === 'info') console.log(prefix, ...values);
+  else if (level === 'warn') console.warn(prefix, ...values);
+  else if (level === 'error') console.error(prefix, ...values);
 };
-const LOG_PREFIX$1 = "[voicechanger-worklet-node]";
+
 class VoiceChangerWorkletNode extends AudioWorkletNode {
-  configurePromiseResolve = null;
-  startPromiseResolve = null;
-  stopPromiseResolve = null;
-  sendConvertedVoicePromiseResolve = null;
-  resetBufferPromiseResolve = null;
-  startInputRecordingPromiseResolve = null;
-  stopInputRecordingPromiseResolve = null;
-  startOutputRecordingPromiseResolve = null;
-  stopOutputRecordingPromiseResolve = null;
-  getOutputBufferSizePromiseResolve = null;
-  listener = null;
-  exceptionListener = null;
-  socket = null;
-  abortControllers = [];
-  setting = {
-    protocol: "rest",
-    sendingMode: "single"
-  };
-  currentWorkletSetting = {
-    realtimeOutputStatusEnabled: false,
-    realtimeOutputStatusSendIntervalSec: 0.2,
-    isPassthroughEnabled: false,
-    sendingChunkSec: 3
-  };
-  constructor(C, E) {
-    super(C, "voice-changer-worklet-processor", E);
-    this.port.onmessage = this.handleMessage.bind(this);
-    this.createSocketIO();
-    log("info", "worklet_node", "VoiceChangerWorkletNode is created. v2");
+  constructor(context, options) {
+    super(context, 'voice-changer-worklet-processor', options);
+    this.disposed = false;
+    this.listener = null;
+    this.exceptionListener = null;
+    this.requestId = 0;
+    this.commands = new Map();
+    this.processorMetrics = {};
+    this.startPromise = null;
+    this.processorStarted = false;
+    this.configRevision = 0;
+    this.sampleRate = context.sampleRate;
+    this.setting = { protocol: 'rest', sendingMode: 'single', sampleRate: context.sampleRate,
+      expectedSamplesPolicy: 'same', legacyRate: context.sampleRate, legacyBackend: 'legacy' };
+    this.currentWorkletSetting = { realtimeOutputStatusEnabled: false, realtimeOutputStatusSendIntervalSec: 0.2,
+      isPassthroughEnabled: false, sendingChunkSec: 0.2, maxOutputBufferSec: 1, maxRecordingSec: 60 };
+    this.transport = new AudioTransport({
+      onOutput: (voice, frame) => this.sendConvertedVoice(voice, frame.epoch),
+      onError: error => this.reportError(error)
+    });
+    this.port.onmessage = event => this.handleMessage(event.data);
+    this.unsubscribeConnection = backendClient.onInvalidate(() => this.dispose());
+    this.unsubscribeAudio = backendClient.onAudioChange?.(state => {
+      if (state.blocked) this.stop().catch(error => this.reportError(error));
+    });
   }
-  getSocketId = () => this.socket?.id;
-  createSocketIO = () => {
-    this.socket && (console.log("close socket"), this.socket.close(), this.socket = null);
-    this.socket = lookup("/test");
-    this.socket.on("connect_error", C => {
-      log("error", "SIO", "connect failed", C);
-      this.socket.close();
-      this.socket = null;
-    });
-    this.socket.on("connect", () => {
-      log("info", "SIO", `connected on ${this.socket?.id}`);
-    });
-    this.socket.on("close", () => {
-      log("info", "SIO", `close ${this.socket?.id}`);
-    });
-    this.socket.on("message", C => {
-      log("info", "SIO", "Message received:", C);
-    });
-    this.socket.on("response", C => {
-      const E = C[1],
-        w = C[2],
-        R = JSON.parse(w);
-      if (console.log("perf", R), C[0] == 0) return;
-      const _ = E,
-        x = new Float32Array(_);
-      x.length > 1 ? this.sendConvertedVoice(x) : log("info", "SIO", `skip short data length:${x.length}`);
-    });
-    this.socket.on("perf", C => {
-      log("info", "SIO", "perf:", C);
-    });
-    this.socket.on("command", C => {
-      const E = C[0],
-        w = C[1];
-      log("info", "SIO", "command received ", E, w);
-    });
-    this.socket.on("exception", C => {
-      const E = C[0],
-        w = C[1];
-      log("info", "SIO", "Exception received: ", E, w);
-      this.exceptionListener && this.exceptionListener.onException(E, w);
-    });
-    this.socket.on("data", C => {
-      const E = C[0],
-        w = C[1];
-      if (this.listener) if (E === "realtime_output_status") try {
-        const R = JSON.parse(w);
-        this.listener.onRealtimeOutputStatus({
-          realtimeOutputStatusSendIntervalSec: R.realtimeOutputStatusSendIntervalSec,
-          realtimeOutputStatusSendInterval: R.realtimeOutputStatusSendInterval,
-          outputBufferSize: R.outputBufferSize,
-          inputRms: R.inputRms,
-          outputRms: R.outputRms
-        });
-      } catch (R) {
-        log("error", "SIO", "Failed to parse realtime_output_status data:", R);
-      } else if (E === "realtime_process_status") try {
-        const R = JSON.parse(w);
-        this.listener.onRealtimeProcessStatus({
-          inputBufferSize: R.inputBufferSize,
-          inputSize: R.inputSize,
-          inputSec: R.inputSec,
-          outputSize: R.outputSize,
-          outputSec: R.outputSec,
-          elapsedTime: R.elapsedTime,
-          dataNum: R.dataNum
-        });
-      } catch (R) {
-        log("error", "SIO", "Failed to parse realtime_process_status data:", R);
-      } else this.listener.onData(E, w);
-    });
-  };
-  setStatusListener = C => {
-    this.listener = C;
-  };
-  setExceptionListener = C => {
-    this.exceptionListener = C;
-  };
-  updateSetting = async C => {
-    const E = this.setting.protocol != C.protocol;
-    this.setting = C;
-    E && this.createSocketIO();
-  };
-  updateWorkletSetting = async C => {
-    this.currentWorkletSetting = {
-      ...this.currentWorkletSetting,
-      ...C
-    };
-    await this.configure(this.currentWorkletSetting);
-  };
-  handleMessage = async C => {
-    const E = C.data;
-    if (E.commandType === "config") this.configurePromiseResolve && (this.configurePromiseResolve(), this.configurePromiseResolve = null);else if (E.commandType === "start") this.startPromiseResolve && (this.startPromiseResolve(), this.startPromiseResolve = null);else if (E.commandType === "stop") this.stopPromiseResolve && (this.stopPromiseResolve(), this.stopPromiseResolve = null);else if (E.commandType === "sendConvertedVoice") this.sendConvertedVoicePromiseResolve && (this.sendConvertedVoicePromiseResolve(), this.sendConvertedVoicePromiseResolve = null);else if (E.commandType === "resetBuffer") this.resetBufferPromiseResolve && (this.resetBufferPromiseResolve(), this.resetBufferPromiseResolve = null);else if (E.commandType === "startInputRecording") this.startInputRecordingPromiseResolve && (this.startInputRecordingPromiseResolve(), this.startInputRecordingPromiseResolve = null);else if (E.commandType === "stopInputRecording") {
-      const w = E;
-      this.stopInputRecordingPromiseResolve && (this.stopInputRecordingPromiseResolve(w.inputRecording), this.stopInputRecordingPromiseResolve = null);
-    } else if (E.commandType === "startOutputRecording") this.startOutputRecordingPromiseResolve && (this.startOutputRecordingPromiseResolve(), this.startOutputRecordingPromiseResolve = null);else if (E.commandType === "stopOutputRecording") {
-      const w = E;
-      this.stopOutputRecordingPromiseResolve && (this.stopOutputRecordingPromiseResolve(w.outputRecording), this.stopOutputRecordingPromiseResolve = null);
-    } else if (E.commandType === "sendOriginalVoice") {
-      const w = E;
-      this.handleOriginalVoice(w.voice);
-    } else if (E.commandType === "sendRealtimeOutputStatus") {
-      const w = E;
-      this.listener && this.listener.onRealtimeOutputStatus({
-        realtimeOutputStatusSendIntervalSec: w.realtimeOutputStatusSendIntervalSec,
-        realtimeOutputStatusSendInterval: w.realtimeOutputStatusSendInterval,
-        outputBufferSize: w.outputBufferSize,
-        inputRms: null,
-        outputRms: null
-      });
-    } else if (E.commandType === "getOutputBufferSize") {
-      const w = E;
-      this.getOutputBufferSizePromiseResolve && (this.getOutputBufferSizePromiseResolve(w.outputBufferSize), this.getOutputBufferSizePromiseResolve = null);
-    } else log("warn", "worklet_node", `Unknown command type: ${E.commandType}`);
-  };
-  handleOriginalVoice = C => {
-    const E = new Uint8Array(C.buffer);
-    this.sendBuffer(E);
-  };
-  sendBuffer = async C => {
-    const E = Date.now();
-    if (this.setting.protocol !== "sio") if (this.setting.protocol === "rest") {
-      const w = new AbortController();
-      this.abortControllers.push(w);
-      const R = new FormData();
-      R.append("waveform", new Blob([C]), "waveform.bin");
-      let _ = "";
-      this.setting.sendingMode == "bulk" ? _ = "/api/voice-changer/convert_chunk_bulk" : _ = "/api/voice-changer/convert_chunk";
-      const x = {
-        method: "POST",
-        body: R,
-        headers: {},
-        signal: w.signal
-      };
-      x.headers = {
-        "x-timestamp": E.toString()
-      };
+  getSocketId = () => undefined;
+  setStatusListener = listener => { this.listener = listener; };
+  setExceptionListener = listener => { this.exceptionListener = listener; };
+  command(commandType, payload = {}) {
+    if (this.disposed) return Promise.resolve({ status: 'cancelled' });
+    if (this.commands.size >= 32) return Promise.reject(new BackendError('busy', '音声コマンドの待ち行列が上限に達しました。'));
+    const requestId = ++this.requestId;
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.commands.delete(requestId);
+        reject(new BackendError('audio_ack_timeout', '音声処理器が応答しませんでした。'));
+      }, 2000);
+      this.commands.set(requestId, { commandType, resolve, reject, timer });
       try {
-        const T = await fetch(_, x);
-        if (T.ok) {
-          const A = await T.arrayBuffer(),
-            O = new Float32Array(A);
-          O.length > 1 ? this.sendConvertedVoice(O) : log("warn", LOG_PREFIX$1, `skip short data length:${O.length}`);
-        } else console.error("[worklet_node]Error:", T.status);
-      } catch (T) {
-        T instanceof Error && T.name === "AbortError" ? log("info", LOG_PREFIX$1, "Fetch request was aborted") : console.error("[worklet_node]Fetch error:", T);
-      } finally {
-        this.abortControllers = this.abortControllers.filter(T => T !== w);
+        const message = { commandType, requestId, epoch: this.transport.epoch, ...payload };
+        this.port.postMessage(message, payload.voice ? [payload.voice.buffer] : []);
+      } catch (error) {
+        clearTimeout(timer);
+        this.commands.delete(requestId);
+        reject(error);
       }
-    } else throw "unknown protocol";
-  };
-  configure = async C => {
-    const E = new Promise(R => {
-        this.configurePromiseResolve = R;
-      }),
-      w = {
-        commandType: "config",
-        config: C
-      };
-    this.port.postMessage(w);
-    await E;
-  };
-  start = async () => {
-    const C = new Promise(w => {
-        this.startPromiseResolve = w;
-      }),
-      E = {
-        commandType: "start"
-      };
-    this.port.postMessage(E);
-    await C;
-  };
-  stop = async () => {
-    const C = new Promise(w => {
-        this.stopPromiseResolve = w;
-      }),
-      E = {
-        commandType: "stop"
-      };
-    this.port.postMessage(E);
-    await C;
-  };
-  sendConvertedVoice = async C => {
-    const E = new Promise(R => {
-        this.sendConvertedVoicePromiseResolve = R;
-      }),
-      w = {
-        commandType: "sendConvertedVoice",
-        voice: C
-      };
-    this.port.postMessage(w, [C.buffer]);
-    await E;
-  };
-  resetBuffer = async () => {
-    const C = new Promise(w => {
-        this.resetBufferPromiseResolve = w;
-      }),
-      E = {
-        commandType: "resetBuffer"
-      };
-    this.port.postMessage(E);
-    await C;
-  };
-  startInputRecording = async () => {
-    const C = new Promise(w => {
-        this.startInputRecordingPromiseResolve = w;
-      }),
-      E = {
-        commandType: "startInputRecording"
-      };
-    this.port.postMessage(E);
-    await C;
-  };
-  stopInputRecording = async () => {
-    const C = new Promise(T => {
-        this.stopInputRecordingPromiseResolve = T;
-      }),
-      E = {
-        commandType: "stopInputRecording"
-      };
-    this.port.postMessage(E);
-    const w = await C,
-      R = w.reduce((T, A) => T + A.length, 0),
-      _ = new Float32Array(R);
-    let x = 0;
-    for (const T of w) {
-      _.set(T, x);
-      x += T.length;
+    });
+  }
+  handleMessage(message) {
+    if (this.disposed || !message) return;
+    if (message.epoch === this.transport.epoch && message.metrics) this.processorMetrics = message.metrics;
+    if (message.requestId && this.commands.has(message.requestId)) {
+      const pending = this.commands.get(message.requestId);
+      this.commands.delete(message.requestId);
+      clearTimeout(pending.timer);
+      if (message.status === 'error') pending.reject(new BackendError(message.code || 'audio_processor_error', message.message));
+      else pending.resolve(message);
+      return;
     }
-    return _;
-  };
-  startOutputRecording = async () => {
-    const C = new Promise(w => {
-        this.startOutputRecordingPromiseResolve = w;
-      }),
-      E = {
-        commandType: "startOutputRecording"
-      };
-    this.port.postMessage(E);
-    await C;
-  };
-  stopOutputRecording = async () => {
-    const C = new Promise(T => {
-        this.stopOutputRecordingPromiseResolve = T;
-      }),
-      E = {
-        commandType: "stopOutputRecording"
-      };
-    this.port.postMessage(E);
-    const w = await C,
-      R = w.reduce((T, A) => T + A.length, 0),
-      _ = new Float32Array(R);
-    let x = 0;
-    for (const T of w) {
-      _.set(T, x);
-      x += T.length;
+    if (message.epoch !== this.transport.epoch) return;
+    if (message.commandType === 'sendOriginalVoice') {
+      void this.sendBuffer(message.voice);
+      this.port.postMessage({ commandType: 'inputConsumed', epoch: this.transport.epoch });
+    } else if (message.commandType === 'sendRealtimeOutputStatus') {
+      this.listener?.onRealtimeOutputStatus({
+        realtimeOutputStatusSendIntervalSec: message.realtimeOutputStatusSendIntervalSec,
+        outputBufferSize: message.outputBufferSize, inputRms: null, outputRms: null,
+        metrics: this.getAudioMetrics()
+      });
+      this.port.postMessage({ commandType: 'statusConsumed', epoch: this.transport.epoch });
     }
-    return _;
+  }
+  reportError(error) {
+    if (this.disposed) return;
+    this.processorStarted = false;
+    this.processorMetrics = { ...this.processorMetrics, started: false, queuedFrames: 0, inputBufferedFrames: 0 };
+    this.cancelCommands();
+    this.command('stop').catch(failure => log('error', '[voicechanger-worklet-node]', failure));
+    try { this.exceptionListener?.onException('AUDIO_TRANSPORT_ERROR', error.message || String(error)); }
+    catch (listenerError) { log('error', '[voicechanger-worklet-node]', listenerError); }
+  }
+  updateSetting = async setting => {
+    if (this.disposed) return;
+    const next = { ...this.setting, ...setting };
+    if (next.sampleRate !== this.sampleRate) throw new BackendError('sample_rate_mismatch', 'AudioContext の実サンプルレートは上書きできません。');
+    if (next.protocol !== 'rest' || !['single', 'bulk'].includes(next.sendingMode)
+      || !['same', 'variable'].includes(next.expectedSamplesPolicy)) {
+      await this.stop();
+      const error = new BackendError('unsupported', '対応する HTTP REST 音声設定を選択してください。Socket.IO 音声転送は未対応です。');
+      this.reportError(error);
+      throw error;
+    }
+    const changed = Object.keys(next).some(key => next[key] !== this.setting[key]);
+    if (changed && ['starting', 'warming', 'running'].includes(this.transport.state)) await this.stop();
+    this.setting = next;
   };
-  getOutputBufferSize = async () => {
-    const C = new Promise(w => {
-        this.getOutputBufferSizePromiseResolve = w;
-      }),
-      E = {
-        commandType: "getOutputBufferSize"
-      };
-    return this.port.postMessage(E), await C;
+  configure = async config => {
+    if (this.disposed) return;
+    const revision = ++this.configRevision;
+    const next = { ...this.currentWorkletSetting, ...config };
+    const geometry = getAudioChunkGeometry({ ...this.setting, sendingChunkSec: next.sendingChunkSec },
+      backendClient.state.protocol === 'legacy-vcc' && !next.isPassthroughEnabled);
+    const changed = ['sendingChunkSec', 'maxOutputBufferSec', 'isPassthroughEnabled']
+      .some(key => next[key] !== this.currentWorkletSetting[key]);
+    if (changed && ['starting', 'warming', 'running'].includes(this.transport.state)) await this.stop();
+    if (this.disposed || revision !== this.configRevision) return;
+    const result = await this.command('config', { config: next, chunkFrames: geometry.chunkFrames });
+    if (!this.disposed && result.status === 'ok' && revision === this.configRevision) this.currentWorkletSetting = next;
   };
-  abortAllRequests = () => {
-    this.abortControllers.length > 0 && (this.abortControllers.forEach(C => C.abort()), this.abortControllers = [], log("info", LOG_PREFIX$1, `All fetch requests aborted (${this.abortControllers.length} requests)`));
+  updateWorkletSetting = config => this.configure(config);
+  start = () => {
+    if (this.disposed) return Promise.resolve(false);
+    if (this.processorStarted && this.transport.state === 'running') return Promise.resolve(true);
+    if (this.startPromise) return this.startPromise;
+    const operation = (async () => {
+      if (!await this.transport.start({ ...this.setting,
+        localPassthrough: this.currentWorkletSetting.isPassthroughEnabled === true,
+        warmup: backendClient.state.protocol === 'legacy-vcc',
+        sendingChunkSec: this.currentWorkletSetting.sendingChunkSec,
+        noiseGate: this.setting.noiseGate ?? 0.00001 }) || this.disposed) return false;
+      const epoch = this.transport.epoch;
+      const result = await this.command('start');
+      const started = !this.disposed && result.status === 'ok' && epoch === this.transport.epoch;
+      this.processorStarted = started;
+      return started;
+    })().catch(error => {
+      if (['starting', 'warming', 'running'].includes(this.transport.state)) this.transport.fail(error);
+      throw error;
+    });
+    const tracked = operation.finally(() => { if (this.startPromise === tracked) this.startPromise = null; });
+    this.startPromise = tracked;
+    return tracked;
   };
-  isRequestPending = () => this.abortControllers.length > 0;
-  getPendingRequestCount = () => this.abortControllers.length;
+  stop = () => {
+    if (this.disposed) return Promise.resolve(false);
+    this.transport.stop();
+    this.processorStarted = false;
+    this.cancelCommands();
+    this.startPromise = null;
+    this.processorMetrics = { ...this.processorMetrics, started: false, queuedFrames: 0, inputBufferedFrames: 0 };
+    return this.command('stop').then(result => result.status === 'ok');
+  };
+  resetBuffer = () => {
+    if (this.disposed) return Promise.resolve(false);
+    this.transport.stop();
+    this.processorStarted = false;
+    this.cancelCommands();
+    this.startPromise = null;
+    this.processorMetrics = { ...this.processorMetrics, started: false, queuedFrames: 0, inputBufferedFrames: 0 };
+    return this.command('resetBuffer').then(result => result.status === 'ok');
+  };
+  quiesceForRecording = () => {
+    if (this.disposed) return false;
+    this.transport.stop();
+    this.processorStarted = false;
+    this.startPromise = null;
+    this.cancelCommands({ preserveRecordings: true });
+    this.processorMetrics = { ...this.processorMetrics, started: false, queuedFrames: 0, inputBufferedFrames: 0 };
+    // Preserve recording replies already queued on the other side of this port.
+    this.port.postMessage({ commandType: 'stop', epoch: this.transport.epoch });
+    return true;
+  };
+  sendBuffer = samples => this.disposed || !this.processorStarted ? Promise.resolve(false) : this.transport.send(samples);
+  sendConvertedVoice = async (voice, epoch = this.transport.epoch) => {
+    if (this.disposed || epoch !== this.transport.epoch) return false;
+    const result = await this.command('sendConvertedVoice', { voice, epoch });
+    return result.status === 'ok';
+  };
+  startInputRecording = () => this.command('startInputRecording');
+  startOutputRecording = () => this.command('startOutputRecording');
+  async stopRecording(kind) {
+    const result = await this.command(kind === 'input' ? 'stopInputRecording' : 'stopOutputRecording');
+    const chunks = result[kind + 'Recording'] || [];
+    const count = chunks.reduce((total, chunk) => total + chunk.length, 0);
+    const output = new Float32Array(count);
+    let offset = 0;
+    for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.length; }
+    return output;
+  }
+  stopInputRecording = () => this.stopRecording('input');
+  stopOutputRecording = () => this.stopRecording('output');
+  getOutputBufferSize = async () => (await this.command('getOutputBufferSize')).outputBufferSize || 0;
+  getAudioMetrics = () => ({ ...this.transport.getMetrics(), processor: { ...this.processorMetrics },
+    queuedFrames: this.processorMetrics.queuedFrames || 0,
+    droppedOutputFrames: this.processorMetrics.droppedOutputFrames || 0 });
+  abortAllRequests = () => { this.stop().catch(error => this.reportError(error)); };
+  isRequestPending = () => this.transport.getMetrics().inFlight > 0;
+  getPendingRequestCount = () => this.transport.getMetrics().inFlight;
+  cancelCommands({ preserveRecordings = false } = {}) {
+    for (const [requestId, pending] of this.commands) {
+      if (preserveRecordings && ['stopInputRecording', 'stopOutputRecording'].includes(pending.commandType)) continue;
+      clearTimeout(pending.timer);
+      pending.resolve({ status: 'cancelled' });
+      this.commands.delete(requestId);
+    }
+  }
+  dispose = () => {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.transport.dispose();
+    this.processorStarted = false;
+    this.processorMetrics = { ...this.processorMetrics, started: false, queuedFrames: 0, inputBufferedFrames: 0 };
+    this.port.postMessage({ commandType: 'dispose', epoch: this.transport.epoch });
+    this.unsubscribeConnection?.();
+    this.unsubscribeAudio?.();
+    this.listener = null;
+    this.exceptionListener = null;
+    this.cancelCommands();
+    this.port.onmessage = null;
+    this.port.close();
+    this.disconnect();
+  };
 }
 export { log, VoiceChangerWorkletNode };

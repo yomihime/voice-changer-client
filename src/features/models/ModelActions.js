@@ -2,6 +2,7 @@
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, React, useTranslation, CircularProgress, IconButton, Typography, Box, Dialog, DialogContent, FormControl, InputLabel, LinearProgress, MenuItem, Select, Stack } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { ConfirmationDialog } from "../../components/common/ConfirmationDialog.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 const ModelActions = ({
   model,
   isMoving,
@@ -32,6 +33,8 @@ const ModelActions = ({
     ve = React.useRef(null),
     [xe, Ce] = ReactRuntime.useState(false),
     _e = model.voice_changer_type == "RVC" && model.is_onnx == false,
+    uploadCapability = { ...capabilityProps("uploadRVCModelFile", model.registration_available === false),
+      title: model.registration_error || capabilityProps("uploadRVCModelFile").title },
     Be = ReactRuntime.useMemo(() => serverSlotInfos.filter(Me => Me.voice_changer_type == null).map(Me => Me.slot_index).sort((Me, Ge) => Me - Ge), [serverSlotInfos]);
   React.useEffect(() => {
     ce && Be.length > 0 && he(Be[0]);
@@ -58,6 +61,7 @@ const ModelActions = ({
     ve.current && clearInterval(ve.current);
   }), [ce]);
   const Le = ReactRuntime.useMemo(() => model.voice_changer_type == null ? null : jsxRuntime.jsx(IconButton, {
+      ...capabilityProps("moveModel"),
       onClick: Ge => {
         Ge.stopPropagation();
         setIsMoving(T);
@@ -132,7 +136,7 @@ const ModelActions = ({
           borderColor: "primary.main"
         }
       },
-      disabled: xe,
+      ...capabilityProps("export", xe),
       children: jsxRuntime.jsxs(Stack, {
         direction: "row",
         spacing: 1,
@@ -164,6 +168,7 @@ const ModelActions = ({
       })
     }), [model.voice_changer_type, T, t, model.name, exportModel, xe, triggerToast]),
     ze = ReactRuntime.useMemo(() => model.voice_changer_type == null ? null : jsxRuntime.jsx(IconButton, {
+      ...capabilityProps("deleteServerSlotInfo"),
       onClick: Ge => {
         Ge.stopPropagation();
         se(true);
@@ -203,6 +208,7 @@ const ModelActions = ({
       })
     }), [model.voice_changer_type, t]),
     Ae = ReactRuntime.useMemo(() => model.voice_changer_type != null || isMovingTarget ? null : jsxRuntime.jsx(IconButton, {
+      ...uploadCapability,
       onClick: Ge => {
         Ge.stopPropagation();
         onUploadClick(T);
@@ -247,8 +253,9 @@ const ModelActions = ({
           children: t("common.model_editor.upload")
         })]
       })
-    }), [model.voice_changer_type, isMovingTarget, T, t, onUploadClick]),
+    }), [model.voice_changer_type, isMovingTarget, T, t, onUploadClick, uploadCapability.disabled, uploadCapability.title]),
     Ne = ReactRuntime.useMemo(() => model.voice_changer_type != null || isMovingTarget == false ? null : jsxRuntime.jsx(IconButton, {
+      ...capabilityProps("moveModel"),
       onClick: Ge => {
         Ge.stopPropagation();
         isMoving != null && (moveModel(isMoving, T), setIsMoving(null));
@@ -310,7 +317,8 @@ const ModelActions = ({
           borderColor: "primary.main"
         }
       },
-      disabled: pe,
+      disabled: capabilityProps("exportToOnnx", pe).disabled || capabilityProps("moveExportedOnnxModel").disabled,
+      title: capabilityProps("exportToOnnx").title || capabilityProps("moveExportedOnnxModel").title,
       children: jsxRuntime.jsxs(Stack, {
         direction: "row",
         spacing: 1,
@@ -413,6 +421,7 @@ const ModelActions = ({
       })
     }) : null, [_e, t, pe]),
     Ie = ReactRuntime.useMemo(() => model.voice_changer_type != null ? null : jsxRuntime.jsx(IconButton, {
+      ...capabilityProps("downloadSample"),
       onClick: async Ge => {
         Ge.stopPropagation();
         onSampleModelClick(T);

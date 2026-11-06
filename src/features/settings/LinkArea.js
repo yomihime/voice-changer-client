@@ -1,4 +1,5 @@
 // Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation, Tooltip, IconButton, FormControl, MenuItem, Select, Stack, LightModeIcon, DarkModeIcon, LanguageIcon, DownloadIcon, instance } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
@@ -107,8 +108,9 @@ const LinkArea = () => {
         })
       })
     }), jsxRuntime.jsx(Tooltip, {
-      title: t("common.initialize.button"),
+      title: capabilityProps("initializeServer").title || t("common.initialize.button"),
       children: jsxRuntime.jsx(IconButton, {
+        ...capabilityProps("initializeServer"),
         onClick: () => {
           T(true);
         },
@@ -141,14 +143,17 @@ const LinkArea = () => {
         })
       })
     }), jsxRuntime.jsx(Tooltip, {
-      title: t("common.links.download_native_client"),
+      title: capabilityProps("downloadNativeClient").title || t("common.links.download_native_client"),
       children: jsxRuntime.jsx("a", {
-        href: "/native_client/voice-changer-native-client-win.exe",
+        href: capabilityProps("downloadNativeClient").disabled ? undefined : "/native_client/voice-changer-native-client-win.exe",
+        "aria-disabled": capabilityProps("downloadNativeClient").disabled,
+        title: capabilityProps("downloadNativeClient").title,
         download: "voice-changer-native-client-win.exe",
         style: {
           textDecoration: "none"
         },
         children: jsxRuntime.jsx(IconButton, {
+          ...capabilityProps("downloadNativeClient"),
           color: "default",
           size: "small",
           sx: {

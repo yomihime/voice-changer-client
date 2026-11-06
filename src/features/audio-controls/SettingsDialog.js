@@ -4,6 +4,7 @@ import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../../domain/constants.js";
 import { WaitingDialog } from "../../components/common/WaitingDialog.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 const SettingsDialog = ({
   open,
   onClose
@@ -58,6 +59,17 @@ const SettingsDialog = ({
     dr = ReactRuntime.useMemo(() => serverAudioInputDevices.find(Fe => Fe.index === serverConfiguration.audio_input_device_index), [serverAudioInputDevices, serverConfiguration.audio_input_device_index]),
     or = ReactRuntime.useMemo(() => serverAudioOutputDevices.find(Fe => Fe.index === serverConfiguration.audio_output_device_index), [serverAudioOutputDevices, serverConfiguration.audio_output_device_index]),
     ar = ReactRuntime.useMemo(() => serverAudioOutputDevices.find(Fe => Fe.index === serverConfiguration.audio_monitor_device_index), [serverAudioOutputDevices, serverConfiguration.audio_monitor_device_index]),
+    commonServerSampleRates = ReactRuntime.useMemo(() => {
+      const deviceRates = [dr, or, ar].filter(Boolean).map(device =>
+        [...new Set([...(device.available_samplerates ?? []), device.default_samplerate]
+          .map(Number).filter(rate => Number.isFinite(rate) && rate > 0))]
+      ).filter(rates => rates.length > 0);
+      const rates = deviceRates.length > 0
+        ? deviceRates[0].filter(rate => deviceRates.every(available => available.includes(rate)))
+        : [44100, 48000];
+      const current = serverConfiguration.server_audio_sample_rate;
+      return [...new Set([...rates, current].filter(rate => Number.isFinite(rate) && rate > 0))].sort((left, right) => left - right);
+    }, [dr, or, ar, serverConfiguration.server_audio_sample_rate]),
     ur = ReactRuntime.useRef(""),
     pr = ReactRuntime.useRef(""),
     vr = ReactRuntime.useRef("");
@@ -65,24 +77,25 @@ const SettingsDialog = ({
     _e || Ne !== ur.current && (ur.current = Ne, Ne !== "" && serverConfiguration.audio_input_device_index !== -1 && (rr.some(Dt => Dt.index === serverConfiguration.audio_input_device_index) || updateServerConfiguration({
       ...serverConfiguration,
       audio_input_device_index: -1,
-      audio_input_device_sample_rate: -1
+      ...(capabilityProps("config:audio_input_device_sample_rate").disabled ? {} : { audio_input_device_sample_rate: -1 })
     })));
   }, [Ne, rr, _e, serverConfiguration, updateServerConfiguration]);
   ReactRuntime.useEffect(() => {
     _e || Ie !== pr.current && (pr.current = Ie, Ie !== "" && serverConfiguration.audio_output_device_index !== -1 && (Jt.some(Dt => Dt.index === serverConfiguration.audio_output_device_index) || updateServerConfiguration({
       ...serverConfiguration,
       audio_output_device_index: -1,
-      audio_output_device_sample_rate: -1
+      ...(capabilityProps("config:audio_output_device_sample_rate").disabled ? {} : { audio_output_device_sample_rate: -1 })
     })));
   }, [Ie, Jt, _e, serverConfiguration, updateServerConfiguration]);
   ReactRuntime.useEffect(() => {
     _e || Me !== vr.current && (vr.current = Me, Me !== "" && serverConfiguration.audio_monitor_device_index !== -1 && (Kt.some(Dt => Dt.index === serverConfiguration.audio_monitor_device_index) || updateServerConfiguration({
       ...serverConfiguration,
       audio_monitor_device_index: -1,
-      audio_monitor_device_sample_rate: -1
+      ...(capabilityProps("config:audio_monitor_device_sample_rate").disabled ? {} : { audio_monitor_device_sample_rate: -1 })
     })));
   }, [Me, Kt, _e, serverConfiguration, updateServerConfiguration]);
   const Ut = ReactRuntime.useMemo(() => _e == false ? null : jsxRuntime.jsx("select", {
+      'aria-label': 'Client 入力',
       value: selectedInputAudioDeviceId,
       onChange: Fe => setSelectedInputAudioDeviceId(Fe.target.value),
       style: {
@@ -114,7 +127,9 @@ const SettingsDialog = ({
           children: Fe
         }, Fe))]
       }), jsxRuntime.jsxs("select", {
-        value: serverConfiguration.audio_input_device_index,
+        ...capabilityProps("config:audio_input_device_index", serverConfiguration.audio_input_device_index == null),
+        'aria-label': 'Server 入力',
+      value: serverConfiguration.audio_input_device_index ?? "",
         onChange: async Fe => {
           const Dt = parseInt(Fe.target.value);
           Ae(true);
@@ -122,7 +137,7 @@ const SettingsDialog = ({
             await updateServerConfiguration({
               ...serverConfiguration,
               audio_input_device_index: Dt,
-              audio_input_device_sample_rate: -1
+              ...(capabilityProps("config:audio_input_device_sample_rate").disabled ? {} : { audio_input_device_sample_rate: -1 })
             });
             ke && (await stopServerDevice(), await new Promise(dt => setTimeout(dt, 100)), await startServerDevice(), await new Promise(dt => setTimeout(dt, 100)));
           } finally {
@@ -133,7 +148,7 @@ const SettingsDialog = ({
           width: "50%",
           padding: "8px"
         },
-        children: [ke == false && jsxRuntime.jsx("option", {
+        children: [serverConfiguration.audio_input_device_index == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), ke == false && jsxRuntime.jsx("option", {
           value: -1,
           children: t("common.settings_dialog.unselected")
         }, -1), rr.map(Fe => jsxRuntime.jsx("option", {
@@ -141,7 +156,8 @@ const SettingsDialog = ({
           children: Ne === "" ? `(${Fe.host_api})${Fe.name}` : Fe.name
         }, Fe.index))]
       }), dr && dr.available_samplerates.length > 0 && jsxRuntime.jsxs("select", {
-        value: serverConfiguration.audio_input_device_sample_rate,
+        ...capabilityProps("config:audio_input_device_sample_rate", serverConfiguration.audio_input_device_sample_rate == null),
+        value: serverConfiguration.audio_input_device_sample_rate ?? "",
         onChange: async Fe => {
           const Dt = parseInt(Fe.target.value);
           Ae(true);
@@ -159,7 +175,7 @@ const SettingsDialog = ({
           width: "25%",
           padding: "8px"
         },
-        children: [jsxRuntime.jsx("option", {
+        children: [serverConfiguration.audio_input_device_sample_rate == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), jsxRuntime.jsx("option", {
           value: -1,
           children: t("common.settings_dialog.auto")
         }), dr.available_samplerates.map(Fe => jsxRuntime.jsxs("option", {
@@ -169,6 +185,7 @@ const SettingsDialog = ({
       })]
     }), [_e, Ne, er, rr, serverConfiguration, updateServerConfiguration, dr, Ae, ke, stopServerDevice, startServerDevice, t]),
     mr = ReactRuntime.useMemo(() => _e ? jsxRuntime.jsx("select", {
+      'aria-label': 'Client 出力',
       value: outputAudio,
       onChange: Fe => setOutputAudio(Fe.target.value),
       style: {
@@ -200,7 +217,9 @@ const SettingsDialog = ({
           children: Fe
         }, Fe))]
       }), jsxRuntime.jsxs("select", {
-        value: serverConfiguration.audio_output_device_index,
+        ...capabilityProps("config:audio_output_device_index", serverConfiguration.audio_output_device_index == null),
+        'aria-label': 'Server 出力',
+      value: serverConfiguration.audio_output_device_index ?? "",
         onChange: async Fe => {
           const Dt = parseInt(Fe.target.value);
           Ae(true);
@@ -208,7 +227,7 @@ const SettingsDialog = ({
             await updateServerConfiguration({
               ...serverConfiguration,
               audio_output_device_index: Dt,
-              audio_output_device_sample_rate: -1
+              ...(capabilityProps("config:audio_output_device_sample_rate").disabled ? {} : { audio_output_device_sample_rate: -1 })
             });
             ke && (await stopServerDevice(), await new Promise(dt => setTimeout(dt, 100)), await startServerDevice(), await new Promise(dt => setTimeout(dt, 100)));
           } finally {
@@ -219,7 +238,7 @@ const SettingsDialog = ({
           width: "50%",
           padding: "8px"
         },
-        children: [ke == false && jsxRuntime.jsx("option", {
+        children: [serverConfiguration.audio_output_device_index == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), ke == false && jsxRuntime.jsx("option", {
           value: -1,
           children: t("common.settings_dialog.unselected")
         }, -1), Jt.map(Fe => jsxRuntime.jsx("option", {
@@ -227,7 +246,8 @@ const SettingsDialog = ({
           children: Ie === "" ? `(${Fe.host_api})${Fe.name}` : Fe.name
         }, Fe.index))]
       }), or && or.available_samplerates.length > 0 && jsxRuntime.jsxs("select", {
-        value: serverConfiguration.audio_output_device_sample_rate,
+        ...capabilityProps("config:audio_output_device_sample_rate", serverConfiguration.audio_output_device_sample_rate == null),
+        value: serverConfiguration.audio_output_device_sample_rate ?? "",
         onChange: async Fe => {
           const Dt = parseInt(Fe.target.value);
           try {
@@ -244,7 +264,7 @@ const SettingsDialog = ({
           width: "25%",
           padding: "8px"
         },
-        children: [jsxRuntime.jsx("option", {
+        children: [serverConfiguration.audio_output_device_sample_rate == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), jsxRuntime.jsx("option", {
           value: -1,
           children: t("common.settings_dialog.auto")
         }), or.available_samplerates.map(Fe => jsxRuntime.jsxs("option", {
@@ -254,6 +274,7 @@ const SettingsDialog = ({
       })]
     }), [_e, Ie, Ht, Jt, serverConfiguration, updateServerConfiguration, or, Ae, stopServerDevice, startServerDevice, ke, t]),
     Zt = ReactRuntime.useMemo(() => _e ? jsxRuntime.jsx("select", {
+      'aria-label': 'Client 監視',
       value: monitorAudio,
       onChange: Fe => setMonitorAudio(Fe.target.value),
       style: {
@@ -285,7 +306,9 @@ const SettingsDialog = ({
           children: Fe
         }, Fe))]
       }), jsxRuntime.jsxs("select", {
-        value: serverConfiguration.audio_monitor_device_index,
+        ...capabilityProps("config:audio_monitor_device_index", serverConfiguration.audio_monitor_device_index == null),
+        'aria-label': 'Server 監視',
+      value: serverConfiguration.audio_monitor_device_index ?? "",
         onChange: async Fe => {
           const Dt = parseInt(Fe.target.value);
           Ae(true);
@@ -293,7 +316,7 @@ const SettingsDialog = ({
             await updateServerConfiguration({
               ...serverConfiguration,
               audio_monitor_device_index: Dt,
-              audio_monitor_device_sample_rate: -1
+              ...(capabilityProps("config:audio_monitor_device_sample_rate").disabled ? {} : { audio_monitor_device_sample_rate: -1 })
             });
             ke && (await stopServerDevice(), await new Promise(dt => setTimeout(dt, 100)), await startServerDevice(), await new Promise(dt => setTimeout(dt, 100)));
           } finally {
@@ -304,7 +327,7 @@ const SettingsDialog = ({
           width: "50%",
           padding: "8px"
         },
-        children: [jsxRuntime.jsx("option", {
+        children: [serverConfiguration.audio_monitor_device_index == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), jsxRuntime.jsx("option", {
           value: -1,
           children: t("common.settings_dialog.unselected")
         }, -1), Kt.map(Fe => jsxRuntime.jsx("option", {
@@ -312,7 +335,8 @@ const SettingsDialog = ({
           children: Me === "" ? `(${Fe.host_api})${Fe.name}` : Fe.name
         }, Fe.index))]
       }), ar && ar.available_samplerates.length > 0 && jsxRuntime.jsxs("select", {
-        value: serverConfiguration.audio_monitor_device_sample_rate,
+        ...capabilityProps("config:audio_monitor_device_sample_rate", serverConfiguration.audio_monitor_device_sample_rate == null),
+        value: serverConfiguration.audio_monitor_device_sample_rate ?? "",
         onChange: async Fe => {
           const Dt = parseInt(Fe.target.value);
           Ae(true);
@@ -330,7 +354,7 @@ const SettingsDialog = ({
           width: "25%",
           padding: "8px"
         },
-        children: [jsxRuntime.jsx("option", {
+        children: [serverConfiguration.audio_monitor_device_sample_rate == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), jsxRuntime.jsx("option", {
           value: -1,
           children: t("common.settings_dialog.auto")
         }), ar.available_samplerates.map(Fe => jsxRuntime.jsxs("option", {
@@ -400,8 +424,9 @@ const SettingsDialog = ({
               style: {
                 marginLeft: "16px"
               },
-              children: jsxRuntime.jsx("select", {
-                value: serverConfiguration.gpu_device_id_int,
+              children: jsxRuntime.jsxs("select", {
+                ...capabilityProps("config:gpu_device_id_int", serverConfiguration.gpu_device_id_int == null),
+                value: serverConfiguration.gpu_device_id_int ?? "",
                 onChange: async Fe => {
                   const Dt = parseInt(Fe.target.value);
                   abortAllRequests();
@@ -414,10 +439,10 @@ const SettingsDialog = ({
                   width: "100%",
                   padding: "8px"
                 },
-                children: serverGpuInfo.map(Fe => jsxRuntime.jsx("option", {
+                children: [serverConfiguration.gpu_device_id_int == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), serverGpuInfo.map(Fe => jsxRuntime.jsx("option", {
                   value: Fe.device_id_int,
                   children: Fe.name
-                }, Fe.device_id_int))
+                }, Fe.device_id_int))]
               })
             })]
           }), jsxRuntime.jsxs("div", {
@@ -442,18 +467,19 @@ const SettingsDialog = ({
                     width: "100%"
                   },
                   children: jsxRuntime.jsx(Button, {
+                    'aria-label': 'Client Device',
                     variant: serverConfiguration.voice_changer_input_mode === VoiceChangerInputMode.client ? "contained" : "outlined",
                     color: serverConfiguration.voice_changer_input_mode === VoiceChangerInputMode.client ? "primary" : "inherit",
                     onClick: async () => {
                       serverConfiguration.voice_changer_input_mode !== VoiceChangerInputMode.client && (await updateServerConfiguration({
                         ...serverConfiguration,
                         voice_changer_input_mode: VoiceChangerInputMode.client,
-                        input_sample_rate: 48e3,
-                        output_sample_rate: 48e3,
-                        monitor_sample_rate: 48e3
+                        ...(capabilityProps("config:input_sample_rate").disabled ? {} : { input_sample_rate: 48e3 }),
+                        ...(capabilityProps("config:output_sample_rate").disabled ? {} : { output_sample_rate: 48e3 }),
+                        ...(capabilityProps("config:monitor_sample_rate").disabled ? {} : { monitor_sample_rate: 48e3 })
                       }));
                     },
-                    disabled: qe,
+                    ...capabilityProps("config:voice_changer_input_mode", qe),
                     children: t("common.settings_dialog.client_mode")
                   })
                 }), jsxRuntime.jsx("span", {
@@ -461,6 +487,7 @@ const SettingsDialog = ({
                     width: "100%"
                   },
                   children: jsxRuntime.jsx(Button, {
+                    'aria-label': 'Server Device',
                     variant: serverConfiguration.voice_changer_input_mode === VoiceChangerInputMode.server ? "contained" : "outlined",
                     color: serverConfiguration.voice_changer_input_mode === VoiceChangerInputMode.server ? "primary" : "inherit",
                     onClick: async () => {
@@ -469,7 +496,7 @@ const SettingsDialog = ({
                         voice_changer_input_mode: VoiceChangerInputMode.server
                       }));
                     },
-                    disabled: qe,
+                    ...capabilityProps("config:voice_changer_input_mode", qe),
                     children: t("common.settings_dialog.server_mode")
                   })
                 })]
@@ -523,6 +550,30 @@ const SettingsDialog = ({
                   },
                   children: t("common.settings_dialog.monitor_device")
                 }), Zt, yr]
+              }), Be && Object.hasOwn(serverConfiguration, "server_audio_sample_rate") && jsxRuntime.jsxs("label", {
+                style: { display: "flex", alignItems: "center", gap: "10px" },
+                children: ["共通サンプルレート", jsxRuntime.jsxs("select", {
+                  name: "server_audio_sample_rate",
+                  ...capabilityProps("config:server_audio_sample_rate", serverConfiguration.server_audio_sample_rate == null || qe),
+                  value: serverConfiguration.server_audio_sample_rate ?? "",
+                  onChange: async event => {
+                    Ae(true);
+                    try {
+                      await updateServerConfiguration({
+                        ...serverConfiguration,
+                        server_audio_sample_rate: Number(event.target.value)
+                      });
+                    } finally {
+                      Ae(false);
+                    }
+                  },
+                  style: { flex: 1, padding: "8px" },
+                  children: [serverConfiguration.server_audio_sample_rate == null && jsxRuntime.jsx("option", {
+                    value: "", children: "未取得"
+                  }), commonServerSampleRates.map(rate => jsxRuntime.jsx("option", {
+                    value: rate, children: `${rate} Hz`
+                  }, rate))]
+                })]
               }), xr && jsxRuntime.jsx("div", {
                 style: {
                   marginTop: "8px"
@@ -535,7 +586,8 @@ const SettingsDialog = ({
                   },
                   children: [jsxRuntime.jsx("input", {
                     type: "checkbox",
-                    checked: serverConfiguration.wasapi_exclude_emabled,
+                    ...capabilityProps("config:wasapi_exclude_emabled", serverConfiguration.wasapi_exclude_emabled == null),
+                    checked: serverConfiguration.wasapi_exclude_emabled ?? false,
                     onChange: Fe => updateServerConfiguration({
                       ...serverConfiguration,
                       wasapi_exclude_emabled: Fe.target.checked
@@ -613,7 +665,8 @@ const SettingsDialog = ({
                   min: "0",
                   max: "0.5",
                   step: "0.001",
-                  value: serverConfiguration.noise_gate,
+                  ...capabilityProps("config:noise_gate", serverConfiguration.noise_gate == null),
+                  value: serverConfiguration.noise_gate ?? 0,
                   onChange: async Fe => {
                     await updateServerConfiguration({
                       ...serverConfiguration,
@@ -628,7 +681,7 @@ const SettingsDialog = ({
                     minWidth: "30px",
                     textAlign: "right"
                   },
-                  children: serverConfiguration.noise_gate
+                  children: serverConfiguration.noise_gate ?? "未取得"
                 })]
               }), jsxRuntime.jsxs("div", {
                 style: {
@@ -643,7 +696,8 @@ const SettingsDialog = ({
                   },
                   children: [jsxRuntime.jsx("input", {
                     type: "checkbox",
-                    checked: serverConfiguration.enable_high_pass_filter,
+                    ...capabilityProps("config:enable_high_pass_filter", serverConfiguration.enable_high_pass_filter == null),
+                    checked: serverConfiguration.enable_high_pass_filter ?? false,
                     onChange: async Fe => {
                       await updateServerConfiguration({
                         ...serverConfiguration,
@@ -668,7 +722,8 @@ const SettingsDialog = ({
                     min: "20",
                     max: "200",
                     step: "10",
-                    value: serverConfiguration.high_pass_filter_cutoff,
+                    ...capabilityProps("config:high_pass_filter_cutoff", serverConfiguration.high_pass_filter_cutoff == null),
+                    value: serverConfiguration.high_pass_filter_cutoff ?? 0,
                     onChange: async Fe => {
                       await updateServerConfiguration({
                         ...serverConfiguration,
@@ -683,7 +738,7 @@ const SettingsDialog = ({
                       minWidth: "50px",
                       textAlign: "right"
                     },
-                    children: [serverConfiguration.high_pass_filter_cutoff, " Hz"]
+                    children: [serverConfiguration.high_pass_filter_cutoff ?? "未取得", " Hz"]
                   })]
                 })]
               }), jsxRuntime.jsxs("div", {
@@ -699,7 +754,8 @@ const SettingsDialog = ({
                   },
                   children: [jsxRuntime.jsx("input", {
                     type: "checkbox",
-                    checked: serverConfiguration.enable_low_pass_filter,
+                    ...capabilityProps("config:enable_low_pass_filter", serverConfiguration.enable_low_pass_filter == null),
+                    checked: serverConfiguration.enable_low_pass_filter ?? false,
                     onChange: async Fe => {
                       await updateServerConfiguration({
                         ...serverConfiguration,
@@ -724,7 +780,8 @@ const SettingsDialog = ({
                     min: "3500",
                     max: "15000",
                     step: "500",
-                    value: serverConfiguration.low_pass_filter_cutoff,
+                    ...capabilityProps("config:low_pass_filter_cutoff", serverConfiguration.low_pass_filter_cutoff == null),
+                    value: serverConfiguration.low_pass_filter_cutoff ?? 0,
                     onChange: async Fe => {
                       await updateServerConfiguration({
                         ...serverConfiguration,
@@ -739,7 +796,7 @@ const SettingsDialog = ({
                       minWidth: "50px",
                       textAlign: "right"
                     },
-                    children: [serverConfiguration.low_pass_filter_cutoff, " Hz"]
+                    children: [serverConfiguration.low_pass_filter_cutoff ?? "未取得", " Hz"]
                   })]
                 })]
               })]
@@ -751,6 +808,6 @@ const SettingsDialog = ({
       open: ze,
       message: t("common.settings_dialog.changing_device_settings")
     })]
-  }), [open, onClose, t, serverConfiguration, updateServerConfiguration, Ut, mr, Zt, nr, gr, yr, xr, enableEchoCancellation, setEnableEchoCancellation, enableNoiseSuppression, setEnableNoiseSuppression, enableNoiseSuppression2, setEnableNoiseSuppression2, _e, serverGpuInfo, qe, abortAllRequests, ze]);
+  }), [open, onClose, t, serverConfiguration, updateServerConfiguration, Ut, mr, Zt, nr, gr, yr, xr, enableEchoCancellation, setEnableEchoCancellation, enableNoiseSuppression, setEnableNoiseSuppression, enableNoiseSuppression2, setEnableNoiseSuppression2, _e, Be, commonServerSampleRates, serverGpuInfo, qe, abortAllRequests, ze]);
 };
 export { SettingsDialog };

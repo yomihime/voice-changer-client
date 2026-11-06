@@ -4,6 +4,7 @@ import { useAppRoot } from "../state/app-root-context.js";
 import { useAppState } from "../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../domain/constants.js";
 import { invoke, listen } from "../platform/bridge.js";
+import { VCRestClient } from "../api/VoiceChangerApiClient.js";
 const useHotKeySetting = () => {
   const {
       t
@@ -37,8 +38,12 @@ const useHotKeySetting = () => {
     isConversionRunning = isServerInputMode ? isServerDeviceActive : isStarted,
     isPassthroughActive = isServerInputMode ? serverConfiguration.pass_through : isPassthrough,
     startConversion = ReactRuntime.useCallback(async () => {
+      const capability = VCRestClient.getInstance().getCapabilities().clientAudio;
+      if (!isServerInputMode && capability?.supported === false) throw new Error(capability.reason);
       if (isServerInputMode) {
-        if (serverConfiguration.audio_input_device_index === -1 || serverConfiguration.audio_output_device_index === -1) return;
+        if (serverConfiguration.audio_input_device_index === -1 || serverConfiguration.audio_output_device_index === -1) {
+          throw new Error(t('common.controls.device_not_selected_error'));
+        }
         await startServerDevice();
       } else setIsStarted(true);
     }, [isServerInputMode, serverConfiguration.audio_input_device_index, serverConfiguration.audio_output_device_index, startServerDevice, setIsStarted]),
@@ -237,8 +242,18 @@ const useHotKeySetting = () => {
               }
             case "ToggleVoiceConversion":
               try {
-                isConversionRunning ? (await stopConversion(), Me.message = t("common.shortcut_settings.voice_conversion_stopped"), Me.started = false) : (await startConversion(), Me.message = t("common.shortcut_settings.voice_conversion_started"), Me.started = true);
+                if (isConversionRunning) {
+                  await stopConversion();
+                  Me.message = isServerInputMode ? '停止要求を送信しました。状態を確認しています。' : t("common.shortcut_settings.voice_conversion_stopped");
+                  Me.started = isServerInputMode ? isServerDeviceActive : false;
+                } else {
+                  await startConversion();
+                  Me.message = isServerInputMode ? '開始要求を送信しました。状態を確認しています。' : t("common.shortcut_settings.voice_conversion_started");
+                  Me.started = isServerInputMode ? isServerDeviceActive : true;
+                }
               } catch (or) {
+                Me.message = or.reason || or.message || String(or);
+                Me.started = isConversionRunning;
                 console.error(t("common.shortcut_settings.notification_window_error"), or);
               }
               break;

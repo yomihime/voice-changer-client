@@ -1,4 +1,5 @@
 // Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation, useTheme, IconButton, Button, Dialog, DialogContent, DialogTitle, Stack } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { CloseIcon } from "../../components/icons.js";
@@ -207,7 +208,7 @@ const SampleModelDialog = ({
                 variant: "contained",
                 color: "primary",
                 onClick: () => te(ie.id),
-                disabled: H.isDownloading,
+                ...capabilityProps("downloadSample", H.isDownloading),
                 children: t("common.sample_model_dialog.download_button")
               })
             })]

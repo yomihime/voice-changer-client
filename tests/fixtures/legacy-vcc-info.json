@@ -1,0 +1,47 @@
+{
+  "_fixture": "Sanitized settings and stopped runtime from the isolated empty-model /info snapshot. Device/GPU names, safe-registration capability and reduced slot list below are synthetic protocol fixtures. No audio or model inference is represented.",
+  "status": "OK",
+  "python": "3.12 fixture",
+  "voiceChangerParams": { "model_dir": "fixture-models" },
+  "clientCapabilities": { "safeModelRegistration": true },
+  "modelSlotIndex": -1,
+  "passThrough": false,
+  "enableServerAudio": 0,
+  "serverAudioStated": 0,
+  "serverInputAudioSampleRate": 44100,
+  "serverOutputAudioSampleRate": 44100,
+  "serverMonitorAudioSampleRate": 44100,
+  "serverAudioSampleRate": 44100,
+  "serverInputDeviceId": -1,
+  "serverOutputDeviceId": -1,
+  "serverMonitorDeviceId": -1,
+  "serverReadChunkSize": 256,
+  "serverInputAudioGain": 1,
+  "serverOutputAudioGain": 1,
+  "serverMonitorAudioGain": 1,
+  "exclusiveMode": false,
+  "gpus": [{ "id": 0, "name": "Fixture GPU", "memory": 8589934592 }],
+  "serverAudioInputDevices": [
+    { "kind": "audioinput", "index": 3, "name": "Fixture microphone", "hostAPI": "Windows WASAPI", "maxInputChannels": 2, "maxOutputChannels": 0, "default_samplerate": 48000, "available_samplerates": [] }
+  ],
+  "serverAudioOutputDevices": [
+    { "kind": "audiooutput", "index": 5, "name": "Fixture output", "hostAPI": "Windows WASAPI", "maxInputChannels": 0, "maxOutputChannels": 2, "default_samplerate": 48000, "available_samplerates": [] },
+    { "kind": "audiooutput", "index": 6, "name": "Fixture monitor", "hostAPI": "Windows WASAPI", "maxInputChannels": 0, "maxOutputChannels": 2, "default_samplerate": 48000, "available_samplerates": [] }
+  ],
+  "modelSlots": [
+    { "slotIndex": 0, "voiceChangerType": null, "name": "", "description": "", "credit": "", "termsOfUseUrl": "", "iconFile": "", "speakers": {} },
+    { "slotIndex": 1, "voiceChangerType": null, "name": "", "description": "", "credit": "", "termsOfUseUrl": "", "iconFile": "", "speakers": {} },
+    { "slotIndex": 499, "voiceChangerType": null, "name": "", "description": "", "credit": "", "termsOfUseUrl": "", "iconFile": "", "speakers": {} }
+  ],
+  "sampleModels": [],
+  "serverDeviceRuntimeInfo": {
+    "epoch": 0, "state": "stopped", "active": false,
+    "inputCallbackCount": 0, "inputSamples": 0, "processedBlockCount": 0,
+    "processedOutputSamples": 0, "outputCallbackCount": 0, "outputWriteCount": 0,
+    "outputSamples": 0, "monitorWriteCount": 0, "callbackErrorCount": 0,
+    "callbackStatusCount": 0,
+    "callbackStatus": { "inputUnderflow": 0, "inputOverflow": 0, "outputUnderflow": 0, "outputOverflow": 0, "primingOutput": 0, "unknown": 0 },
+    "queueDropCount": 0, "loopErrorCount": 0,
+    "lastCallbackError": null, "lastLoopError": null
+  }
+}

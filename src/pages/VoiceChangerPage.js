@@ -7,6 +7,7 @@ import { LinkArea } from "../features/settings/LinkArea.js";
 import { ModelSelector } from "../features/models/ModelSelector.js";
 import { ControlArea } from "./ControlArea.js";
 import { AdvancedArea } from "../features/settings/AdvancedArea.js";
+import { BackendStatus } from "../components/common/BackendStatus.js";
 function VoiceChangerPage() {
   const {
       edition,
@@ -34,7 +35,7 @@ function VoiceChangerPage() {
         },
         children: ["ver ", version, " ", edition]
       })]
-    }), jsxRuntime.jsx(LinkArea, {}), jsxRuntime.jsx(ModelSelector, {}), jsxRuntime.jsx(ControlArea, {}), jsxRuntime.jsx(AdvancedArea, {}), jsxRuntime.jsxs("div", {
+    }), jsxRuntime.jsx(BackendStatus, {}), jsxRuntime.jsx(LinkArea, {}), jsxRuntime.jsx(ModelSelector, {}), jsxRuntime.jsx(ControlArea, {}), jsxRuntime.jsx(AdvancedArea, {}), jsxRuntime.jsxs("div", {
       children: [jsxRuntime.jsx("audio", {
         hidden: true,
         id: AUDIO_ELEMENT_FOR_PLAY_RESULT

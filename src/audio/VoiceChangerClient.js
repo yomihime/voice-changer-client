@@ -3,13 +3,26 @@ import { workerjs } from "./worker-source.js";
 import { log, VoiceChangerWorkletNode } from "./VoiceChangerWorkletNode.js";
 import { buildExports } from "../vendor/recovered-runtime.js";
 import { BlockingQueue } from "./BlockingQueue.js";
+import { backendClient } from "../api/BackendClient.js";
 const createDummyMediaStream = S => {
   const C = S.createMediaStreamDestination(),
     E = S.createGain();
   E.gain.value = 0;
   E.connect(C);
   const w = S.createOscillator();
-  return w.frequency.value = 440, w.connect(E), w.start(), C.stream;
+  w.frequency.value = 440;
+  w.connect(E);
+  w.start();
+  return {
+    stream: C.stream,
+    dispose: () => {
+      w.stop();
+      w.disconnect();
+      E.disconnect();
+      C.disconnect();
+      C.stream.getTracks().forEach(track => track.stop());
+    }
+  };
 };
 const validateUrl = S => S?.endsWith("/") ? S.substring(0, S.length - 1) : S;
 const LOG_PREFIX = "[voicechanger-client]";
@@ -56,11 +69,29 @@ class VoiceChangerClient {
   };
   sslCertified = [];
   sem = new BlockingQueue();
+  disposed = true;
+  generation = 0;
+  captureGeneration = 0;
+  desiredRunning = false;
+  transportReady = false;
+  inputEndedHandlers = [];
+  transformNodes = null;
+  recordingTouched = { input: false, output: false };
+  recordingVersions = { input: 0, output: 0 };
+  recordingStops = { input: null, output: null };
+  recordingClips = { input: null, output: null };
+  dummyInput = null;
+  unsubscribeInvalidation = null;
   constructor() {}
   initialize(C, E) {
+    this.dispose();
+    this.disposed = false;
+    const generation = this.generation;
+    this.unsubscribeInvalidation = backendClient.onInvalidate(() => this.dispose());
     log("info", LOG_PREFIX, "initializing...");
     this.ctx = C;
     this.vfEnable = E;
+    this.sem = new BlockingQueue();
     this.sem.enqueue(0);
     this.inputGainNode = this.ctx.createGain();
     this.outputGainNode = this.ctx.createGain();
@@ -75,51 +106,90 @@ class VoiceChangerClient {
     const w = {
       outputChannelCount: [1]
     };
-    this.promiseForInitialize = new Promise(async R => {
+    this.promiseForInitialize = (async () => {
       const _ = URL.createObjectURL(new Blob([workerjs], {
         type: "text/javascript"
       }));
-      await this.ctx.audioWorklet.addModule(_);
       try {
-        this.vcInNode = new VoiceChangerWorkletNode(this.ctx, w);
+        await C.audioWorklet.addModule(_);
+      } finally {
+        URL.revokeObjectURL(_);
+      }
+      if (this.disposed || generation !== this.generation) return false;
+      try {
+        this.vcInNode = new VoiceChangerWorkletNode(C, w);
         this.vcInNode.connect(this.outputGainNode);
         this.outputGainNode.connect(this.currentMediaStreamAudioDestinationNode);
         this.outputGainNode.connect(this.outputAnalyser);
         this.vcInNode.connect(this.monitorGainNode);
         this.monitorGainNode.connect(this.currentMediaStreamAudioDestinationMonitorNode);
-      } catch {
-        try {
-          this.ctx.audioWorklet.addModule(_).then(() => {
-            this.vcInNode = new VoiceChangerWorkletNode(this.ctx, w);
-            this.vcInNode.connect(this.outputGainNode);
-            this.outputGainNode.connect(this.currentMediaStreamAudioDestinationNode);
-            this.vcInNode.connect(this.monitorGainNode);
-            this.monitorGainNode.connect(this.currentMediaStreamAudioDestinationMonitorNode);
-          });
-        } catch (x) {
-          log("error", LOG_PREFIX, x);
-        }
+      } catch (error) {
+        this.dispose();
+        throw error;
       }
-      if (this.vcInNode.updateSetting(this.nodeSetting), this.vcInNode.updateWorkletSetting(this.workletSetting), this.vfEnable) {
-        this.vf = await buildExports.VoiceFocusDeviceTransformer.create({
+      const node = this.vcInNode;
+      await node.updateSetting(this.nodeSetting);
+      await node.updateWorkletSetting(this.workletSetting);
+      if (this.disposed || generation !== this.generation) return false;
+      if (this.vfEnable) {
+        const transformer = await buildExports.VoiceFocusDeviceTransformer.create({
           variant: "c20"
         });
-        const x = createDummyMediaStream(this.ctx);
-        this.currentDevice = (await this.vf.createTransformDevice(x)) || null;
+        if (this.disposed || generation !== this.generation) return false;
+        this.vf = transformer;
+        const dummy = createDummyMediaStream(C);
+        this.dummyInput = dummy;
+        const device = await transformer.createTransformDevice(dummy.stream);
+        if (this.disposed || generation !== this.generation) {
+          device?.stop?.();
+          return false;
+        }
+        this.currentDevice = device || null;
       }
       this.setVoiceChangerWorkletNodeListener();
-      R();
+      return true;
+    })().catch(error => {
+      if (generation === this.generation) this.dispose();
+      throw error;
     });
+    return this.promiseForInitialize;
   }
-  _lock = async () => await this.sem.dequeue();
-  _unlock = C => {
-    this.sem.enqueue(C + 1);
+  dispose = () => {
+    this.disposed = true;
+    this.generation++;
+    this.desiredRunning = false;
+    this.transportReady = false;
+    this.releaseInput();
+    this.unsubscribeInvalidation?.();
+    this.unsubscribeInvalidation = null;
+    this.vcInNode?.dispose();
+    this.dummyInput?.dispose();
+    this.dummyInput = null;
+    for (const stream of [this.currentMediaStreamAudioDestinationNode?.stream,
+      this.currentMediaStreamAudioDestinationMonitorNode?.stream]) {
+      stream?.getTracks().forEach(track => track.stop());
+    }
+    for (const node of [this.currentMediaStreamAudioSourceNode, this.inputGainNode, this.outputGainNode,
+      this.monitorGainNode, this.inputAnalyser, this.outputAnalyser,
+      this.currentMediaStreamAudioDestinationNode, this.currentMediaStreamAudioDestinationMonitorNode]) {
+      node?.disconnect();
+    }
+    this.currentDevice?.stop?.();
+    this.currentDevice = null;
+    this.currentMediaStream = null;
+    this.currentMediaStreamAudioSourceNode = null;
+    this.vcInNode = null;
+    this._isVoiceChanging = false;
+    this.recordingTouched = { input: false, output: false };
+    this.recordingStops = { input: null, output: null };
+    this.recordingClips = { input: null, output: null };
+    this.voiceChangerStatusListener = null;
+    this.voiceChangerExceptionListener = null;
   };
   isInitialized = async () => {
-    for (;;) {
-      if (this.promiseForInitialize) return await this.promiseForInitialize, true;
-      await new Promise(C => setTimeout(C, 100));
-    }
+    const generation = this.generation;
+    const initialized = await this.promiseForInitialize;
+    return initialized === true && !this.disposed && generation === this.generation;
   };
   getRms = (C, E = 0) => {
     const w = new Float32Array(C.fftSize);
@@ -163,27 +233,79 @@ class VoiceChangerClient {
   setVoiceChangerExceptionListener = C => {
     this.voiceChangerExceptionListener = C;
   };
+  releaseInput = () => {
+    this.captureGeneration++;
+    this.dummyInput?.dispose();
+    this.dummyInput = null;
+    for (const [track, listener] of this.inputEndedHandlers) track.removeEventListener?.("ended", listener);
+    this.inputEndedHandlers = [];
+    this.currentMediaStream?.getTracks().forEach(track => track.stop());
+    this.currentMediaStreamAudioSourceNode?.disconnect();
+    this.inputGainNode?.disconnect();
+    this.transformNodes?.start?.disconnect();
+    this.transformNodes?.end?.disconnect();
+    this.transformNodes = null;
+    this.currentMediaStream = null;
+    this.currentMediaStreamAudioSourceNode = null;
+  };
   setup = async () => {
-    if (log("info", LOG_PREFIX, `Input Setup=> audio: ${this.setting.audioInput}`), log("info", LOG_PREFIX, `Input Setup=> echo: ${this.setting.echoCancel}, noise1: ${this.setting.noiseSuppression}, noise2: ${this.setting.noiseSuppression2}`), this.currentMediaStream && (this.currentMediaStream.getTracks().forEach(C => {
-      C.stop();
-    }), this.currentMediaStream = null), typeof this.setting.audioInput == "string") try {
-      this.setting.audioInput == "none" ? (log("info", LOG_PREFIX, "Input Setup=> dummy stream."), this.currentMediaStream = createDummyMediaStream(this.ctx)) : this.currentMediaStream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          deviceId: this.setting.audioInput,
-          channelCount: 1,
-          sampleRate: this.setting.sampleRate,
-          sampleSize: 16,
-          autoGainControl: false,
-          echoCancellation: this.setting.echoCancel,
-          noiseSuppression: this.setting.noiseSuppression
-        }
-      });
-    } catch (C) {
-      throw log("error", LOG_PREFIX, C), this.vcInNode.stop(), C;
-    } else this.currentMediaStream = this.setting.audioInput;
+    if (this.disposed || !this.desiredRunning || !this.transportReady) return false;
+    const generation = this.generation;
+    const context = this.ctx;
+    this.releaseInput();
+    const captureGeneration = this.captureGeneration;
+    const current = () => !this.disposed && this.desiredRunning && this.transportReady && generation === this.generation && captureGeneration === this.captureGeneration;
+    let stream;
+    this.dummyInput?.dispose();
+    this.dummyInput = null;
+    try {
+      if (typeof this.setting.audioInput === "string") {
+        if (!this.setting.audioInput || this.setting.audioInput === "none") throw new Error("入力デバイスを選択してください。");
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: false,
+          audio: {
+            deviceId: { exact: this.setting.audioInput },
+            channelCount: 1,
+            sampleRate: this.setting.sampleRate,
+            sampleSize: 16,
+            autoGainControl: false,
+            echoCancellation: this.setting.echoCancel,
+            noiseSuppression: this.setting.noiseSuppression
+          }
+        });
+        const actual = stream.getAudioTracks?.()[0]?.getSettings?.().deviceId;
+        if (this.setting.audioInput !== "default" && actual && actual !== this.setting.audioInput) throw new Error("選択した入力デバイスと取得したデバイスが一致しません。");
+      } else stream = this.setting.audioInput;
+      if (!stream?.getTracks || stream.getTracks().every(track => track.readyState === "ended")) throw new Error("入力ストリームは終了しています。デバイスを選び直してください。");
+    } catch (error) {
+      stream?.getTracks().forEach(track => track.stop());
+      if (!current()) return false;
+      this.stop().catch(error => log("error", LOG_PREFIX, error));
+      throw error;
+    }
+    if (!current()) {
+      stream?.getTracks().forEach(track => track.stop());
+      return false;
+    }
+    this.currentMediaStream = stream;
+    for (const track of stream.getTracks()) {
+      const ended = () => {
+        if (!current()) return;
+        this.stop().catch(error => log("error", LOG_PREFIX, error));
+        this.voiceChangerExceptionListener?.onException("AUDIO_DEVICE_ERROR", "入力デバイスが切断されました。接続を確認して開始し直してください。");
+      };
+      track.addEventListener?.("ended", ended);
+      this.inputEndedHandlers.push([track, ended]);
+    }
     if (this.currentMediaStreamAudioSourceNode = this.ctx.createMediaStreamSource(this.currentMediaStream), this.inputGainNode.gain.value = this.setting.inputGain, this.currentMediaStreamAudioSourceNode.connect(this.inputGainNode), this.currentDevice && this.setting.noiseSuppression2) {
       this.currentDevice.chooseNewInnerDevice(this.currentMediaStream);
       const C = await this.currentDevice.createAudioNode(this.ctx);
+      if (!current()) {
+        C.start.disconnect();
+        C.end.disconnect();
+        return false;
+      }
+      this.transformNodes = C;
       this.inputGainNode.connect(C.start);
       C.end.connect(this.vcInNode);
       C.end.connect(this.inputAnalyser);
@@ -192,20 +314,46 @@ class VoiceChangerClient {
       this.inputGainNode.connect(this.inputAnalyser);
     }
     console.log("Input Setup=> success");
+    return true;
   };
   get stream() {
-    return this.currentMediaStreamAudioDestinationNode.stream;
+    return this.currentMediaStreamAudioDestinationNode?.stream ?? null;
   }
   get monitorStream() {
-    return this.currentMediaStreamAudioDestinationMonitorNode.stream;
+    return this.currentMediaStreamAudioDestinationMonitorNode?.stream ?? null;
   }
   start = async () => {
-    await this.vcInNode.start();
-    this._isVoiceChanging = true;
+    if (this.disposed) return false;
+    this.desiredRunning = true;
+    this.transportReady = false;
+    const generation = this.generation;
+    await this.promiseForInitialize;
+    if (this.disposed || generation !== this.generation || !this.desiredRunning) return false;
+    try {
+      const started = await this.vcInNode.start();
+      if (this.disposed || generation !== this.generation || !this.desiredRunning) return false;
+      if (started !== true) {
+        await this.stop();
+        return false;
+      }
+      this.transportReady = true;
+      if (!await this.setup()) return false;
+      if (this.disposed || generation !== this.generation || !this.desiredRunning) return false;
+      this._isVoiceChanging = true;
+      return true;
+    } catch (error) {
+      this.stop().catch(failure => log("error", LOG_PREFIX, failure));
+      throw error;
+    }
   };
   stop = async () => {
-    await this.vcInNode.stop();
+    this.desiredRunning = false;
+    this.transportReady = false;
+    this.releaseInput();
     this._isVoiceChanging = false;
+    const node = this.vcInNode;
+    await node?.stop();
+    await node?.resetBuffer();
   };
   get isVoiceChanging() {
     return this._isVoiceChanging;
@@ -227,28 +375,49 @@ class VoiceChangerClient {
     }
   });
   updateClientSetting = async C => {
-    const E = await this._lock();
-    let w = false;
-    console.log("updateClientSetting", C);
-    (this.setting.audioInput != C.audioInput || this.setting.echoCancel != C.echoCancel || this.setting.noiseSuppression != C.noiseSuppression || this.setting.noiseSuppression2 != C.noiseSuppression2 || this.setting.sampleRate != C.sampleRate) && (console.log("updateClientSetting update required"), w = true);
-    this.setting.inputGain != C.inputGain && this._setInputGain(C.inputGain);
-    this.setting.outputGain != C.outputGain && this._setOutputGain(C.outputGain);
-    this.setting.monitorGain != C.monitorGain && this._setMonitorGain(C.monitorGain);
-    this.setting = C;
-    w && (await this.setup());
-    await this._unlock(E);
+    if (this.disposed) return;
+    const generation = this.generation;
+    await this.promiseForInitialize;
+    if (this.disposed || generation !== this.generation) return;
+    const semaphore = this.sem;
+    const E = await semaphore.dequeue();
+    try {
+      if (this.disposed || generation !== this.generation) return;
+      const setupRequired = !this.currentMediaStream || this.setting.audioInput != C.audioInput
+        || this.setting.echoCancel != C.echoCancel || this.setting.noiseSuppression != C.noiseSuppression
+        || this.setting.noiseSuppression2 != C.noiseSuppression2 || this.setting.sampleRate != C.sampleRate;
+      this.setting.inputGain != C.inputGain && this._setInputGain(C.inputGain);
+      this.setting.outputGain != C.outputGain && this._setOutputGain(C.outputGain);
+      this.setting.monitorGain != C.monitorGain && this._setMonitorGain(C.monitorGain);
+      this.setting = C;
+      if (setupRequired && this.desiredRunning && this.transportReady) await this.setup();
+    } finally { semaphore.enqueue(E + 1); }
   };
   updateNodeSetting = async C => {
-    const E = await this._lock();
-    this.vcInNode.updateSetting(C);
-    this.nodeSetting = C;
-    await this._unlock(E);
+    if (this.disposed) return;
+    const generation = this.generation;
+    await this.promiseForInitialize;
+    if (this.disposed || generation !== this.generation) return;
+    const semaphore = this.sem;
+    const E = await semaphore.dequeue();
+    try {
+      if (this.disposed || generation !== this.generation) return;
+      await this.vcInNode.updateSetting(C);
+      if (!this.disposed && generation === this.generation) this.nodeSetting = C;
+    } finally { semaphore.enqueue(E + 1); }
   };
   updateWorkletSetting = async C => {
-    const E = await this._lock();
-    this.vcInNode.updateWorkletSetting(C);
-    this.workletSetting = C;
-    await this._unlock(E);
+    if (this.disposed) return;
+    const generation = this.generation;
+    await this.promiseForInitialize;
+    if (this.disposed || generation !== this.generation) return;
+    const semaphore = this.sem;
+    const E = await semaphore.dequeue();
+    try {
+      if (this.disposed || generation !== this.generation) return;
+      await this.vcInNode.updateWorkletSetting(C);
+      if (!this.disposed && generation === this.generation) this.workletSetting = C;
+    } finally { semaphore.enqueue(E + 1); }
   };
   _setInputGain = C => {
     this.inputGainNode && C != null && (this.inputGainNode.gain.value = C);
@@ -259,16 +428,76 @@ class VoiceChangerClient {
   _setMonitorGain = C => {
     this.monitorGainNode && C != null && (this.monitorGainNode.gain.value = C);
   };
-  resetBuffer = () => this.vcInNode.resetBuffer();
-  startInputRecording = () => {
-    this.vcInNode.startInputRecording();
+  resetBuffer = () => this.vcInNode?.resetBuffer();
+  startRecording = async kind => {
+    if (this.disposed || !this.vcInNode) return;
+    this.recordingTouched[kind] = true;
+    this.recordingVersions[kind]++;
+    return kind === "input" ? this.vcInNode.startInputRecording() : this.vcInNode.startOutputRecording();
   };
-  stopInputRecording = () => this.vcInNode.stopInputRecording();
-  startOutputRecording = () => this.vcInNode.startOutputRecording();
-  stopOutputRecording = () => this.vcInNode.stopOutputRecording();
-  getOutputBufferSize = async () => await this.vcInNode.getOutputBufferSize();
-  abortAllRequests = () => this.vcInNode.abortAllRequests();
-  isRequestPending = () => this.vcInNode.isRequestPending();
-  getPendingRequestCount = () => this.vcInNode.getPendingRequestCount();
+  stopRecording = kind => {
+    if (this.recordingStops[kind]) return this.recordingStops[kind];
+    if (!this.recordingTouched[kind] || this.disposed || !this.vcInNode) return Promise.resolve(this.recordingClips[kind] ?? new Float32Array(0));
+    const node = this.vcInNode;
+    const version = this.recordingVersions[kind];
+    const operation = (kind === "input" ? node.stopInputRecording() : node.stopOutputRecording()).then(samples => {
+      if (this.vcInNode === node && !this.disposed) {
+        if (version === this.recordingVersions[kind]) this.recordingTouched[kind] = false;
+        this.recordingClips[kind] = samples;
+      }
+      return samples;
+    });
+    const tracked = operation.finally(() => {
+      if (this.recordingStops[kind] === tracked) this.recordingStops[kind] = null;
+    });
+    this.recordingStops[kind] = tracked;
+    return tracked;
+  };
+  claimRecording = (kind, samples) => {
+    if (this.recordingClips[kind] !== samples) return false;
+    this.recordingClips[kind] = null;
+    return true;
+  };
+  finalizeRecording = async () => {
+    this.desiredRunning = false;
+    this.transportReady = false;
+    this._isVoiceChanging = false;
+    this.releaseInput();
+    const node = this.vcInNode;
+    if (this.disposed || !node) return { recordings: [], errors: [], metrics: {} };
+    node.quiesceForRecording();
+    const kinds = ["input", "output"];
+    const results = await Promise.allSettled(kinds.map(kind => this.stopRecording(kind)));
+    const recordings = [];
+    const errors = [];
+    results.forEach((result, index) => {
+      if (result.status === "rejected") errors.push(result.reason);
+      else if (result.value.length > 0 && this.claimRecording(kinds[index], result.value)) recordings.push({ kind: kinds[index], samples: result.value });
+    });
+    return { recordings, errors, metrics: node.getAudioMetrics() };
+  };
+  startInputRecording = () => this.startRecording("input");
+  stopInputRecording = () => this.stopRecording("input");
+  startOutputRecording = () => this.startRecording("output");
+  stopOutputRecording = () => this.stopRecording("output");
+  getOutputBufferSize = async () => await this.vcInNode?.getOutputBufferSize() ?? 0;
+  abortAllRequests = () => this.stop();
+  isRequestPending = () => this.vcInNode?.isRequestPending() ?? false;
+  getPendingRequestCount = () => this.vcInNode?.getPendingRequestCount() ?? 0;
+  getAudioMetrics = () => ({
+    ...this.vcInNode?.getAudioMetrics?.(),
+    inputDeviceId: typeof this.setting.audioInput === "string" ? this.setting.audioInput : null,
+    actualInputDeviceId: this.currentMediaStream?.getAudioTracks?.()[0]?.getSettings?.().deviceId ?? null,
+    inputSampleRate: this.currentMediaStream?.getAudioTracks?.()[0]?.getSettings?.().sampleRate ?? null,
+    inputChannels: this.currentMediaStream?.getAudioTracks?.()[0]?.getSettings?.().channelCount ?? null,
+    inputActive: this.currentMediaStream != null && this.desiredRunning,
+    inputRms: !this.disposed && typeof this.inputAnalyser?.getFloatTimeDomainData === 'function'
+      ? this.getRms(this.inputAnalyser) : null,
+    outputRms: !this.disposed && typeof this.outputAnalyser?.getFloatTimeDomainData === 'function'
+      ? this.getRms(this.outputAnalyser) : null,
+    clientSession: this.generation,
+    captureGeneration: this.captureGeneration,
+    sampleRate: this.ctx?.sampleRate ?? null
+  });
 }
 export { VoiceChangerClient };

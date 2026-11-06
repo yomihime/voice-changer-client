@@ -2,6 +2,7 @@
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { log$1 as logMessage } from "../../shared/logger.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 const codeFilename$5 = import.meta.url.split("/").pop();
 const logPrefix$5 = `[${codeFilename$5}]`;
 const VoiceCharacterEditDialog = ({
@@ -99,11 +100,13 @@ const VoiceCharacterEditDialog = ({
           },
           children: [jsxRuntime.jsx(TextField, {
             label: t("common.voice_character_editor.name"),
+            ...capabilityProps("updateBeatriceV2VoiceName"),
             value: O,
             onChange: ye => H(ye.target.value),
             fullWidth: true
           }), jsxRuntime.jsx(TextField, {
             label: t("common.voice_character_editor.description"),
+            ...capabilityProps("updateBeatriceV2VoiceDescription"),
             value: ee,
             onChange: ye => te(ye.target.value),
             multiline: true,
@@ -116,12 +119,14 @@ const VoiceCharacterEditDialog = ({
                 display: "none"
               },
               id: "icon-file",
+              ...capabilityProps("uploadBeatriceV2VoiceIconFile"),
               type: "file",
               onChange: me
             }), jsxRuntime.jsx("label", {
               htmlFor: "icon-file",
               children: jsxRuntime.jsx(Button, {
                 variant: "outlined",
+                ...capabilityProps("uploadBeatriceV2VoiceIconFile"),
                 component: "span",
                 children: t("common.voice_character_editor.select_icon")
               })
@@ -176,6 +181,7 @@ const VoiceCharacterEditDialog = ({
           children: t("common.voice_character_editor.cancel")
         }), jsxRuntime.jsx(Button, {
           onClick: he,
+          ...capabilityProps("updateBeatriceV2VoiceName"),
           variant: "contained",
           color: "primary",
           children: t("common.voice_character_editor.save")

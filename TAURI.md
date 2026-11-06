@@ -21,17 +21,23 @@ EXE 位于 `src-tauri/target/release/voice-changer-client.exe`；安装包在其
 普通 `npm run dev` 仍可在浏览器中使用，不要求 Rust。
 
 ```powershell
-.\voice-changer-client.exe --backend http://127.0.0.1:18000/
+.\voice-changer-client.exe
 .\voice-changer-client.exe --offline
 ```
 
-默认后端为 `http://127.0.0.1:18000/`，客户端本地端口为 `21416`。
-后端必须是明确的 IPv4 loopback HTTP 地址。`--port` 可更换客户端端口；重复启动导致
-端口占用会明确报错，不会连接到一个未知的已有页面服务。无需关闭或重启推理服务。
+通常起動では毎回 `http://localhost:18888/` を有限時間で確認します。失敗した場合は
+アドレス画面で再試行、または別の URL を入力できます。HTTP / HTTPS、IPv4 / IPv6、
+ホスト名、LAN とベースパスに対応します。認証情報・query・fragment は受け付けません。
+保存した手動 URL と `--backend` は入力欄の初期値です。既定の探測を省略しません。
+画面用の loopback ポートは 21416 を優先し、使用中なら空きポートへ自動で回退します。
+`--port` の指定は通常不要です。`--offline` は接続を行わない UI 診断用です。
 
 配置默认在 `%APPDATA%/io.github.yomihime.voicechanger.client/`；
 `--profile-dir <绝对路径>` 可使用隔离配置。WebView 数据和快捷键配置属于客户端。
-浏览器本地存储按页面 origin 区分，变更客户端端口后会得到新的浏览器配置空间。
+接続先とグローバル設定は schema 付き原生 profile に保存します。旧 IndexedDB は保持し、
+初回に原生設定へ移行します。旧 21416 が他プロセスに占有されていても、専用 WebView の
+ローカル応答から読み取り、占有プロセスへ接続しません。移行失敗時は元データを保持して
+エラーを表示します。保存設定の削除は明示的な clear-site-data 操作で行います。
 
 ## 当前能力和边界
 
@@ -44,8 +50,19 @@ EXE 位于 `src-tauri/target/release/voice-changer-client.exe`；安装包在其
 - 关闭主窗口会退出子窗口和代理，推理服务保持独立。
 - 清除站点数据会退出客户端；下次启动前清理其 WebView 数据，保留原生快捷键配置。
 
-**仍需要兼容 2.1.4 `/api/...` 的后端。父仓库旧 `/info`、`/update_settings` 协议
-没有因为更换打包方式而自动兼容。** 测试使用本机模拟后端，不能证明真实模型推理质量。
+`/info` の実フィールドから旧 VCC を識別し、LegacyVccAdapter で制御します。2.x の
+`/api/...` も維持します。機能ごとの対応状況は接続画面と無効化された操作の説明で確認できます。
+Client Device はクライアント PC、Server Device はバックエンド PC のデバイスです。
+音声の実機検証状態と段階別 commit は、親 `voice-changer` の唯一の総記録
+`docs/development/implementation-progress.md` を参照してください。
+
+旧 VCC の音声合同は `/test` の JSON、単一チャンネル little-endian Int16 の base64 です。
+Float32 との変換はクライアント境界で一度だけ行い、履歴・resampling・SOLA は既存サーバーが
+担当します。同じセッションへ HTTP と Socket.IO の音声を重複送信しません。
+アップロードはクライアントが生成する独立リソース名を使い、クライアントのローカルパスを
+サーバー上のパスとして扱いません。登録は安全な `/load_model_if_empty` 能力を持つ fork の
+空の数値 slot に限定し、競合や失敗時の部分ファイルを保持します。能力のない旧 Server では
+登録操作に理由を表示します。既存 `/load_model` の上書き動作は従来の呼び出しに従います。
 
 ## 复现测试
 

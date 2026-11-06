@@ -1,67 +1,44 @@
-// Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+import { backendClient, BackendError } from './BackendClient.js';
+// One upload operation stays bound to the target selected when it began.
 class FileUploaderClient {
-  #baseUrl;
+  #baseUrl = '';
   enableFlatPath = false;
-  constructor() {
-    this.#baseUrl = "";
+  setBaseUrl = value => { this.#baseUrl = value.replace(/\/$/, ''); };
+  setEnableFlatPath = enabled => { this.enableFlatPath = enabled; };
+  generatePath = value => this.enableFlatPath ? value[0] + value.slice(1).replace(/\//g, '_') : value;
+  async send(path, form, generation) {
+    backendClient.assertGeneration(generation);
+    const request = new Request(this.#baseUrl + this.generatePath(path), {method:'POST',body:form});
+    await backendClient.request(request,{generation,consume:async response=>{
+      const text = await response.text();
+      if (!response.ok) throw new BackendError("upload_failed","アップロードに失敗しました。",{status:response.status,detail:text.slice(0,200)});
+    }});
   }
-  setBaseUrl = baseUrl => {
-    baseUrl.endsWith("/") && (baseUrl = baseUrl.slice(0, -1));
-    this.#baseUrl = baseUrl;
-  };
-  setEnableFlatPath = enabled => {
-    this.enableFlatPath = enabled;
-  };
-  generatePath = endpointPath => this.enableFlatPath ? endpointPath[0] + endpointPath.slice(1).replace(/\//g, "_") : endpointPath;
-  uploadFile = async (filenamePrefix, file, onProgress) => {
-    const uploadUrl = this.#baseUrl + this.generatePath("/api/uploader/upload_file_chunk");
-    onProgress(0, false);
-    const chunkSize = 1024 * 1024;
-    let chunkIndex = 0;
-    const fileSize = file.size,
-      uploadFilename = filenamePrefix + file.name,
-      chunkCount = Math.ceil(fileSize / chunkSize);
-    for (;;) {
-      const H = [];
-      for (let ee = 0; ee < 10 && !(chunkIndex * chunkSize >= fileSize); ee++) {
-        const te = file.slice(chunkIndex * chunkSize, (chunkIndex + 1) * chunkSize),
-          ie = new Promise(ne => {
-            const ae = new FormData();
-            ae.append("file", new Blob([te]));
-            ae.append("filename", `${uploadFilename}`);
-            ae.append("index", `${chunkIndex}`);
-            const se = new Request(uploadUrl, {
-              method: "POST",
-              body: ae
-            });
-            fetch(se).then(async ce => {
-              console.log(await ce.text());
-              ne();
-            });
-          });
-        chunkIndex += 1;
-        H.push(ie);
+  uploadFile = async (prefix, file, onProgress, generation = backendClient.generation) => {
+    backendClient.assertGeneration(generation);
+    const name=prefix+file.name;
+    if (!name || /[\\/\u0000]/.test(name)) throw new BackendError('invalid_filename','ファイル名を確認してください。');
+    const size=1024*1024, count=Math.ceil(file.size/size);
+    onProgress(0,false);
+    // Retain the existing bounded concurrency, but reject both fetch errors and stale batches.
+    for (let index=0; index<count;) {
+      backendClient.assertGeneration(generation);
+      const batch=[];
+      for (let n=0;n<10&&index<count;n++,index++) {
+        const form=new FormData();
+        form.append('file',file.slice(index*size,(index+1)*size));
+        form.append('filename',name);form.append('index',String(index));
+        batch.push(this.send('/api/uploader/upload_file_chunk',form,generation));
       }
-      if (await Promise.all(H), chunkIndex * chunkSize >= fileSize) break;
-      onProgress(Math.floor(chunkIndex / (chunkCount + 1) * 100), false);
+      await Promise.all(batch);
+      backendClient.assertGeneration(generation);
+      onProgress(Math.floor(index/(count+1)*100),false);
     }
-    return chunkCount;
+    return count;
   };
-  concatUploadedFile = async (filename, chunkCount) => {
-    const concatUrl = this.#baseUrl + this.generatePath("/api/uploader/concat_uploaded_file_chunk");
-    await new Promise(R => {
-      const _ = new FormData();
-      _.append("filename", filename);
-      _.append("filename_chunk_num", "" + chunkCount);
-      const x = new Request(concatUrl, {
-        method: "POST",
-        body: _
-      });
-      fetch(x).then(async T => {
-        console.log(await T.text());
-        R();
-      });
-    });
+  concatUploadedFile = async (filename,count,generation = backendClient.generation) => {
+    const form=new FormData();form.append('filename',filename);form.append('filename_chunk_num',String(count));
+    await this.send('/api/uploader/concat_uploaded_file_chunk',form,generation);
   };
 }
 export { FileUploaderClient };
