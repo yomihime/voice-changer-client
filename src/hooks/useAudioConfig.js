@@ -1,91 +1,97 @@
-// Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+// Device enumeration never grants microphone permission or starts audio.
 import { reactExports as ReactRuntime, useTranslation } from "../vendor/recovered-runtime.js";
 import { log$1 as logMessage } from "../shared/logger.js";
-const codeFilename$2 = import.meta.url.split("/").pop();
-const logPrefix$2 = `[${codeFilename$2}]`;
+import { backendClient } from "../api/BackendClient.js";
+
 const useAudioConfig = options => {
-  const {
-      t
-    } = useTranslation(),
-    [audioContext, setAudioContext] = ReactRuntime.useState(null),
-    [audioInputs, setAudioInputs] = ReactRuntime.useState([]),
-    [audioOutputs, setAudioOutputs] = ReactRuntime.useState([]),
-    audioContextCreationStartedRef = ReactRuntime.useRef(false);
-  ReactRuntime.useEffect(() => {
-    const ee = async () => {
-        if (audioContextCreationStartedRef.current == true) return;
-        audioContextCreationStartedRef.current = true;
-        const ae = new URL(window.location.href).searchParams.get("sample_rate") || null;
-        let se;
-        ae ? ae == "default" ? (logMessage("info", logPrefix$2, "Sample rate: default"), se = new AudioContext()) : (logMessage("info", logPrefix$2, `Sample rate: ${ae}`), se = new AudioContext({
-          sampleRate: Number(ae)
-        })) : (logMessage("info", logPrefix$2, "Sample rate: default(48000)"), se = new AudioContext({
-          sampleRate: 48e3
-        }));
-        await reloadDeviceInfo();
-        logMessage("info", logPrefix$2, se);
-        setAudioContext(se);
-        document.removeEventListener("touchstart", te);
-        document.removeEventListener("mousedown", te);
-      },
-      te = () => {
-        setTimeout(() => {
-          ee();
-        }, options.createAudioContextDelay);
-      };
-    document.addEventListener("touchstart", te, false);
-    document.addEventListener("mousedown", te, false);
-  }, []);
-  const reloadDeviceInfo = async () => {
-    try {
-      (await navigator.mediaDevices.getUserMedia({
-        video: false,
-        audio: true
-      })).getTracks().forEach(ae => {
-        ae.stop();
+  const { t } = useTranslation();
+  const [audioContext, setAudioContext] = ReactRuntime.useState(null);
+  const [audioInputs, setAudioInputs] = ReactRuntime.useState([]);
+  const [audioOutputs, setAudioOutputs] = ReactRuntime.useState([]);
+  const lifecycleRef = ReactRuntime.useRef(null);
+  const reloadRef = ReactRuntime.useRef(null);
+
+  const reloadDeviceInfo = ReactRuntime.useCallback(async () => {
+    const lifecycle = lifecycleRef.current;
+    if (!lifecycle?.active) return;
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    if (!lifecycle.active) return;
+    const option = (deviceId, label, kind) => ({ deviceId, groupId: deviceId, kind, label, toJSON() {} });
+    setAudioInputs([
+      option("default", "システム既定（変更に追従）", "audioinput"),
+      ...devices.filter(device => device.kind === "audioinput" && device.deviceId !== "default"),
+      option("none", t("common.controls.device_none"), "audioinput"),
+      option("file", t("common.controls.device_file"), "audioinput"),
+      option("screen", t("common.controls.device_system"), "audioinput")
+    ]);
+    setAudioOutputs([
+      option("default", "システム既定（変更に追従）", "audiooutput"),
+      ...devices.filter(device => device.kind === "audiooutput" && device.deviceId !== "default"),
+      option("none", t("common.controls.device_none"), "audiooutput")
+    ]);
+  }, [t]);
+  reloadRef.current = reloadDeviceInfo;
+
+  const ensureAudioContext = ReactRuntime.useCallback(async () => {
+    const lifecycle = lifecycleRef.current;
+    if (!lifecycle?.active) return null;
+    if (lifecycle.pending) return lifecycle.pending;
+    if (lifecycle.context?.state === "running") return lifecycle.context;
+    if (!lifecycle.pending) {
+      lifecycle.pending = Promise.resolve().then(async () => {
+        if (!lifecycle.active) return null;
+        let context = lifecycle.context?.state !== "closed" ? lifecycle.context : null;
+        const created = context == null;
+        try {
+          if (created) {
+            const requested = new URL(window.location.href).searchParams.get("sample_rate");
+            context = requested === "default" ? new AudioContext() : new AudioContext({
+              sampleRate: requested == null ? 48000 : Number(requested)
+            });
+            lifecycle.context = context;
+          }
+          await context.resume?.();
+          if (!lifecycle.active) {
+            if (context.state !== "closed") await context.close();
+            return null;
+          }
+          if (context.state !== "running") throw new Error("AudioContext を再開できませんでした。開始し直してください。");
+          if (created) await reloadDeviceInfo();
+          if (!lifecycle.active) return null;
+          setAudioContext(context);
+          return context;
+        } catch (error) {
+          if (created) {
+            if (context && context.state !== "closed") await context.close();
+            lifecycle.context = null;
+          }
+          if (!lifecycle.active) return null;
+          throw error;
+        } finally {
+          lifecycle.pending = null;
+        }
       });
-    } catch (ne) {
-      console.warn("Enumerate device error::", ne);
     }
-    const ee = await navigator.mediaDevices.enumerateDevices(),
-      te = ee.filter(ne => ne.kind == "audioinput");
-    te.push({
-      deviceId: "none",
-      groupId: "none",
-      kind: "audioinput",
-      label: t("common.controls.device_none"),
-      toJSON: () => {}
-    });
-    te.push({
-      deviceId: "file",
-      groupId: "file",
-      kind: "audioinput",
-      label: t("common.controls.device_file"),
-      toJSON: () => {}
-    });
-    te.push({
-      deviceId: "screen",
-      groupId: "screen",
-      kind: "audioinput",
-      label: t("common.controls.device_system"),
-      toJSON: () => {}
-    });
-    setAudioInputs(te);
-    const ie = ee.filter(ne => ne.kind == "audiooutput");
-    ie.push({
-      deviceId: "none",
-      groupId: "none",
-      kind: "audiooutput",
-      label: t("common.controls.device_none"),
-      toJSON: () => {}
-    });
-    setAudioOutputs(ie);
-  };
-  return {
-    audioContext,
-    audioInputs,
-    audioOutputs,
-    reloadDeviceInfo
-  };
+    return lifecycle.pending;
+  }, [reloadDeviceInfo]);
+
+  ReactRuntime.useEffect(() => {
+    const lifecycle = { active: true, context: null, pending: null };
+    lifecycleRef.current = lifecycle;
+    const refresh = () => reloadRef.current().catch(error => logMessage("error", "audio-devices", error));
+    const dispose = () => {
+      lifecycle.active = false;
+      navigator.mediaDevices.removeEventListener?.("devicechange", refresh);
+      if (lifecycle.context && lifecycle.context.state !== "closed") {
+        lifecycle.context.close().catch(error => logMessage("error", "audio-devices", error));
+      }
+    };
+    navigator.mediaDevices.addEventListener?.("devicechange", refresh);
+    refresh();
+    const unsubscribe = backendClient.onInvalidate(dispose);
+    return () => { unsubscribe(); dispose(); };
+  }, []);
+
+  return { audioContext, audioInputs, audioOutputs, reloadDeviceInfo, ensureAudioContext };
 };
 export { useAudioConfig };

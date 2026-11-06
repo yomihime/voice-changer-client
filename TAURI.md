@@ -21,17 +21,23 @@ EXE 位于 `src-tauri/target/release/voice-changer-client.exe`；安装包在其
 普通 `npm run dev` 仍可在浏览器中使用，不要求 Rust。
 
 ```powershell
-.\voice-changer-client.exe --backend http://127.0.0.1:18000/
+.\voice-changer-client.exe
 .\voice-changer-client.exe --offline
 ```
 
-默认后端为 `http://127.0.0.1:18000/`，客户端本地端口为 `21416`。
-后端必须是明确的 IPv4 loopback HTTP 地址。`--port` 可更换客户端端口；重复启动导致
-端口占用会明确报错，不会连接到一个未知的已有页面服务。无需关闭或重启推理服务。
+通常起動では毎回 `http://localhost:18888/` を有限時間で確認します。失敗した場合は
+アドレス画面で再試行、または別の URL を入力できます。HTTP / HTTPS、IPv4 / IPv6、
+ホスト名、LAN とベースパスに対応します。認証情報・query・fragment は受け付けません。
+保存した手動 URL と `--backend` は入力欄の初期値です。既定の探測を省略しません。
+画面用の loopback ポートは 21416 を優先し、使用中なら空きポートへ自動で回退します。
+`--port` の指定は通常不要です。`--offline` は接続を行わない UI 診断用です。
 
 配置默认在 `%APPDATA%/io.github.yomihime.voicechanger.client/`；
 `--profile-dir <绝对路径>` 可使用隔离配置。WebView 数据和快捷键配置属于客户端。
-浏览器本地存储按页面 origin 区分，变更客户端端口后会得到新的浏览器配置空间。
+接続先とグローバル設定は schema 付き原生 profile に保存します。旧 IndexedDB は保持し、
+初回に原生設定へ移行します。旧 21416 が他プロセスに占有されていても、専用 WebView の
+ローカル応答から読み取り、占有プロセスへ接続しません。移行失敗時は元データを保持して
+エラーを表示します。保存設定の削除は明示的な clear-site-data 操作で行います。
 
 ## 当前能力和边界
 
@@ -44,8 +50,19 @@ EXE 位于 `src-tauri/target/release/voice-changer-client.exe`；安装包在其
 - 关闭主窗口会退出子窗口和代理，推理服务保持独立。
 - 清除站点数据会退出客户端；下次启动前清理其 WebView 数据，保留原生快捷键配置。
 
-**仍需要兼容 2.1.4 `/api/...` 的后端。父仓库旧 `/info`、`/update_settings` 协议
-没有因为更换打包方式而自动兼容。** 测试使用本机模拟后端，不能证明真实模型推理质量。
+`/info` の実フィールドから旧 VCC を識別し、LegacyVccAdapter で制御します。2.x の
+`/api/...` も維持します。機能ごとの対応状況は接続画面と無効化された操作の説明で確認できます。
+Client Device はクライアント PC、Server Device はバックエンド PC のデバイスです。
+音声の実機検証状態と段階別 commit は、親 `voice-changer` の唯一の総記録
+`docs/development/implementation-progress.md` を参照してください。
+
+旧 VCC の音声合同は `/test` の JSON、単一チャンネル little-endian Int16 の base64 です。
+Float32 との変換はクライアント境界で一度だけ行い、履歴・resampling・SOLA は既存サーバーが
+担当します。同じセッションへ HTTP と Socket.IO の音声を重複送信しません。
+アップロードはクライアントが生成する独立リソース名を使い、クライアントのローカルパスを
+サーバー上のパスとして扱いません。登録は安全な `/load_model_if_empty` 能力を持つ fork の
+空の数値 slot に限定し、競合や失敗時の部分ファイルを保持します。能力のない旧 Server では
+登録操作に理由を表示します。既存 `/load_model` の上書き動作は従来の呼び出しに従います。
 
 ## 复现测试
 
@@ -72,5 +89,27 @@ npm run test:desktop
   返回 Access denied，实际物理按键触发仍需手动确认。
 
 产物尚未签名，也没有自动更新；这是本地试用打包，不是正式发布。
+
+## HTTP 502 の切り分け
+
+ネイティブ HTTP proxy が転送に失敗した場合は、`backend_transport` 応答に安全な `diagnostic` を追加します。
+プロセス内の `request_id`、接続先設定の `generation`、`send` / `response_body`、分類、経過時間、
+HTTP メソッド、固定の経路名、取得できた I/O 種別・OS コードを記録します。同じ情報を標準エラーへ
+1行の JSON として出力します。応答ヘッダーを送信済みの本文エラーは標準エラーだけに記録します。
+URL、query、認証ヘッダー、モデル名、音声・要求・応答の本文、元の例外文字列は記録しません。
+通常起動の localhost:18888 探索と、手動接続後の障害を分けて確認してください。
+
+```powershell
+node tests/tauri-http-diagnostics.cjs
+```
+
+この Windows/WebView2 試験は独立 profile と `--deny-media` を使い、専用の HTTP テストサーバーで
+接続再利用、切断、上流502、本文の途中切断、アイドル接続の失効、拒否接続を確認します。既定は GET / POST 各1,000回です。
+`HTTP_TEST_REQUESTS` で回数、`TAURI_TEST_EXE` と `TAURI_TEST_OUTPUT` で候補と保存先を指定できます。
+`HTTP_TEST_PACED_POSTS=1` は5 ms間隔の生成 POST 対照も追加します。
+`VCC_TEST_URL` を明示した場合だけ、そのサービスへ追加で読み取り専用の `/info` を送り、
+本文を保存せず件数・状態を集計します。マイク、Windows 音声、モデル推論は開始しません。
+断続的な障害をこの短い試験で再現できなくても、根因が解決したことは意味しません。
+
 官方依据：[Windows 前置环境](https://v2.tauri.app/start/prerequisites/)、
 [Windows 安装包与 WebView2](https://v2.tauri.app/distribute/windows-installer/)。

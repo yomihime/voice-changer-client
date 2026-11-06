@@ -5,10 +5,10 @@ import { InputAudioType } from "../domain/constants.js";
 const useGlobalSetting = () => {
   const [settingsLoaded, setSettingsLoaded] = ReactRuntime.useState(false),
     [displayColorMode, setDisplayColorMode] = ReactRuntime.useState("light"),
-    [selectedInputAudioDeviceId, setSelectedInputAudioDeviceId] = ReactRuntime.useState("default"),
-    [inputAudio, setInputAudio] = ReactRuntime.useState("default"),
-    [outputAudio, setOutputAudio] = ReactRuntime.useState("default"),
-    [monitorAudio, setMonitorAudio] = ReactRuntime.useState("default"),
+    [selectedInputAudioDeviceId, setSelectedInputAudioDeviceId] = ReactRuntime.useState("none"),
+    [inputAudio, setInputAudio] = ReactRuntime.useState("none"),
+    [outputAudio, setOutputAudio] = ReactRuntime.useState("none"),
+    [monitorAudio, setMonitorAudio] = ReactRuntime.useState("none"),
     [outputAudioElementId, setOutputAudioElementId] = ReactRuntime.useState(null),
     [monitorAudioElementId, setMonitorAudioElementId] = ReactRuntime.useState(null),
     [inputAudioType, setInputAudioType] = ReactRuntime.useState(InputAudioType.MICROPHONE),
@@ -32,11 +32,11 @@ const useGlobalSetting = () => {
     (async () => {
       try {
         const pr = await loadSettings();
-        pr && (setDisplayColorMode(pr.displayColorMode), setNodeInputGain(pr.nodeInputGain), setNodeOutputGain(pr.nodeOutputGain), setNodeMonitorGain(pr.nodeMonitorGain), setSelectedInputAudioDeviceId(pr.selectedInputAudioDeviceId), setOutputAudio(pr.outputAudio), setMonitorAudio(pr.monitorAudio), setInputAudioType(pr.inputAudioType), setSelectedLanguage(pr.selectedLanguage), setEnableEchoCancellation(pr.enableEchoCancellation ?? false), setEnableNoiseSuppression(pr.enableNoiseSuppression ?? false), setEnableNoiseSuppression2(pr.enableNoiseSuppression2 ?? false), setRealtimeOutputStatusEnabled(pr.realtimeOutputStatusEnabled ?? false), setRealtimeOutputStatusSendIntervalSec(pr.realtimeOutputStatusSendIntervalSec ?? 10), setProtocol(pr.protocol ?? "rest"), setRecordForAnalysis(pr.recordForAnalysis ?? false), setShowSampleAudioButton(pr.showSampleAudioButton ?? true));
-      } catch (pr) {
-        console.error("Failed to load settings:", pr);
-      } finally {
+        pr && (setDisplayColorMode(pr.displayColorMode ?? "light"), setNodeInputGain(pr.nodeInputGain ?? 1), setNodeOutputGain(pr.nodeOutputGain ?? 1), setNodeMonitorGain(pr.nodeMonitorGain ?? 0), setSelectedInputAudioDeviceId(pr.selectedInputAudioDeviceId ?? "none"), setOutputAudio(pr.outputAudio ?? "none"), setMonitorAudio(pr.monitorAudio ?? "none"), setInputAudioType(pr.inputAudioType ?? InputAudioType.MICROPHONE), setSelectedLanguage(pr.selectedLanguage ?? "ja"), setEnableEchoCancellation(pr.enableEchoCancellation ?? false), setEnableNoiseSuppression(pr.enableNoiseSuppression ?? false), setEnableNoiseSuppression2(pr.enableNoiseSuppression2 ?? false), setRealtimeOutputStatusEnabled(pr.realtimeOutputStatusEnabled ?? false), setRealtimeOutputStatusSendIntervalSec(pr.realtimeOutputStatusSendIntervalSec ?? 10), setProtocol(pr.protocol ?? "rest"), setRecordForAnalysis(pr.recordForAnalysis ?? false), setShowSampleAudioButton(pr.showSampleAudioButton ?? true));
         setSettingsLoaded(true);
+      } catch (pr) {
+        // A failed read/migration must never overwrite retained settings with defaults.
+        console.error("Failed to load settings:", pr);
       }
     })();
   }, []), ReactRuntime.useEffect(() => {

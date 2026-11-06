@@ -1,4 +1,5 @@
 // Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
@@ -335,6 +336,8 @@ const PerformanceArea = () => {
           },
           children: ["■ ", t("common.performance.output_buffer")]
         }), jsxRuntime.jsx("button", {
+          disabled: capabilityProps("refreshQueue").disabled || capabilityProps("truncateOutputBuffer").disabled,
+          title: capabilityProps("refreshQueue").title || capabilityProps("truncateOutputBuffer").title,
           style: {
             marginLeft: "15px",
             padding: "2px 8px",

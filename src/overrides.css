@@ -5,3 +5,18 @@
   border: 1px solid #be8937; border-radius: 8px; background: #322717;
   color: #ffe0aa; font: 14px/1.6 system-ui, sans-serif;
 }
+
+.connection-page { min-height:100vh; display:grid; place-items:center; padding:32px 20px; box-sizing:border-box; background:#f5f6f8; color:#1f2937; font:15px/1.65 system-ui,sans-serif; }
+.connection-card { width:min(620px,100%); padding:32px; box-sizing:border-box; background:#fff; border:1px solid #d7dce3; border-radius:12px; box-shadow:0 8px 32px #1620380b; }
+.connection-card h1 { margin:8px 0 16px; font-size:25px; }
+.connection-brand { color:#526078; font-size:12px; font-weight:700; letter-spacing:.1em; }
+.connection-card label { display:block; margin-top:24px; font-weight:600; }
+.connection-card input { width:100%; box-sizing:border-box; padding:11px 12px; margin-top:8px; border:1px solid #9aa6b5; border-radius:6px; font:inherit; }
+.connection-card input:focus-visible,.connection-card button:focus-visible,.connection-strip button:focus-visible { outline:3px solid #73a5f3; outline-offset:3px; }
+.connection-hint,.connection-note { font-size:13px; color:#526078; }
+.connection-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+.connection-card button,.connection-strip button { cursor:pointer; padding:10px 16px; border:1px solid #9aa6b5; border-radius:6px; background:#fff; color:#16253c; font:inherit; }
+.connection-card button[type=submit] { background:#245caa; border-color:#245caa; color:white; }
+.connection-card button:disabled { opacity:.55; cursor:wait; }
+.connection-note { margin:24px 0 0; border-top:1px solid #e1e5eb; padding-top:16px; }
+.connection-strip { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:8px 16px; font:13px/1.5 system-ui,sans-serif; background:#f5f6f8; color:#25344b; overflow-wrap:anywhere; }

@@ -1,4 +1,6 @@
 // Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+import { OutputDeviceRouter, silenceOutput } from "../../audio/device-routing.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTranslation, useTheme, Tooltip, IconButton, Button, FormControl, MenuItem, Select, Stack } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
@@ -9,6 +11,13 @@ const isDesktopApp = () => navigator.userAgent.indexOf("Electron") >= 0;
 const InputControls = () => {
   const {
       setInputAudio,
+      inputAudio,
+      isStarted,
+      isClientInitialized,
+      setIsStarted,
+      monitorAudio,
+      outputAudio,
+      getAudioMetrics,
       inputAudioType,
       setInputAudioType,
       selectedInputAudioDeviceId,
@@ -19,13 +28,15 @@ const InputControls = () => {
       serverConfiguration,
       serverAudioInputDevices,
       audioInputs,
-      setLocalVoiceChangerDummyInput
+      setLocalVoiceChangerDummyInput,
+      triggerToast
     } = useAppRoot(),
     theme = useTheme(),
     {
       t
     } = useTranslation(),
     te = ReactRuntime.useRef(null),
+    captureGeneration = ReactRuntime.useRef(0),
     [ie, ne] = ReactRuntime.useState(false),
     [isEchobackEnabled, setEchobackEnabled] = ReactRuntime.useState(false),
     [isLoopEnabled, setLoopEnabled] = ReactRuntime.useState(false),
@@ -50,42 +61,77 @@ const InputControls = () => {
   const selectedServerInputDevice = serverAudioInputDevices.find(Ie => Ie.index === serverConfiguration.audio_input_device_index),
     selectedBrowserInputDevice = audioInputs.find(Ie => Ie.deviceId === selectedInputAudioDeviceId);
   ReactRuntime.useEffect(() => {
-    if (console.log(t("common.controls.useeffect_log"), audioFile, inputAudioType), audioContext == null || audioFile == null || inputAudioType !== InputAudioType.FILE) return;
-    const Ie = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA);
-    if (Ie == null) return;
-    Ie.pause();
-    Ie.srcObject = null;
-    Ie.src = URL.createObjectURL(audioFile);
-    Ie.play();
-    mediaElementSourceRef.current || (mediaElementSourceRef.current = audioContext.createMediaElementSource(Ie));
-    mediaElementSourceRef.current.mediaElement != Ie && (mediaElementSourceRef.current = audioContext.createMediaElementSource(Ie));
-    const $e = audioContext.createMediaStreamDestination();
-    mediaElementSourceRef.current.connect($e);
-    setInputAudio($e.stream);
-    const Me = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA_ECHOBACK);
-    Me.srcObject = $e.stream;
-    Me.play();
-  }, [audioFile, audioContext, setInputAudio, inputAudioType, t]);
-  ReactRuntime.useEffect(() => {
-    if (audioContext == null || inputAudioType !== InputAudioType.SAMPLE || selectedSampleVoice.length == 0 || sampleVoices[selectedSampleVoice] == null) return;
-    const Ie = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA);
-    if (Ie == null) {
-      console.error(t("common.controls.audio_element_null"));
-      return;
+    const fileMode = inputAudioType === InputAudioType.FILE;
+    const sampleMode = inputAudioType === InputAudioType.SAMPLE;
+    if (isServerInputMode || !isStarted || !audioContext || (!fileMode && !sampleMode)) return;
+    if (fileMode ? !audioFile : !sampleVoices[selectedSampleVoice]) return;
+    const element = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA);
+    if (!element) return;
+    const uri = fileMode ? URL.createObjectURL(audioFile) : sampleVoices[selectedSampleVoice];
+    element.pause();
+    element.srcObject = null;
+    element.src = uri;
+    const previous = mediaElementSourceRef.current;
+    if (!previous || previous.context !== audioContext || previous.element !== element) {
+      previous?.node.disconnect();
+      mediaElementSourceRef.current = { context: audioContext, element,
+        node: audioContext.createMediaElementSource(element) };
     }
-    Ie.pause();
-    Ie.srcObject = null;
-    inputAudioType === InputAudioType.SAMPLE ? Ie.src = sampleVoices[selectedSampleVoice] : Ie.src = "";
-    Ie.play();
-    mediaElementSourceRef.current || (mediaElementSourceRef.current = audioContext.createMediaElementSource(Ie));
-    mediaElementSourceRef.current.mediaElement != Ie && (mediaElementSourceRef.current = audioContext.createMediaElementSource(Ie));
-    const $e = audioContext.createMediaStreamDestination();
-    mediaElementSourceRef.current.connect($e);
-    setInputAudio($e.stream);
-    const Me = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA_ECHOBACK);
-    Me.srcObject = $e.stream;
-    Me.play();
-  }, [audioContext, selectedSampleVoice, sampleVoices, setInputAudio, inputAudioType, t]);
+    const source = mediaElementSourceRef.current.node;
+    const destination = audioContext.createMediaStreamDestination();
+    source.connect(destination);
+    setInputAudio(destination.stream);
+    return () => {
+      element.pause();
+      source.disconnect(destination);
+      destination.stream.getTracks().forEach(track => track.stop());
+      destination.disconnect();
+      setInputAudio(current => current === destination.stream ? 'none' : current);
+      if (fileMode) URL.revokeObjectURL(uri);
+    };
+  }, [audioFile, audioContext, setInputAudio, inputAudioType, selectedSampleVoice, sampleVoices,
+    isServerInputMode, isStarted, setIsStarted, triggerToast]);
+  ReactRuntime.useEffect(() => {
+    if (isServerInputMode || !isStarted || !isClientInitialized
+        || ![InputAudioType.FILE, InputAudioType.SAMPLE].includes(inputAudioType)) return;
+    const element = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA);
+    let active = true;
+    let timer;
+    const playWhenRouted = () => {
+      if (!active) return;
+      const routes = getAudioMetrics();
+      const wanted = [[outputAudio, routes.output], [monitorAudio, routes.monitor]]
+        .filter(([deviceId]) => deviceId && deviceId !== 'none');
+      const error = wanted.find(([, route]) => route?.error);
+      if (error) {
+        triggerToast('error', '入力音声を停止しました。' + error[1].error);
+        setIsStarted(false);
+      } else if (wanted.every(([deviceId, route]) => route?.active && route.deviceId === deviceId)) {
+        element?.play().catch(failure => {
+          if (!active) return;
+          triggerToast('error', '入力音声を再生できません。' + failure.message);
+          setIsStarted(false);
+        });
+      } else timer = setTimeout(playWhenRouted, 50);
+    };
+    playWhenRouted();
+    return () => { active = false; clearTimeout(timer); element?.pause(); };
+  }, [isServerInputMode, isStarted, isClientInitialized, inputAudioType, audioFile, selectedSampleVoice,
+    setIsStarted, triggerToast, outputAudio, monitorAudio, getAudioMetrics]);
+  ReactRuntime.useEffect(() => {
+    if (!isServerInputMode && isStarted) return;
+    captureGeneration.current++;
+    te.current?.getTracks().forEach(track => track.stop());
+    te.current = null;
+    ne(false);
+    silenceOutput(document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA_ECHOBACK));
+    document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA)?.pause();
+  }, [isServerInputMode, isStarted]);
+  ReactRuntime.useEffect(() => () => {
+    captureGeneration.current++;
+    te.current?.getTracks().forEach(track => track.stop());
+    silenceOutput(document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA_ECHOBACK));
+  }, []);
   const sendSampleToServer = ReactRuntime.useCallback(async Ie => {
     try {
       let $e = Ie;
@@ -96,10 +142,14 @@ const InputControls = () => {
     }
   }, [setLocalVoiceChangerDummyInput, t]);
   ReactRuntime.useEffect(() => {
-    const Ie = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA_ECHOBACK);
-    console.log("Echoback muted:::", isEchobackEnabled, audioContext);
-    Ie != null && (isEchobackEnabled ? Ie.muted = false : Ie.muted = true);
-  }, [isEchobackEnabled, audioContext, audioFile, selectedSampleVoice, inputAudioType]);
+    const element = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA_ECHOBACK);
+    if (!element) return;
+    const router = new OutputDeviceRouter(element);
+    if (!isServerInputMode && isStarted && isEchobackEnabled && inputAudio instanceof MediaStream) {
+      router.route(monitorAudio, inputAudio).catch(error => triggerToast('error', error.message));
+    }
+    return () => router.clear();
+  }, [isEchobackEnabled, isServerInputMode, isStarted, inputAudio, monitorAudio, triggerToast]);
   ReactRuntime.useEffect(() => {
     const Ie = document.getElementById(AUDIO_ELEMENT_FOR_INPUT_MEDIA);
     Ie != null && (Ie.loop = isLoopEnabled);
@@ -189,7 +239,7 @@ const InputControls = () => {
           Ie.type = "file";
           Ie.onchange = $e => {
             const Me = $e.target.files;
-            Me && setAudioFile(Me[0]);
+            if (Me?.length) { setIsStarted(false); setAudioFile(Me[0]); }
           };
           Ie.click();
         },
@@ -201,7 +251,7 @@ const InputControls = () => {
           Ie.preventDefault();
           Ie.stopPropagation();
           const $e = Ie.dataTransfer.files;
-          $e.length > 0 && setAudioFile($e[0]);
+          if ($e.length > 0) { setIsStarted(false); setAudioFile($e[0]); }
         },
         style: {
           width: "100%",
@@ -254,18 +304,25 @@ const InputControls = () => {
         },
         hidden: true
       })]
-    }), [t, inputAudioType, echobackToggleButton, loopToggleButton, theme.palette.mode]),
+    }), [t, inputAudioType, audioFile, echobackToggleButton, loopToggleButton, theme.palette.mode, setIsStarted]),
     qe = ReactRuntime.useMemo(() => inputAudioType !== InputAudioType.CAPTURE ? null : jsxRuntime.jsx("div", {
       style: {
         marginBottom: "20px"
       },
       children: jsxRuntime.jsx(IconButton, {
+        disabled: isServerInputMode || !isStarted,
+        title: !isStarted ? "開始後に画面共有を選択してください。" : undefined,
         onClick: () => {
           (async () => {
+            if (isServerInputMode || !isStarted) return;
+            const generation = ++captureGeneration.current;
+            let captured;
             if (te.current && (te.current.getTracks().forEach($e => {
               $e.stop();
             }), te.current = null), ie == true) {
               ne(false);
+              setInputAudio("none");
+              setIsStarted(false);
               return;
             }
             try {
@@ -282,8 +339,8 @@ const InputControls = () => {
                     }
                   }
                 };
-                te.current = await navigator.mediaDevices.getUserMedia($e);
-              } else te.current = await navigator.mediaDevices.getDisplayMedia({
+                captured = await navigator.mediaDevices.getUserMedia($e);
+              } else captured = await navigator.mediaDevices.getDisplayMedia({
                 video: true,
                 audio: true
               });
@@ -291,6 +348,11 @@ const InputControls = () => {
               console.error(t("common.controls.capture_error"), $e);
               return;
             }
+            if (generation !== captureGeneration.current) {
+              captured?.getTracks().forEach(track => track.stop());
+              return;
+            }
+            te.current = captured;
             if (!te.current) {
               console.error(t("common.controls.capture_no_media_stream"));
               return;
@@ -338,7 +400,7 @@ const InputControls = () => {
           })]
         })
       })
-    }), [t, inputAudioType, ie, setInputAudio]),
+    }), [t, inputAudioType, ie, setInputAudio, isServerInputMode, isStarted, setIsStarted]),
     ze = ReactRuntime.useMemo(() => inputAudioType !== InputAudioType.SAMPLE || isServerInputMode != true || selectedSampleVoice == "" ? null : jsxRuntime.jsxs("div", {
       style: {
         display: "flex",
@@ -348,6 +410,8 @@ const InputControls = () => {
       },
       children: [jsxRuntime.jsx(Button, {
         variant: "outlined",
+        disabled: true,
+        title: "Server Device では接続先の音声だけを使用します。",
         startIcon: jsxRuntime.jsx(PlayArrow, {}),
         onClick: () => {
           sampleVoices[selectedSampleVoice] && new Audio(sampleVoices[selectedSampleVoice]).play().catch($e => {
@@ -362,6 +426,7 @@ const InputControls = () => {
       }), jsxRuntime.jsx(Button, {
         variant: "contained",
         startIcon: jsxRuntime.jsx(Send, {}),
+        ...capabilityProps("setLocalVoiceChangerDummyInput"),
         onClick: () => {
           sampleVoices[selectedSampleVoice] && sendSampleToServer(sampleVoices[selectedSampleVoice]);
         },
@@ -402,6 +467,7 @@ const InputControls = () => {
           value: selectedSampleVoice,
           onChange: Ie => {
             const $e = Ie.target.value;
+            setIsStarted(false);
             setSelectedSampleVoice($e);
           },
           displayEmpty: true,
@@ -443,7 +509,7 @@ const InputControls = () => {
       children: [jsxRuntime.jsx(Tooltip, {
         title: t("common.controls.microphone_input"),
         children: jsxRuntime.jsx(IconButton, {
-          onClick: () => setInputAudioType("microphone"),
+          onClick: () => { setIsStarted(false); setInputAudioType("microphone"); },
           color: inputAudioType === "microphone" ? "primary" : "default",
           size: "large",
           sx: {
@@ -482,7 +548,7 @@ const InputControls = () => {
       }), jsxRuntime.jsx(Tooltip, {
         title: t("common.controls.file_input"),
         children: jsxRuntime.jsx(IconButton, {
-          onClick: () => setInputAudioType("file"),
+          onClick: () => { setIsStarted(false); setInputAudioType("file"); },
           color: inputAudioType === "file" ? "primary" : "default",
           size: "large",
           disabled: isServerInputMode,
@@ -522,7 +588,7 @@ const InputControls = () => {
       }), jsxRuntime.jsx(Tooltip, {
         title: t("common.controls.screen_capture"),
         children: jsxRuntime.jsx(IconButton, {
-          onClick: () => setInputAudioType("capture"),
+          onClick: () => { setIsStarted(false); setInputAudioType("capture"); },
           color: inputAudioType === "capture" ? "primary" : "default",
           size: "large",
           disabled: isServerInputMode,
@@ -562,7 +628,7 @@ const InputControls = () => {
       }), showSampleAudioButton && jsxRuntime.jsx(Tooltip, {
         title: t("common.controls.sample_input"),
         children: jsxRuntime.jsx(IconButton, {
-          onClick: () => setInputAudioType("sample"),
+          onClick: () => { setIsStarted(false); setInputAudioType("sample"); },
           color: inputAudioType === "sample" ? "primary" : "default",
           size: "large",
           sx: {

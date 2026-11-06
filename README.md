@@ -70,8 +70,10 @@ npm run test:browser
 
 ## 当前接口边界
 
-需要兼容 2.1.4 的 `/api/...` 后端。旧版 `voice-changer` 的 `/info`、`/update_settings`
-接口尚未适配；新客户端不能直接替代旧前端操作该后端。
+Tauri は起動時に localhost:18888 を探測し、旧 VCC と 2.x を識別します。旧 VCC の制御は
+集中した LegacyVccAdapter で変換し、未対応操作は理由付きで無効化します。
+実音声の受入状況と各段階の commit 組合せは、親 voice-changer の
+`docs/development/implementation-progress.md` に集約します。起動手順は [TAURI.md](TAURI.md) にあります。
 浏览器模式尚未实现全局快捷键与原生浮窗，相关能力不会报告虚假的成功状态。
 Tauri 试用版提供原生快捷键注册和日志窗口，快捷键状态提示采用应用内通知。
 

@@ -3,6 +3,7 @@ import { reactExports as ReactRuntime, useTranslation } from "../vendor/recovere
 import { log$1 as logMessage } from "../shared/logger.js";
 import { VOICE_CHANGER_CLIENT_EXCEPTION } from "../domain/constants.js";
 import { VCRestClient as VoiceChangerApiClient } from "../api/VoiceChangerApiClient.js";
+import { backendClient } from "../api/BackendClient.js";
 const codeFilename$1 = import.meta.url.split("/").pop();
 const logPrefix$1 = `[${codeFilename$1}]`;
 const DefaultServerConfiguration = {
@@ -53,6 +54,7 @@ const useServerConfig = options => {
     [serverSlotInfos, setServerSlotInfos] = ReactRuntime.useState([]),
     [samples, setSamples] = ReactRuntime.useState([]),
     [localVoiceChangerInterfaceInfo, setLocalVoiceChangerInterfaceInfo] = ReactRuntime.useState(),
+    [serverConnectionError, setServerConnectionError] = ReactRuntime.useState(''),
     reloadServerConfiguration = ReactRuntime.useCallback(async () => {
       const Ut = await restClient.getServerConfiguration();
       setServerConfiguration(Ut);
@@ -87,18 +89,39 @@ const useServerConfig = options => {
     }, [restClient]);
   ReactRuntime.useEffect(() => {
     logMessage("info", logPrefix$1, "load server information");
-    reloadServerConfiguration();
-    reloadServerAudioInputDevices();
-    reloadServerAudioOutputDevices();
-    reloadServerGpuInfo();
-    reloadServerModuleStatus();
-    reloadSamples();
-    reloadServerSlotInfos();
-    reloadLocalVoiceChangerInterfaceInfo();
+    let active = true;
+    Promise.allSettled([reloadServerConfiguration(), reloadServerAudioInputDevices(),
+      reloadServerAudioOutputDevices(), reloadServerGpuInfo(), reloadServerModuleStatus(),
+      reloadSamples(), reloadServerSlotInfos(), reloadLocalVoiceChangerInterfaceInfo()]).then(results => {
+      if (!active) return;
+      const failure = results.find(result => result.status === 'rejected');
+      setServerConnectionError(failure ? failure.reason.message || failure.reason.reason || String(failure.reason) : '');
+    });
+    return () => { active = false; };
   }, [restClient, reloadServerConfiguration, reloadServerAudioInputDevices, reloadServerAudioOutputDevices, reloadServerGpuInfo, reloadServerModuleStatus, reloadSamples, reloadServerSlotInfos, reloadLocalVoiceChangerInterfaceInfo]);
+  ReactRuntime.useEffect(() => {
+    if (backendClient.state.protocol !== 'legacy-vcc') return;
+    let active = true;
+    let pending = false;
+    const timer = setInterval(async () => {
+      if (pending) return;
+      pending = true;
+      try {
+        await Promise.all([reloadServerConfiguration(), reloadLocalVoiceChangerInterfaceInfo()]);
+        if (active) setServerConnectionError('');
+      } catch (error) {
+        if (active) setServerConnectionError(error.message || error.reason || String(error));
+      } finally { pending = false; }
+    }, 1000);
+    return () => { active = false; clearInterval(timer); };
+  }, [reloadServerConfiguration, reloadLocalVoiceChangerInterfaceInfo]);
   ReactRuntime.useEffect(() => {
     restClient.setEnableFlatPath(options.flatPath);
   }, [restClient, options.flatPath]);
+  ReactRuntime.useEffect(() => {
+    if (backendClient.state.protocol !== 'legacy-vcc') return;
+    reloadServerSlotInfos().catch(error => setServerConnectionError(error.message || error.reason || String(error)));
+  }, [serverConfiguration.current_slot_index, reloadServerSlotInfos]);
   const withHttpErrorToast = ReactRuntime.useCallback(async Ut => {
       try {
         await Ut();
@@ -108,13 +131,16 @@ const useServerConfig = options => {
         if (mr.type == VOICE_CHANGER_CLIENT_EXCEPTION.ERR_HTTP_EXCEPTION) {
           const gr = `${mr.status}[${mr.statusText}]: ${mr.reason} ${mr.action}`;
           options.triggerToast("error", gr);
-        } else throw nr;
+        }
+        throw nr;
       }
     }, [options, t]),
     Ce = ReactRuntime.useCallback(async Ut => {
-      await restClient.updateServerConfiguration(Ut);
-      reloadServerConfiguration();
-      reloadServerSlotInfos();
+      const patch = { ...Ut };
+      // Legacy's raw chunk size is a readback mirror. The UI writes it only via chunk_sec.
+      if (backendClient.state.protocol === "legacy-vcc") delete patch.server_read_chunk_size;
+      await restClient.updateServerConfiguration(patch);
+      await Promise.all([reloadServerConfiguration(), reloadServerSlotInfos()]);
     }, [restClient, reloadServerConfiguration, reloadServerSlotInfos]),
     updateServerConfiguration = ReactRuntime.useCallback(async Ut => {
       await withHttpErrorToast(async () => {
@@ -130,22 +156,27 @@ const useServerConfig = options => {
       return reloadServerSlotInfos(), mr;
     }, [restClient, reloadServerSlotInfos]),
     uploadModelFile = ReactRuntime.useCallback(async (Ut, nr, mr, gr = null, Zt) => {
-      if (nr === "RVC") {
-        const yr = mr.find(_r => _r.kind === "rvcModel")?.file,
-          xr = mr.find(_r => _r.kind === "rvcIndex")?.file || null;
-        if (!yr) throw new Error(t("common.error_messages.rvc_model_file_required"));
-        await restClient.uploadRVCModelFile(Ut, yr, xr, gr, Zt);
-      } else if (nr === "Beatrice_v2") {
-        const yr = mr.find(xr => xr.kind === "beatriceV2Zip")?.file;
-        if (!yr) throw new Error(t("common.error_messages.beatrice_v2_zip_file_required"));
-        await restClient.uploadBeatriceV2ModelFile(Ut, yr, Zt);
-      } else throw new Error(t("common.error_messages.not_supported_voice_changer_type"));
-      reloadServerSlotInfos();
+      try {
+        if (nr === "RVC") {
+          const yr = mr.find(_r => _r.kind === "rvcModel")?.file,
+            xr = mr.find(_r => _r.kind === "rvcIndex")?.file || null;
+          if (!yr) throw new Error(t("common.error_messages.rvc_model_file_required"));
+          await restClient.uploadRVCModelFile(Ut, yr, xr, gr, Zt);
+        } else if (nr === "Beatrice_v2") {
+          const yr = mr.find(xr => xr.kind === "beatriceV2Zip")?.file;
+          if (!yr) throw new Error(t("common.error_messages.beatrice_v2_zip_file_required"));
+          await restClient.uploadBeatriceV2ModelFile(Ut, yr, Zt);
+        } else throw new Error(t("common.error_messages.not_supported_voice_changer_type"));
+      } finally {
+        await reloadServerSlotInfos().catch(error => logMessage('error', logPrefix$1, error));
+      }
     }, [restClient, reloadServerSlotInfos, t]),
     updateServerSlotInfo = ReactRuntime.useCallback(async Ut => {
       await restClient.updateServerSlotInfo(Ut);
-      reloadServerSlotInfos();
-    }, [restClient, reloadServerSlotInfos]),
+      if (backendClient.state.protocol === "legacy-vcc" && Ut.chunk_sec != null) {
+        await Promise.all([reloadServerSlotInfos(), reloadServerConfiguration()]);
+      } else await reloadServerSlotInfos();
+    }, [restClient, reloadServerSlotInfos, reloadServerConfiguration]),
     deleteServerSlotInfo = ReactRuntime.useCallback(async Ut => {
       await restClient.deleteServerSlotInfo(Ut);
       reloadServerSlotInfos();
@@ -236,6 +267,7 @@ const useServerConfig = options => {
     samples,
     serverSlotInfos,
     localVoiceChangerInterfaceInfo,
+    serverConnectionError,
     reloadServerConfiguration,
     reloadServerAudioInputDevices,
     reloadServerAudioOutputDevices,

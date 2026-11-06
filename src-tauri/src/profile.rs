@@ -135,6 +135,7 @@ fn apply_pending_reset_with_retry(profile: &Path, timeout: Duration) -> Result<(
             Err(error) => return Err(error.message()),
         }
     }
+    crate::connection::clear_global_settings(&root)?;
     fs::remove_file(marker).map_err(|error| format!("Cannot finish profile reset: {error}"))
 }
 

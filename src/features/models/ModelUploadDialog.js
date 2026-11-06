@@ -1,4 +1,5 @@
 // Extracted from the preserved 2.1.4-alpha baseline; editable application source.
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, React, useTranslation, useTheme, IconButton, Button, FormControl, InputLabel, LinearProgress, MenuItem, Select } from "../../vendor/recovered-runtime.js";
 import { useAppRoot } from "../../state/app-root-context.js";
 import { ConfirmationDialog } from "../../components/common/ConfirmationDialog.js";
@@ -104,6 +105,7 @@ const ModelUploadDialog = props => {
       setUploadCompleteDialogOpen(false);
       onClose();
     }, [onClose]),
+    uploadCapability = capabilityProps(voiceChangerType === VoiceChangerType.Beatrice_v2 ? "uploadBeatriceV2ModelFile" : "uploadRVCModelFile", isUploading),
     uploadDialog = ReactRuntime.useMemo(() => jsxRuntime.jsx("div", {
       style: {
         position: "fixed",
@@ -119,6 +121,9 @@ const ModelUploadDialog = props => {
       },
       onClick: onClose,
       children: jsxRuntime.jsxs("div", {
+        role: 'dialog',
+        'aria-label': 'モデルをアップロード',
+        'data-slot-index': props.slotIndex,
         style: {
           backgroundColor: theme.palette.background.paper,
           borderRadius: "8px",
@@ -144,6 +149,7 @@ const ModelUploadDialog = props => {
             children: t("common.model_upload.title")
           }), jsxRuntime.jsx(IconButton, {
             onClick: onClose,
+            'aria-label': '閉じる',
             size: "large",
             sx: {
               color: theme.palette.text.secondary
@@ -166,17 +172,22 @@ const ModelUploadDialog = props => {
           children: [jsxRuntime.jsx(InputLabel, {
             id: "voice-changer-type-label",
             children: t("common.model_upload.voice_changer_type")
-          }), jsxRuntime.jsx(Select, {
+          }), jsxRuntime.jsxs(Select, {
             labelId: "voice-changer-type-label",
             value: voiceChangerType,
             label: t("common.model_upload.voice_changer_type"),
             onChange: be => {
               be.target.value === VoiceChangerType.RVC ? setVoiceChangerType(be.target.value) : be.target.value === VoiceChangerType.Beatrice_v2 && alert(t("common.model_upload.beatrice_v2_not_supported_yet"));
             },
-            children: jsxRuntime.jsx(MenuItem, {
+            children: [jsxRuntime.jsx(MenuItem, {
               value: VoiceChangerType.RVC,
               children: "RVC"
-            })
+            }), jsxRuntime.jsx(MenuItem, {
+              value: VoiceChangerType.Beatrice_v2,
+              ...capabilityProps("uploadBeatriceV2ModelFile", true),
+              title: capabilityProps("uploadBeatriceV2ModelFile").title || "Beatrice v2 のアップロードは現在利用できません。",
+              children: "Beatrice v2"
+            })]
           })]
         }), voiceChangerType === VoiceChangerType.RVC && jsxRuntime.jsxs("div", {
           style: {
@@ -288,6 +299,7 @@ const ModelUploadDialog = props => {
             variant: "outlined",
             component: "span",
             onClick: () => zipFileInputRef.current?.click(),
+            ...capabilityProps("uploadBeatriceV2ModelFile"),
             sx: {
               marginRight: "10px",
               width: 200,
@@ -308,6 +320,7 @@ const ModelUploadDialog = props => {
             })
           }), jsxRuntime.jsx("input", {
             ref: zipFileInputRef,
+            ...capabilityProps("uploadBeatriceV2ModelFile"),
             type: "file",
             accept: ".zip",
             style: {
@@ -351,11 +364,13 @@ const ModelUploadDialog = props => {
             variant: "contained",
             color: "primary",
             onClick: uploadModel,
+            'data-testid': 'submit-model-upload',
+            ...uploadCapability,
             children: t("common.model_upload.upload_button")
           })
         })]
       })
-    }), [onClose, t, theme, voiceChangerType, modelFile, indexFile, beatriceZipFile, uploadModel, props.slotIndex, isUploading, uploadProgress]);
+    }), [onClose, t, theme, voiceChangerType, modelFile, indexFile, beatriceZipFile, uploadModel, props.slotIndex, isUploading, uploadProgress, uploadCapability.disabled, uploadCapability.title]);
   return jsxRuntime.jsxs(jsxRuntime.Fragment, {
     children: [uploadDialog, jsxRuntime.jsx(ConfirmationDialog, {
       isOpen: isUploadCompleteDialogOpen,

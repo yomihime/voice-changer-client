@@ -4,5 +4,6 @@ description = "Client settings, log window, safe external links and application 
 commands.allow = [
   "get_shortcut_settings", "update_shortcut_settings", "register_shortcuts",
   "open_browser_url", "open_log_window", "show_notification_window_with_message",
+  "get_connection_profile", "configure_backend", "load_global_settings", "save_global_settings",
   "set_clear_site_data_and_stop_app"
 ]

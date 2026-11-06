@@ -1,233 +1,363 @@
-// Extracted from the preserved 2.1.4-alpha baseline; editable application source.
-import { reactExports as ReactRuntime, useTranslation } from "../vendor/recovered-runtime.js";
+// Client audio is owned by an explicit Start session, independent of Server Device.
+import { reactExports as ReactRuntime } from "../vendor/recovered-runtime.js";
 import { useAppRoot } from "../state/app-root-context.js";
-import { log$1 as logMessage } from "../shared/logger.js";
 import { downloadAsWav } from "../audio/wav.js";
-import { VoiceChangerType } from "../domain/constants.js";
 import { VoiceChangerClient } from "../audio/VoiceChangerClient.js";
+import { OutputDeviceRouter } from "../audio/device-routing.js";
 import { generateTimestamp } from "../shared/recordings.js";
-const codeFilename = import.meta.url.split("/").pop();
-const logPrefix = `[${codeFilename}]`;
+import { backendClient } from "../api/BackendClient.js";
+import { VCRestClient } from "../api/VoiceChangerApiClient.js";
+
 const useVoiceChangerClient = options => {
-  const {
-      t
-    } = useTranslation(),
-    triggerToast = options.triggerToast,
-    {
-      currentSlotInfo,
-      reloadLocalVoiceChangerInterfaceInfo
-    } = useAppRoot(),
-    voiceChangerClient = ReactRuntime.useMemo(() => new VoiceChangerClient(), []),
-    [isClientInitialized, setClientInitialized] = ReactRuntime.useState(false),
-    [outputBufferSizeHistory, setOutputBufferSizeHistory] = ReactRuntime.useState([]),
-    [outputBufferSizeMonitoringEnabled, setOutputBufferMonitoringEnabledState] = ReactRuntime.useState(false),
-    outputBufferSizeCallbackRef = ReactRuntime.useRef(null);
-  ReactRuntime.useEffect(() => {
-    options.ctx != null && (logMessage("info", logPrefix, "initializing client..... only one called.."), voiceChangerClient.initialize(options.ctx, false), voiceChangerClient.setVoiceChangerExceptionListener({
-      onException: (he, me) => {
-        logMessage("error", logPrefix, `onException: ${he} ${me}`);
-        he == "LOCAL_VOICE_CHANGER_INTERFACE_RUN_ERROR" && (triggerToast("error", t("common.error_messages.server_device_init_failed")), reloadLocalVoiceChangerInterfaceInfo());
+  const { currentSlotInfo, serverConfiguration, localVoiceChangerInterfaceInfo, ensureAudioContext, reloadDeviceInfo, reloadLocalVoiceChangerInterfaceInfo } = useAppRoot();
+  const settings = options.globaSetting;
+  const voiceChangerClient = ReactRuntime.useMemo(() => new VoiceChangerClient(), []);
+  const [isClientInitialized, setClientInitialized] = ReactRuntime.useState(false);
+  const [clientAudioStatus, setClientAudioStatus] = ReactRuntime.useState({ phase: "stopped", error: null });
+  const [outputBufferSizeHistory, setOutputBufferSizeHistory] = ReactRuntime.useState([]);
+  const [outputBufferSizeMonitoringEnabled, setOutputBufferMonitoringEnabledState] = ReactRuntime.useState(false);
+  const [audioState, setAudioState] = ReactRuntime.useState(backendClient.audioState ?? { revision: 0, blocked: false });
+  const [deviceRevision, setDeviceRevision] = ReactRuntime.useState(0);
+  const outputRouterRef = ReactRuntime.useRef(null);
+  const monitorRouterRef = ReactRuntime.useRef(null);
+  const outputBufferSizeCallbackRef = ReactRuntime.useRef(null);
+  const lastErrorRef = ReactRuntime.useRef(null);
+  const inputConfigurationRef = ReactRuntime.useRef(null);
+  const recordingFinalizationRef = ReactRuntime.useRef(null);
+  const intentRef = ReactRuntime.useRef(null);
+  const clientMode = serverConfiguration?.voice_changer_input_mode === "client";
+  const desiredRunning = clientMode && settings.isStarted === true;
+  const inputReady = settings.inputAudioType === "microphone"
+    ? typeof settings.inputAudio === "string" && settings.inputAudio !== "none" && settings.inputAudio.length > 0
+    : typeof settings.inputAudio?.getTracks === "function";
+  intentRef.current = { desiredRunning, clientMode, context: options.ctx, revision: audioState.revision };
+  const inputConfiguration = [settings.inputAudioType, settings.inputAudio, settings.enableEchoCancellation,
+    settings.enableNoiseSuppression, settings.enableNoiseSuppression2, settings.protocol, settings.isPassthrough,
+    serverConfiguration?.voice_changer_input_mode, serverConfiguration?.gpu_device_id_int,
+    serverConfiguration?.input_sample_rate, serverConfiguration?.output_sample_rate, serverConfiguration?.rvc_backend, currentSlotInfo?.slot_index,
+    currentSlotInfo?.chunk_sec, currentSlotInfo?.runtime_available, localVoiceChangerInterfaceInfo?.local_voice_changer_interface_active];
+
+  const preflightStart = ReactRuntime.useCallback(() => {
+    if (localVoiceChangerInterfaceInfo?.local_voice_changer_interface_active) throw new Error("Server Device が動作中です。停止してから Client Device を開始してください。");
+    if (settings.inputAudioType === "microphone" && !inputReady) throw new Error("入力デバイスを選択してください。");
+    if ((!settings.outputAudio || settings.outputAudio === "none") && (!settings.monitorAudio || settings.monitorAudio === "none")) {
+      throw new Error("出力またはモニターデバイスを選択してください。音声設定から選択できます。");
+    }
+    if (settings.isPassthrough === true) {
+      return;
+    }
+    const capability = VCRestClient.getInstance().getCapabilities?.().clientAudio;
+    if (capability?.supported === false) throw new Error(capability.reason);
+    const ready = backendClient.state?.protocol === "legacy-vcc"
+      ? currentSlotInfo?.runtime_available === true
+      : currentSlotInfo?.voice_changer_type != null && currentSlotInfo.runtime_available !== false;
+    if (!ready) throw new Error("対応モデルを読み込んでから開始してください。");
+    if (backendClient.state?.protocol === "legacy-vcc" && options.ctx &&
+        (serverConfiguration.input_sample_rate !== options.ctx.sampleRate || serverConfiguration.output_sample_rate !== options.ctx.sampleRate)) {
+      const recovery = options.ctx.sampleRate === 48000
+        ? "停止中に音声設定で Server Device → Client Device とモードを選び直すと、Server の入力・出力が標準の 48000 Hz になります。その後、開始し直してください。"
+        : "Client の起動時サンプルレートと Server の入力・出力設定を一致させてから、開始し直してください。";
+      throw new Error(`サンプルレートが一致しません（Client ${options.ctx.sampleRate} Hz / Server 入力 ${serverConfiguration.input_sample_rate} Hz・出力 ${serverConfiguration.output_sample_rate} Hz）。${recovery}`);
+    }
+  }, [localVoiceChangerInterfaceInfo, settings.inputAudioType, inputReady, settings.isPassthrough, settings.outputAudio,
+    settings.monitorAudio, currentSlotInfo, serverConfiguration, options.ctx]);
+
+  const silenceRoutes = ReactRuntime.useCallback(() => {
+    outputRouterRef.current?.clear();
+    monitorRouterRef.current?.clear();
+  }, []);
+  const stopSession = ReactRuntime.useCallback(() => {
+    silenceRoutes();
+    voiceChangerClient.stop().catch(error => console.error("Audio stop failed", error));
+    voiceChangerClient.dispose();
+    setClientInitialized(false);
+    setClientAudioStatus({ phase: "stopped", error: null });
+    settings.setIsStarted?.(false);
+    settings.setIsOutputRecording?.(false);
+  }, [voiceChangerClient, silenceRoutes, settings.setIsStarted, settings.setIsOutputRecording]);
+  const failSession = ReactRuntime.useCallback(error => {
+    lastErrorRef.current = error.message ?? String(error);
+    stopSession();
+    setClientAudioStatus({ phase: "failed", error: lastErrorRef.current });
+    options.triggerToast("error", "音声処理を停止しました。" + lastErrorRef.current);
+  }, [stopSession, options.triggerToast]);
+  const reportRouteError = ReactRuntime.useCallback(error => {
+    lastErrorRef.current = error.message ?? String(error);
+    options.triggerToast("error", lastErrorRef.current);
+  }, [options.triggerToast]);
+  const finalizeOrdinaryStop = ReactRuntime.useCallback(() => {
+    if (recordingFinalizationRef.current) return recordingFinalizationRef.current;
+    if (voiceChangerClient.disposed) return Promise.resolve();
+    silenceRoutes();
+    setClientInitialized(false);
+    settings.setIsOutputRecording?.(false);
+    const generation = voiceChangerClient.generation;
+    const sampleRate = voiceChangerClient.ctx?.sampleRate;
+    const operation = voiceChangerClient.finalizeRecording().then(result => {
+      if (generation !== voiceChangerClient.generation) return;
+      for (const { kind, samples } of result.recordings) downloadAsWav(samples, `${kind}_client_${generateTimestamp()}.wav`, sampleRate);
+      if (result.errors.length > 0) {
+        const message = result.errors.map(error => error.message ?? String(error)).join(" / ");
+        reportRouteError(new Error("録音の保存に失敗しました。" + message));
       }
-    }));
-  }, [options.ctx, voiceChangerClient, reloadLocalVoiceChangerInterfaceInfo, triggerToast, t]);
-  ReactRuntime.useEffect(() => {
-    if (!voiceChangerClient) return;
-    (async () => {
-      await voiceChangerClient.isInitialized();
-      setClientInitialized(true);
-    })();
-  }, [voiceChangerClient]);
-  ReactRuntime.useEffect(() => {
-    if (!isClientInitialized) return;
-    logMessage("info", logPrefix, "inputAudioType", options.globaSetting.inputAudioType);
-    logMessage("info", logPrefix, "inputAudio", options.globaSetting.inputAudio);
-    const me = voiceChangerClient.getClientSetting().voiceChangerClientSetting;
-    (options.globaSetting.inputAudioType === "microphone" && typeof options.globaSetting.inputAudio == "string" || options.globaSetting.inputAudioType === "file" && options.globaSetting.inputAudio instanceof MediaStream || options.globaSetting.inputAudioType === "capture" && options.globaSetting.inputAudio instanceof MediaStream || options.globaSetting.inputAudioType === "sample" && options.globaSetting.inputAudio instanceof MediaStream) && (me.audioInput = options.globaSetting.inputAudio);
-    me.inputGain = options.globaSetting.nodeInputGain;
-    me.outputGain = options.globaSetting.nodeOutputGain;
-    me.monitorGain = options.globaSetting.nodeMonitorGain;
-    me.echoCancel = options.globaSetting.enableEchoCancellation;
-    me.noiseSuppression = options.globaSetting.enableNoiseSuppression;
-    me.noiseSuppression2 = options.globaSetting.enableNoiseSuppression2;
-    console.log("clientSetting", me);
-    voiceChangerClient.updateClientSetting({
-      ...me
+      const metrics = result.metrics.processor ?? {};
+      if (result.recordings.length > 0 && (metrics.inputRecordingTruncated || metrics.outputRecordingTruncated)) options.triggerToast("warning", "録音は上限に達したため一部を保存しています。");
+    }).catch(reportRouteError);
+    const tracked = operation.finally(() => {
+      if (generation === voiceChangerClient.generation) voiceChangerClient.dispose();
+      if (recordingFinalizationRef.current === tracked) recordingFinalizationRef.current = null;
     });
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.inputAudioType, options.globaSetting.inputAudio, options.globaSetting.nodeInputGain, options.globaSetting.nodeOutputGain, options.globaSetting.nodeMonitorGain, options.globaSetting.enableEchoCancellation, options.globaSetting.enableNoiseSuppression, options.globaSetting.enableNoiseSuppression2]);
+    recordingFinalizationRef.current = tracked;
+    return tracked;
+  }, [voiceChangerClient, silenceRoutes, settings.setIsOutputRecording, reportRouteError, options.triggerToast]);
+
   ReactRuntime.useEffect(() => {
+    let revision = backendClient.audioState?.revision ?? 0;
+    const unsubscribeAudio = backendClient.onAudioChange?.(state => {
+      const changed = state.revision !== revision;
+      revision = state.revision;
+      setAudioState({ ...state });
+      if (state.blocked || changed) {
+        lastErrorRef.current = state.error ?? null;
+        stopSession();
+      }
+    });
+    const unsubscribeConnection = backendClient.onInvalidate(stopSession);
+    return () => { unsubscribeAudio?.(); unsubscribeConnection(); stopSession(); };
+  }, [stopSession]);
+
+  ReactRuntime.useEffect(() => {
+    if (!desiredRunning || options.ctx != null) return;
+    let active = true;
     (async () => {
-      if (!isClientInitialized) return;
-      if (options.globaSetting.outputAudioElementId == null) {
-        console.warn("[voiceChangerClient] audioOutputElementId not set for audio output.");
+      preflightStart();
+      setClientAudioStatus({ phase: "preparing", error: null });
+      if (audioState.blocked && backendClient.clearAudioError?.() !== true) throw new Error(audioState.error || "バックエンドの変更処理が完了していません。");
+      if (typeof ensureAudioContext !== "function") throw new Error("音声コンテキストを作成できません。");
+      await ensureAudioContext();
+    })().catch(error => { if (active) failSession(error); });
+    return () => { active = false; };
+  }, [desiredRunning, options.ctx, audioState.blocked, audioState.error, ensureAudioContext, failSession, preflightStart]);
+
+  // Changes that recreate the input require a fresh explicit Start. Gain changes
+  // are handled separately and do not re-request microphone permission.
+  ReactRuntime.useEffect(() => {
+    const previous = inputConfigurationRef.current;
+    inputConfigurationRef.current = inputConfiguration;
+    if (!previous || !settings.isStarted) return;
+    const changed = previous.map((value, index) => value !== inputConfiguration[index] ? index : -1).filter(index => index >= 0);
+    const preparedInput = settings.inputAudioType !== "microphone" && inputReady
+      && (previous[1] == null || previous[1] === "none") && changed.every(index => index === 1);
+    if (changed.length > 0 && !preparedInput) stopSession();
+  }, [...inputConfiguration, voiceChangerClient, stopSession]);
+
+  ReactRuntime.useEffect(() => {
+    if (!desiredRunning || options.ctx == null) {
+      silenceRoutes();
+      if (!desiredRunning && clientMode) finalizeOrdinaryStop();
+      else voiceChangerClient.dispose();
+      setClientInitialized(false);
+      if (!clientMode && settings.isStarted) settings.setIsStarted?.(false);
+      return;
+    }
+    if (!inputReady) {
+      if (settings.inputAudioType === "microphone") {
+        failSession(new Error("入力デバイスを選択してください。音声設定から選択できます。"));
         return;
       }
-      const me = document.getElementById(options.globaSetting.outputAudioElementId);
-      if (!me) {
-        console.warn("[voiceChangerClient] audioOutputElementId not set for audio output.");
-        return;
-      }
-      if (options.globaSetting.outputAudio == "none") {
-        console.warn("[voiceChangerClient] audioOutputDevice not set for audio output.");
-        me.volume = 0;
-        me.muted = true;
-        return;
-      }
-      if (!(await navigator.mediaDevices.enumerateDevices()).filter(xe => xe.kind == "audiooutput").some(xe => xe.deviceId == options.globaSetting.outputAudio)) {
-        console.warn(`[voiceChangerClient] audioOutputDevice ${options.globaSetting.outputAudio} not found.`);
-        triggerToast("error", t("common.error_messages.audio_output_device_not_found", {
-          device: options.globaSetting.outputAudio
-        }));
-        me.volume = 0;
-        me.muted = true;
-        return;
-      }
-      me.srcObject = null;
-      me.srcObject = voiceChangerClient.stream;
+      setClientAudioStatus({ phase: "preparing", error: null });
+      const timer = setTimeout(() => failSession(new Error("入力音声を準備できませんでした。ファイルやキャプチャを選び直して開始してください。")), 10000);
+      return () => clearTimeout(timer);
+    }
+    if (audioState.blocked) {
+      if (backendClient.clearAudioError?.() !== true) failSession(new Error(audioState.error || "バックエンドの変更処理が完了していません。"));
+      return;
+    }
+    let active = true;
+    setClientInitialized(false);
+    setClientAudioStatus({ phase: "preparing", error: null });
+    lastErrorRef.current = null;
+    (async () => {
+      if (recordingFinalizationRef.current) await recordingFinalizationRef.current;
+      if (!active) return;
+      preflightStart();
+      if (typeof ensureAudioContext !== "function") throw new Error("AudioContext を準備できませんでした。");
+      const context = await ensureAudioContext();
+      if (!active) return;
+      if (!context) throw new Error("AudioContext を準備できませんでした。開始し直してください。");
+      // A closed context may have been replaced; wait for its state to reach this hook.
+      if (context !== options.ctx) return;
+      if (context.state !== "running") throw new Error("AudioContext を再開できませんでした。開始し直してください。");
+      const ready = await voiceChangerClient.initialize(context, false);
+      if (!active || !ready) return;
+      voiceChangerClient.setVoiceChangerExceptionListener({ onException: (code, message) => {
+        if (!active) return;
+        if (code === "LOCAL_VOICE_CHANGER_INTERFACE_RUN_ERROR") reloadLocalVoiceChangerInterfaceInfo?.();
+        failSession(new Error(message));
+      } });
+      await voiceChangerClient.updateNodeSetting({
+        protocol: settings.protocol,
+        sendingMode: "bulk",
+        sampleRate: options.ctx.sampleRate,
+        legacyRate: serverConfiguration.input_sample_rate,
+        legacyBackend: serverConfiguration.rvc_backend,
+        noiseGate: serverConfiguration.noise_gate ?? 0.00001,
+        localPassthrough: settings.isPassthrough === true,
+        expectedSamplesPolicy: serverConfiguration.rvc_backend === "official" ? "variable" : "same"
+      });
+      await voiceChangerClient.updateWorkletSetting({
+        realtimeOutputStatusEnabled: settings.realtimeOutputStatusEnabled,
+        realtimeOutputStatusSendIntervalSec: settings.realtimeOutputStatusSendIntervalSec,
+        isPassthroughEnabled: settings.isPassthrough,
+        sendingChunkSec: currentSlotInfo?.chunk_sec ?? 0.2
+      });
+      await voiceChangerClient.updateClientSetting({
+        audioInput: settings.inputAudio,
+        inputGain: settings.nodeInputGain,
+        outputGain: settings.nodeOutputGain,
+        monitorGain: settings.nodeMonitorGain,
+        echoCancel: settings.enableEchoCancellation,
+        noiseSuppression: settings.enableNoiseSuppression,
+        noiseSuppression2: settings.enableNoiseSuppression2,
+        sampleRate: options.ctx.sampleRate
+      });
+      if (!active || voiceChangerClient.disposed) return;
+      const started = await voiceChangerClient.start();
+      if (active && started && !voiceChangerClient.disposed) {
+        await reloadDeviceInfo?.();
+        if (active && !voiceChangerClient.disposed) {
+          setClientInitialized(true);
+          setClientAudioStatus({ phase: "running", error: null });
+        }
+      } else if (active && !voiceChangerClient.disposed) throw new Error("音声セッションを開始できませんでした。開始し直してください。");
+    })().catch(error => { if (active) failSession(error); });
+    return () => {
+      active = false;
+      silenceRoutes();
+      const next = intentRef.current;
+      if (!next.desiredRunning && next.clientMode && next.context === options.ctx && next.revision === audioState.revision) finalizeOrdinaryStop();
+      else voiceChangerClient.dispose();
+    };
+  }, [options.ctx, desiredRunning, clientMode, inputReady, audioState.revision, audioState.blocked, voiceChangerClient,
+    silenceRoutes, failSession, finalizeOrdinaryStop, reloadLocalVoiceChangerInterfaceInfo]);
+
+  ReactRuntime.useEffect(() => {
+    if (!isClientInitialized || !voiceChangerClient.isVoiceChanging) return;
+    voiceChangerClient.updateWorkletSetting({
+      ...voiceChangerClient.getClientSetting().workletSetting,
+      realtimeOutputStatusEnabled: settings.realtimeOutputStatusEnabled,
+      realtimeOutputStatusSendIntervalSec: settings.realtimeOutputStatusSendIntervalSec
+    }).catch(failSession);
+  }, [voiceChangerClient, isClientInitialized, settings.realtimeOutputStatusEnabled,
+    settings.realtimeOutputStatusSendIntervalSec, failSession]);
+
+  ReactRuntime.useEffect(() => {
+    if (!isClientInitialized || !voiceChangerClient.isVoiceChanging) return;
+    voiceChangerClient.updateClientSetting({
+      ...voiceChangerClient.getClientSetting().voiceChangerClientSetting,
+      inputGain: settings.nodeInputGain,
+      outputGain: settings.nodeOutputGain,
+      monitorGain: settings.nodeMonitorGain
+    }).catch(failSession);
+  }, [isClientInitialized, voiceChangerClient, settings.nodeInputGain, settings.nodeOutputGain, settings.nodeMonitorGain, failSession]);
+
+  ReactRuntime.useEffect(() => {
+    const changed = async () => {
+      silenceRoutes();
+      setDeviceRevision(value => value + 1);
+      const generation = voiceChangerClient.generation;
+      const selected = voiceChangerClient.setting?.audioInput;
+      if (!voiceChangerClient.desiredRunning || typeof selected !== "string") return;
       try {
-        await me.setSinkId(options.globaSetting.outputAudio);
-      } catch (xe) {
-        console.log("setSinkId is not supported?", xe);
-        triggerToast("error", t("common.error_messages.set_sink_id_not_supported", {
-          error: xe
-        }));
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        if (voiceChangerClient.disposed || generation !== voiceChangerClient.generation) return;
+        if (!devices.some(device => device.kind === "audioinput" && device.deviceId === selected)) {
+          failSession(new Error("選択した入力デバイスが見つかりません。接続を確認して開始し直してください。"));
+        }
+      } catch (error) {
+        if (!voiceChangerClient.disposed && generation === voiceChangerClient.generation) failSession(error);
       }
-      me.volume = 1;
-      me.paused && me.play();
-    })();
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.outputAudioElementId, options.globaSetting.outputAudio, triggerToast, t]);
+    };
+    navigator.mediaDevices.addEventListener?.("devicechange", changed);
+    return () => navigator.mediaDevices.removeEventListener?.("devicechange", changed);
+  }, [voiceChangerClient, silenceRoutes, failSession]);
+
+  const routeElement = (routerRef, elementId, deviceId, stream) => {
+    const element = elementId == null ? null : document.getElementById(elementId);
+    if (!element) return;
+    if (routerRef.current?.element !== element) {
+      routerRef.current?.clear();
+      routerRef.current = new OutputDeviceRouter(element);
+    }
+    const router = routerRef.current;
+    let active = true;
+    const generation = voiceChangerClient.generation;
+    if (isClientInitialized && desiredRunning) {
+      router.route(deviceId, stream, () => active && !voiceChangerClient.disposed && generation === voiceChangerClient.generation)
+        .catch(error => { if (active) reportRouteError(error); });
+    } else router.clear();
+    return () => { active = false; router.clear(); };
+  };
+  ReactRuntime.useEffect(() => routeElement(outputRouterRef, settings.outputAudioElementId, settings.outputAudio, voiceChangerClient.stream),
+    [voiceChangerClient, isClientInitialized, desiredRunning, settings.outputAudioElementId, settings.outputAudio, deviceRevision, reportRouteError]);
+  ReactRuntime.useEffect(() => routeElement(monitorRouterRef, settings.monitorAudioElementId, settings.monitorAudio, voiceChangerClient.monitorStream),
+    [voiceChangerClient, isClientInitialized, desiredRunning, settings.monitorAudioElementId, settings.monitorAudio, deviceRevision, reportRouteError]);
+
   ReactRuntime.useEffect(() => {
+    if (!isClientInitialized || !desiredRunning) return;
+    let active = true;
     (async () => {
-      if (!isClientInitialized) return;
-      if (options.globaSetting.monitorAudioElementId == null) {
-        console.warn("[voiceChangerClient] audioMonitorElementId not set for audio monitor.");
-        return;
-      }
-      const me = document.getElementById(options.globaSetting.monitorAudioElementId);
-      if (!me) {
-        console.warn("[voiceChangerClient] audioMonitorElementId not set for audio monitor.");
-        return;
-      }
-      if (options.globaSetting.monitorAudio == "none") {
-        console.warn("[voiceChangerClient] audioMonitorDevice not set for audio monitor.");
-        me.volume = 0;
-        me.muted = true;
-        return;
-      }
-      if (!(await navigator.mediaDevices.enumerateDevices()).filter(xe => xe.kind == "audiooutput").some(xe => xe.deviceId == options.globaSetting.monitorAudio)) {
-        console.warn(`[voiceChangerClient] audioMonitorDevice ${options.globaSetting.monitorAudio} not found.`);
-        triggerToast("error", t("common.error_messages.audio_monitor_device_not_found", {
-          device: options.globaSetting.monitorAudio
-        }));
-        me.volume = 0;
-        me.muted = true;
-        return;
-      }
-      me.srcObject = null;
-      me.srcObject = voiceChangerClient.monitorStream;
-      try {
-        await me.setSinkId(options.globaSetting.monitorAudio);
-      } catch (xe) {
-        console.log("setSinkId is not supported?", xe);
-        triggerToast("error", t("common.error_messages.set_sink_id_not_supported", {
-          error: xe
-        }));
-      }
-      me.volume = 1;
-      me.paused && me.play();
-    })();
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.monitorAudioElementId, options.globaSetting.monitorAudio, triggerToast, t]);
-  ReactRuntime.useEffect(() => {
-    (async () => {
-      if (isClientInitialized) if (options.globaSetting.isOutputRecording == true) voiceChangerClient.startOutputRecording();else {
-        const me = await voiceChangerClient.stopOutputRecording();
-        if (me.length > 0) {
-          const ye = generateTimestamp();
-          downloadAsWav(me, `output_client_${ye}.wav`);
+      if (settings.isOutputRecording) await voiceChangerClient.startOutputRecording();
+      else {
+        const recording = await voiceChangerClient.stopOutputRecording();
+        if (!voiceChangerClient.disposed && recording.length > 0 && voiceChangerClient.claimRecording("output", recording)) {
+          downloadAsWav(recording, `output_client_${generateTimestamp()}.wav`, voiceChangerClient.ctx.sampleRate);
+          if (voiceChangerClient.getAudioMetrics().processor?.outputRecordingTruncated) options.triggerToast("warning", "録音は上限に達したため一部を保存しています。");
         }
       }
-    })();
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.isOutputRecording]);
-  ReactRuntime.useEffect(() => {
-    (async () => {
-      isClientInitialized && (options.globaSetting.isStarted == true ? voiceChangerClient.start() : voiceChangerClient.stop());
-    })();
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.isStarted]);
-  ReactRuntime.useEffect(() => {
-    (async () => {
-      if (!isClientInitialized || !currentSlotInfo?.voice_changer_type) return;
-      const ye = voiceChangerClient.getClientSetting().workletNodeSetting;
-      let be = "bulk";
-      currentSlotInfo.voice_changer_type == VoiceChangerType.RVC;
-      be = "bulk";
-      ye.protocol = options.globaSetting.protocol;
-      ye.sendingMode = be;
-      await voiceChangerClient.updateNodeSetting({
-        ...ye
-      });
-      await voiceChangerClient.resetBuffer();
-    })();
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.protocol, currentSlotInfo?.voice_changer_type]);
-  ReactRuntime.useEffect(() => {
-    if (!voiceChangerClient || !isClientInitialized) return;
-    const me = voiceChangerClient.getClientSetting().workletSetting;
-    me.realtimeOutputStatusEnabled = options.globaSetting.realtimeOutputStatusEnabled;
-    me.realtimeOutputStatusSendIntervalSec = options.globaSetting.realtimeOutputStatusSendIntervalSec;
-    me.isPassthroughEnabled = options.globaSetting.isPassthrough;
-    me.sendingChunkSec = currentSlotInfo?.chunk_sec ?? 0.2;
-    voiceChangerClient.updateWorkletSetting(me);
-  }, [voiceChangerClient, isClientInitialized, options.globaSetting.isPassthrough, options.globaSetting.realtimeOutputStatusEnabled, options.globaSetting.realtimeOutputStatusSendIntervalSec, currentSlotInfo?.chunk_sec]);
-  ReactRuntime.useEffect(() => {
-    isClientInitialized && voiceChangerClient.resetBuffer();
-  }, [voiceChangerClient, isClientInitialized, currentSlotInfo?.chunk_sec]);
+    })().catch(error => { if (active) reportRouteError(error); });
+    return () => { active = false; };
+  }, [voiceChangerClient, isClientInitialized, desiredRunning, settings.isOutputRecording, reportRouteError]);
+
   ReactRuntime.useEffect(() => {
     if (!isClientInitialized || !outputBufferSizeMonitoringEnabled) return;
-    const he = setInterval(async () => {
+    let active = true;
+    const timer = setInterval(async () => {
       try {
-        const me = await voiceChangerClient.getOutputBufferSize(),
-          ye = Date.now();
-        setOutputBufferSizeHistory(be => [...be, {
-          timestamp: ye,
-          size: me
-        }].slice(-100));
-      } catch (me) {
-        console.error("Failed to get output buffer size:", me);
-      }
+        const size = await voiceChangerClient.getOutputBufferSize();
+        if (!active || voiceChangerClient.disposed) return;
+        outputBufferSizeCallbackRef.current?.(size);
+        setOutputBufferSizeHistory(history => [...history, { timestamp: Date.now(), size }].slice(-100));
+      } catch (error) { if (active) console.error("Audio buffer monitoring failed", error); }
     }, 100);
-    return () => clearInterval(he);
-  }, [isClientInitialized, outputBufferSizeMonitoringEnabled, voiceChangerClient]);
-  const getLatestOutputBufferSize = () => outputBufferSizeHistory.length > 0 ? outputBufferSizeHistory[outputBufferSizeHistory.length - 1].size : null,
-    clearOutputBufferSizeHistory = () => {
-      setOutputBufferSizeHistory([]);
-    },
-    setOutputBufferSizeMonitoringEnabled = he => {
-      setOutputBufferMonitoringEnabledState(he);
-      he || setOutputBufferSizeHistory([]);
-    },
-    getPendingRequestCount = () => voiceChangerClient.getPendingRequestCount(),
-    abortAllRequests = () => {
-      voiceChangerClient.abortAllRequests();
-    },
-    setOutputBufferSizeCallback = he => {
-      outputBufferSizeCallbackRef.current = he;
-    },
-    resetOutputBuffer = () => {
-      voiceChangerClient.resetBuffer();
-    },
-    setVoiceChangerStatusListener = ReactRuntime.useCallback(he => {
-      voiceChangerClient.setVoiceChangerStatusListener(he);
-    }, [voiceChangerClient]);
+    return () => { active = false; clearInterval(timer); };
+  }, [voiceChangerClient, isClientInitialized, outputBufferSizeMonitoringEnabled]);
+
+  const setVoiceChangerStatusListener = ReactRuntime.useCallback(listener => {
+    voiceChangerClient.setVoiceChangerStatusListener(listener);
+  }, [voiceChangerClient]);
+  const getAudioMetrics = ReactRuntime.useCallback(() => {
+    const metrics = voiceChangerClient.getAudioMetrics();
+    return { ...metrics,
+      output: outputRouterRef.current ? { ...outputRouterRef.current.state, diagnostics: outputRouterRef.current.getDiagnostics?.() ?? null } : null,
+      monitor: monitorRouterRef.current ? { ...monitorRouterRef.current.state, diagnostics: monitorRouterRef.current.getDiagnostics?.() ?? null } : null,
+      lastError: lastErrorRef.current ?? metrics.lastError ?? null, audioState: backendClient.audioState };
+  }, [voiceChangerClient]);
+
   return {
     isClientInitialized,
+    clientAudioStatus,
     outputBufferSizeHistory,
     outputBufferSizeMonitoringEnabled,
-    getLatestOutputBufferSize,
-    clearOutputBufferSizeHistory,
-    setOutputBufferSizeMonitoringEnabled,
-    getPendingRequestCount,
-    abortAllRequests,
-    setOutputBufferSizeCallback,
-    resetOutputBuffer,
-    setVoiceChangerStatusListener
+    getLatestOutputBufferSize: () => outputBufferSizeHistory.at(-1)?.size ?? null,
+    clearOutputBufferSizeHistory: () => setOutputBufferSizeHistory([]),
+    setOutputBufferSizeMonitoringEnabled: enabled => { setOutputBufferMonitoringEnabledState(enabled); if (!enabled) setOutputBufferSizeHistory([]); },
+    getPendingRequestCount: () => voiceChangerClient.getPendingRequestCount(),
+    abortAllRequests: stopSession,
+    setOutputBufferSizeCallback: listener => { outputBufferSizeCallbackRef.current = listener; },
+    resetOutputBuffer: stopSession,
+    setVoiceChangerStatusListener,
+    getAudioMetrics
   };
 };
 export { useVoiceChangerClient };

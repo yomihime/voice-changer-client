@@ -1,3 +1,4 @@
+import { isNativeClient } from "./api/BackendClient.js";
 // Explain an unavailable/incompatible backend without blocking offline UI development.
 const status = document.createElement('div');
 status.id = 'backend-status';
@@ -18,5 +19,4 @@ async function check() {
     status.hidden = false;
   }
 }
-void check();
-setInterval(check, 10000);
+if (!isNativeClient()) { void check(); setInterval(check, 10000); }

@@ -3,6 +3,8 @@ import { jsxRuntimeExports as jsxRuntime, reactExports as ReactRuntime, useTrans
 import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../../domain/constants.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
+import { parameterValue } from "../../domain/numeric-display.js";
 const AdvancedSettingDialog = ({
   open,
   onClose
@@ -25,10 +27,10 @@ const AdvancedSettingDialog = ({
       t
     } = useTranslation(),
     ie = serverConfiguration.voice_changer_input_mode === VoiceChangerInputMode.server,
-    ne = ie ? serverConfiguration.realtime_output_status_enabled ?? false : realtimeOutputStatusEnabled,
-    ae = ie ? serverConfiguration.realtime_output_status_send_interval_sec ?? 0.2 : realtimeOutputStatusSendIntervalSec,
-    se = serverConfiguration.realtime_process_status_enabled ?? false,
-    ce = serverConfiguration.realtime_process_status_send_interval_sec ?? 2,
+    ne = ie ? serverConfiguration.realtime_output_status_enabled : realtimeOutputStatusEnabled,
+    ae = ie ? serverConfiguration.realtime_output_status_send_interval_sec : realtimeOutputStatusSendIntervalSec,
+    se = serverConfiguration.realtime_process_status_enabled,
+    ce = serverConfiguration.realtime_process_status_send_interval_sec,
     fe = ReactRuntime.useCallback(async me => {
       try {
         if (ie) {
@@ -145,7 +147,8 @@ const AdvancedSettingDialog = ({
               },
               children: [jsxRuntime.jsx("input", {
                 type: "checkbox",
-                checked: ne,
+                ...capabilityProps(ie ? "config:realtime_output_status_enabled" : null, ne == null),
+                checked: ne ?? false,
                 onChange: me => fe(me.target.checked)
               }), t("common.advanced_settings_dialog.enable_realtime_io_analysis")]
             }), jsxRuntime.jsxs("div", {
@@ -169,7 +172,8 @@ const AdvancedSettingDialog = ({
                   min: "0.04",
                   max: "0.2",
                   step: "0.04",
-                  value: ae,
+                  ...capabilityProps(ie ? "config:realtime_output_status_send_interval_sec" : null, ae == null),
+                  value: ae ?? 0,
                   onChange: me => pe(Number(me.target.value)),
                   style: {
                     width: "100%"
@@ -179,7 +183,8 @@ const AdvancedSettingDialog = ({
                     minWidth: "40px",
                     textAlign: "right"
                   },
-                  children: ae
+                  title: ae == null ? undefined : String(ae),
+                  children: parameterValue(ae)
                 })]
               }), jsxRuntime.jsx("div", {
                 style: {
@@ -203,7 +208,8 @@ const AdvancedSettingDialog = ({
                 },
                 children: [jsxRuntime.jsx("input", {
                   type: "checkbox",
-                  checked: se,
+                  ...capabilityProps("config:realtime_process_status_enabled", se == null),
+                  checked: se ?? false,
                   onChange: me => le(me.target.checked)
                 }), t("common.advanced_settings_dialog.enable_realtime_voice_processing_analysis")]
               }), jsxRuntime.jsxs("div", {
@@ -227,7 +233,8 @@ const AdvancedSettingDialog = ({
                     min: "0.1",
                     max: "5.0",
                     step: "0.1",
-                    value: ce,
+                    ...capabilityProps("config:realtime_process_status_send_interval_sec", ce == null),
+                    value: ce ?? 0,
                     onChange: me => de(Number(me.target.value)),
                     style: {
                       width: "100%"
@@ -237,7 +244,8 @@ const AdvancedSettingDialog = ({
                       minWidth: "40px",
                       textAlign: "right"
                     },
-                    children: ce
+                    title: ce == null ? undefined : String(ce),
+                    children: parameterValue(ce)
                   })]
                 }), jsxRuntime.jsx("div", {
                   style: {
@@ -273,6 +281,7 @@ const AdvancedSettingDialog = ({
               children: [jsxRuntime.jsx("input", {
                 type: "checkbox",
                 checked: recordForAnalysis,
+                ...capabilityProps("downloadServerRecordingFiles"),
                 onChange: me => setRecordForAnalysis(me.target.checked)
               }), t("common.advanced_settings.record_for_analysis")]
             }), jsxRuntime.jsx("div", {

@@ -4,6 +4,8 @@ import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../../domain/constants.js";
 import { ExpandLess, ExpandMore, Mic, VolumeUp } from "../../components/icons.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
+import { parameterValue } from "../../domain/numeric-display.js";
 const VolumeControls = () => {
   const {
       t
@@ -103,7 +105,8 @@ const VolumeControls = () => {
           min: "0",
           max: "10",
           step: "0.1",
-          value: inputGain,
+          ...capabilityProps(isServerInputMode ? "config:audio_input_device_gain" : null, inputGain == null),
+          value: inputGain ?? 0,
           onChange: async pe => {
             const le = parseFloat(pe.target.value);
             await updateInputGain(le);
@@ -116,7 +119,8 @@ const VolumeControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: inputGain?.toFixed(1) || "unknown"
+          title: inputGain == null ? undefined : String(inputGain),
+          children: parameterValue(inputGain)
         })]
       }), jsxRuntime.jsxs("div", {
         style: {
@@ -147,7 +151,8 @@ const VolumeControls = () => {
           min: "0",
           max: "10",
           step: "0.1",
-          value: outputGain,
+          ...capabilityProps(isServerInputMode ? "config:audio_output_device_gain" : null, outputGain == null),
+          value: outputGain ?? 0,
           onChange: async pe => {
             const le = parseFloat(pe.target.value);
             await updateOutputGain(le);
@@ -160,7 +165,8 @@ const VolumeControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: outputGain?.toFixed(1) || "unknown"
+          title: outputGain == null ? undefined : String(outputGain),
+          children: parameterValue(outputGain)
         })]
       }), jsxRuntime.jsxs("div", {
         style: {
@@ -191,7 +197,8 @@ const VolumeControls = () => {
           min: "0",
           max: "10",
           step: "0.1",
-          value: monitorGain,
+          ...capabilityProps(isServerInputMode ? "config:audio_monitor_device_gain" : null, monitorGain == null),
+          value: monitorGain ?? 0,
           onChange: async pe => {
             const le = parseFloat(pe.target.value);
             await updateMonitorGain(le);
@@ -204,10 +211,11 @@ const VolumeControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: monitorGain?.toFixed(1) || "unknwon"
+          title: monitorGain == null ? undefined : String(monitorGain),
+          children: parameterValue(monitorGain)
         })]
       })]
     })]
-  }), [isExpanded, t, inputGain, monitorGain, outputGain, updateInputGain, updateMonitorGain, updateOutputGain]);
+  }), [isExpanded, t, inputGain, monitorGain, outputGain, isServerInputMode, updateInputGain, updateMonitorGain, updateOutputGain]);
 };
 export { VolumeControls };

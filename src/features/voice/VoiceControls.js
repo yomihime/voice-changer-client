@@ -5,17 +5,24 @@ import { ConfirmationDialog } from "../../components/common/ConfirmationDialog.j
 import { EmbedderType, PitchEstimatorType } from "../../domain/constants.js";
 import { ExpandLess, ExpandMore, GraphicEq, Tune, WaveformIcon, WaveformPlusIcon, EmbedderIcon, IndexIcon } from "../../components/icons.js";
 import { useAppGuiSetting } from "../../hooks/useAppGuiSetting.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
+import { backendClient } from "../../api/BackendClient.js";
+import { chunkDurationOptions, chunkDurationLabel } from "../../domain/legacy-chunk.js";
+import { parameterValue, durationWithFrames } from "../../domain/numeric-display.js";
 const VoiceControls = () => {
   const {
       currentSlotInfo,
       updateServerSlotInfo,
       serverConfiguration,
-      updateServerConfiguration
+      updateServerConfiguration,
+      localVoiceChangerInterfaceInfo,
+      triggerToast
     } = useAppRoot(),
     {
       t
     } = useTranslation(),
     [isExpanded, setExpanded] = ReactRuntime.useState(true),
+    [chunkUpdatePending, setChunkUpdatePending] = ReactRuntime.useState(false),
     {
       guiSetting
     } = useAppGuiSetting(),
@@ -51,8 +58,10 @@ const VoiceControls = () => {
             },
             children: t("common.voice_controls.pitch_estimator")
           })]
-        }), jsxRuntime.jsx("select", {
-          value: de,
+        }), jsxRuntime.jsxs("select", {
+          ...capabilityProps("updateServerSlotInfo", de == null),
+          title: capabilityProps("updateServerSlotInfo").title || (de == null ? "値を取得していません。" : undefined),
+          value: de ?? "",
           onChange: async he => {
             const me = he.target.value;
             le.pitch_estimator !== me && (await updateServerSlotInfo({
@@ -65,10 +74,10 @@ const VoiceControls = () => {
             minWidth: "120px",
             padding: "4px"
           },
-          children: Object.values(PitchEstimatorType).map(he => jsxRuntime.jsx("option", {
+          children: [de == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), Object.values(PitchEstimatorType).map(he => jsxRuntime.jsx("option", {
             value: he,
             children: he
-          }, he))
+          }, he))]
         })]
       });
     }, [currentSlotInfo, updateServerSlotInfo, t]),
@@ -103,6 +112,7 @@ const VoiceControls = () => {
             children: t("common.voice_controls.embedder")
           })]
         }), jsxRuntime.jsxs("select", {
+          ...capabilityProps("slot:override_embedder"),
           value: de || "",
           onChange: async he => {
             const me = he.target.value === "" ? null : he.target.value;
@@ -119,10 +129,11 @@ const VoiceControls = () => {
           },
           children: [jsxRuntime.jsx("option", {
             value: "",
-            children: t("common.voice_controls.embedder_default", {
+            children: le.embedder == null ? "未取得" : t("common.voice_controls.embedder_default", {
               embedder: le.embedder
             })
           }), Object.values(EmbedderType).map(he => jsxRuntime.jsx("option", {
+            ...capabilityProps(he.startsWith("applio_") ? "downloadApplioModules" : null),
             value: he,
             children: he
           }, he))]
@@ -165,7 +176,9 @@ const VoiceControls = () => {
           min: "-24",
           max: "24",
           step: "1",
-          value: le,
+          ...capabilityProps("updateServerSlotInfo", le == null),
+          title: capabilityProps("updateServerSlotInfo").title || (le == null ? "値を取得していません。" : undefined),
+          value: le ?? 0,
           onChange: de => {
             const he = parseInt(de.target.value);
             if (currentSlotInfo != null) {
@@ -195,7 +208,7 @@ const VoiceControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: le
+          children: le ?? "未取得"
         })]
       });
     }, [currentSlotInfo, updateServerSlotInfo, t]),
@@ -234,8 +247,9 @@ const VoiceControls = () => {
           min: "0",
           max: "1",
           step: "0.1",
-          value: de,
-          disabled: !he,
+          ...capabilityProps("updateServerSlotInfo", !he || de == null),
+          title: capabilityProps("updateServerSlotInfo").title || (de == null ? "値を取得していません。" : undefined),
+          value: de ?? 0,
           onChange: me => {
             if (de == null || !he) return;
             const ye = parseFloat(me.target.value),
@@ -254,7 +268,8 @@ const VoiceControls = () => {
             textAlign: "right",
             opacity: he ? 1 : 0.5
           },
-          children: he ? de.toFixed(2) : "N/A"
+          title: de == null ? undefined : String(de),
+          children: he ? parameterValue(de) : "N/A"
         })]
       });
     }, [currentSlotInfo, t, updateServerSlotInfo]),
@@ -321,6 +336,9 @@ const VoiceControls = () => {
         })]
       });
     }, [currentSlotInfo, t, updateServerSlotInfo]),
+    legacyChunk = backendClient.state.protocol === "legacy-vcc",
+    serverAudioBusy = legacyChunk && (localVoiceChangerInterfaceInfo?.requested_started
+      || localVoiceChangerInterfaceInfo?.local_voice_changer_interface_active || localVoiceChangerInterfaceInfo?.runtime_info?.ownsAudio),
     chunkDurationControl = ReactRuntime.useMemo(() => !guiSetting.inputChunkSec || guiSetting.inputChunkSec.length === 0 || currentSlotInfo == null ? jsxRuntime.jsx(jsxRuntime.Fragment, {}) : jsxRuntime.jsxs("div", {
       style: {
         display: "flex",
@@ -336,7 +354,7 @@ const VoiceControls = () => {
           alignItems: "center"
         },
         children: [jsxRuntime.jsx(Tooltip, {
-          title: t("common.controls.chunksec_adjust"),
+          title: `${t("common.controls.chunksec_adjust")}${legacyChunk ? " Legacy: 48 kHz の128フレーム単位です。プリセットに最も近い整数単位を使い、実際の時間を表示します。" : ""}`,
           children: jsxRuntime.jsx(WaveformIcon, {})
         }), jsxRuntime.jsx("span", {
           style: {
@@ -346,26 +364,38 @@ const VoiceControls = () => {
           },
           children: t("common.controls.chunksec_label")
         })]
-      }), jsxRuntime.jsx("select", {
-        value: currentSlotInfo.chunk_sec,
-        onChange: async le => {
-          const de = Number(le.target.value);
-          currentSlotInfo.chunk_sec !== de && (await updateServerSlotInfo({
-            ...currentSlotInfo,
-            chunk_sec: de
-          }));
+      }), jsxRuntime.jsxs("select", {
+        "aria-label": "chunkSec",
+        ...capabilityProps("updateServerSlotInfo", currentSlotInfo.chunk_sec == null || serverAudioBusy || chunkUpdatePending),
+        title: capabilityProps("updateServerSlotInfo").title || (serverAudioBusy ? "先に Server Device を停止してください。"
+          : currentSlotInfo.chunk_sec == null ? "値を取得していません。" : undefined),
+        value: currentSlotInfo.chunk_sec ?? "",
+        onChange: async event => {
+          const seconds = Number(event.target.value);
+          if (currentSlotInfo.chunk_sec === seconds) return;
+          setChunkUpdatePending(true);
+          try {
+            const slot = legacyChunk ? { slot_index: currentSlotInfo.slot_index } : currentSlotInfo;
+            await updateServerSlotInfo({ ...slot, chunk_sec: seconds });
+          } catch (error) {
+            triggerToast("error", error.message || error.reason || String(error));
+          } finally {
+            setChunkUpdatePending(false);
+          }
         },
         style: {
           flex: 1,
           minWidth: "120px",
           padding: "4px"
         },
-        children: guiSetting.inputChunkSec.map(le => jsxRuntime.jsx("option", {
-          value: le,
-          children: `${Math.round(48e3 * le)} [${le} sec]`
-        }, le))
+        children: [currentSlotInfo.chunk_sec == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }),
+          chunkDurationOptions(guiSetting.inputChunkSec, currentSlotInfo.chunk_sec, legacyChunk).map(seconds => jsxRuntime.jsx("option", {
+            value: seconds,
+            title: `${seconds} s`,
+            children: chunkDurationLabel(seconds, guiSetting.inputChunkSec, legacyChunk)
+          }, seconds))]
       })]
-    }), [guiSetting.inputChunkSec, currentSlotInfo, updateServerSlotInfo, t]),
+    }), [guiSetting.inputChunkSec, currentSlotInfo, updateServerSlotInfo, legacyChunk, serverAudioBusy, chunkUpdatePending, triggerToast, t]),
     fe = ReactRuntime.useMemo(() => !guiSetting.extraFrameSec || guiSetting.extraFrameSec.length === 0 || !serverConfiguration ? jsxRuntime.jsx(jsxRuntime.Fragment, {}) : currentSlotInfo?.voice_changer_type != "RVC" ? jsxRuntime.jsx(jsxRuntime.Fragment, {}) : jsxRuntime.jsxs("div", {
       style: {
         display: "flex",
@@ -391,8 +421,9 @@ const VoiceControls = () => {
           },
           children: t("common.controls.extraframesec_label")
         })]
-      }), jsxRuntime.jsx("select", {
-        value: serverConfiguration.extra_frame_sec,
+      }), jsxRuntime.jsxs("select", {
+        ...capabilityProps("config:extra_frame_sec", serverConfiguration.extra_frame_sec == null),
+        value: serverConfiguration.extra_frame_sec ?? "",
         onChange: async le => {
           const de = Number(le.target.value);
           serverConfiguration.extra_frame_sec !== de && (await updateServerConfiguration({
@@ -405,12 +436,13 @@ const VoiceControls = () => {
           minWidth: "120px",
           padding: "4px"
         },
-        children: guiSetting.extraFrameSec.map(le => jsxRuntime.jsx("option", {
+        children: [serverConfiguration.extra_frame_sec == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), chunkDurationOptions(guiSetting.extraFrameSec, serverConfiguration.extra_frame_sec, false).map(le => jsxRuntime.jsx("option", {
           value: le,
-          children: `${Math.round(48e3 * le)} [${le} sec]`
-        }, le))
+          title: `${le} s`,
+          children: `${durationWithFrames(le, legacyChunk ? serverConfiguration.input_sample_rate : 48000)}${guiSetting.extraFrameSec.includes(le) ? "" : "・カスタム"}`
+        }, le))]
       })]
-    }), [guiSetting.extraFrameSec, serverConfiguration, updateServerConfiguration, t, currentSlotInfo?.voice_changer_type]),
+    }), [guiSetting.extraFrameSec, serverConfiguration, updateServerConfiguration, t, currentSlotInfo?.voice_changer_type, legacyChunk]),
     pe = ReactRuntime.useMemo(() => currentSlotInfo == null ? jsxRuntime.jsx(jsxRuntime.Fragment, {}) : jsxRuntime.jsxs("div", {
       style: {
         marginBottom: "20px"

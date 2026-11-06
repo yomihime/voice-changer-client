@@ -6,9 +6,14 @@ import { VoiceChangerInputMode } from "../../domain/constants.js";
 import { FiberManualRecord, PlayArrow, Settings, Stop, SwapHoriz } from "../../components/icons.js";
 import { SettingsDialog } from "./SettingsDialog.js";
 import { downloadServerRecordingFiles } from "../../shared/recordings.js";
+import { capabilityProps } from "../../components/common/backend-capabilities.js";
 const MainControls = () => {
   const {
       isStarted,
+      isClientInitialized,
+      clientAudioStatus,
+      monitorAudio,
+      nodeMonitorGain,
       setIsStarted,
       isOutputRecording,
       setIsOutputRecording,
@@ -31,10 +36,17 @@ const MainControls = () => {
     } = useAppRoot(),
     isServerInputMode = serverConfiguration.voice_changer_input_mode === VoiceChangerInputMode.server,
     isServerDeviceActive = !!localVoiceChangerInterfaceInfo?.local_voice_changer_interface_active,
-    isConversionRunning = isServerInputMode ? isServerDeviceActive : isStarted,
+    monitorIsMuted = !isServerInputMode && !!monitorAudio && monitorAudio !== "none" && nodeMonitorGain === 0,
+    isClientStarting = !isServerInputMode && isStarted && !isClientInitialized,
+    isConversionRunning = isServerInputMode ? isServerDeviceActive : isStarted && isClientInitialized,
     isConversionStopped = isServerInputMode ? !isServerDeviceActive : !isStarted,
     isPassthroughActive = isServerInputMode ? serverConfiguration.pass_through : isPassthrough,
     isRecordingActive = isServerInputMode ? serverConfiguration.recording_started : isOutputRecording,
+    serverRecordingCapability = capabilityProps("config:recording_started"),
+    recordingDownloadCapability = capabilityProps("downloadServerRecordingFiles"),
+    serverRecordingUnavailable = serverRecordingCapability.disabled || recordingDownloadCapability.disabled,
+    recordingUnavailable = isServerInputMode && serverRecordingUnavailable,
+    recordingUnavailableReason = recordingUnavailable ? serverRecordingCapability.title || recordingDownloadCapability.title : undefined,
     startConversion = ReactRuntime.useCallback(async () => {
       if (isServerInputMode) {
         if (serverConfiguration.audio_input_device_index === -1 || serverConfiguration.audio_output_device_index === -1) {
@@ -121,6 +133,10 @@ const MainControls = () => {
           title: t("common.controls.start"),
           children: jsxRuntime.jsx(IconButton, {
             onClick: startConversion,
+            'aria-label': '変換を開始',
+            ...capabilityProps(isServerInputMode ? "startServerDevice" : "clientAudio"),
+            disabled: capabilityProps(isServerInputMode ? "startServerDevice" : "clientAudio").disabled || isClientStarting || isConversionRunning,
+            'aria-busy': isClientStarting,
             color: isConversionRunning ? "primary" : "default",
             size: "large",
             sx: {
@@ -146,7 +162,7 @@ const MainControls = () => {
                   marginTop: "2px",
                   whiteSpace: "nowrap"
                 },
-                children: t("common.controls.start")
+                children: isClientStarting ? "準備中…" : t("common.controls.start")
               })]
             })
           })
@@ -162,6 +178,7 @@ const MainControls = () => {
             onClick: async () => {
               await stopConversion();
             },
+            'aria-label': '変換を停止',
             color: isConversionStopped ? "primary" : "default",
             size: "large",
             sx: {
@@ -198,8 +215,10 @@ const MainControls = () => {
           display: "flex"
         },
         children: jsxRuntime.jsx(Tooltip, {
-          title: t(isRecordingActive ? "common.controls.stop_recording" : "common.controls.start_recording"),
+          title: recordingUnavailableReason || t(isRecordingActive ? "common.controls.stop_recording" : "common.controls.start_recording"),
           children: jsxRuntime.jsx(IconButton, {
+            disabled: recordingUnavailable,
+            title: recordingUnavailableReason,
             onClick: async () => {
               if (isServerInputMode) {
                 const ve = !serverConfiguration.recording_started;
@@ -216,7 +235,7 @@ const MainControls = () => {
                 }
               } else {
                 const ve = !isOutputRecording;
-                if (setIsOutputRecording(ve), recordForAnalysis) try {
+                if (setIsOutputRecording(ve), recordForAnalysis && !serverRecordingUnavailable) try {
                   await updateServerConfiguration({
                     ...serverConfiguration,
                     recording_started: ve
@@ -269,6 +288,7 @@ const MainControls = () => {
         children: jsxRuntime.jsx(Tooltip, {
           title: t(isPassthroughActive ? "common.controls.passthrough_disable" : "common.controls.passthrough_enable"),
           children: jsxRuntime.jsx(IconButton, {
+            ...capabilityProps(isServerInputMode ? "config:pass_through" : null),
             onClick: async () => {
               isServerInputMode ? await updateServerConfiguration({
                 ...serverConfiguration,
@@ -314,6 +334,7 @@ const MainControls = () => {
           title: t("common.controls.settings"),
           children: jsxRuntime.jsx(IconButton, {
             onClick: () => setSettingsDialogOpen(true),
+            'aria-label': '音声設定',
             color: "default",
             size: "large",
             sx: {
@@ -345,10 +366,22 @@ const MainControls = () => {
           })
         })
       })]
+    }), !isServerInputMode && jsxRuntime.jsx("p", {
+      role: clientAudioStatus?.error ? "alert" : "status",
+      style: { marginTop: 0, color: clientAudioStatus?.error ? "#b3261e" : "inherit", overflowWrap: "anywhere" },
+      children: clientAudioStatus?.error ? "開始できませんでした · " + clientAudioStatus.error
+        : isClientStarting ? "開始準備中です。初回はモデルの準備に時間がかかります。停止ボタンで中断できます。"
+        : isConversionRunning ? "変換中 · 入力・出力デバイスを使用しています。"
+        : "停止中 · 音声設定で入力と出力またはモニターを選択してから開始してください。"
+    }), monitorIsMuted && jsxRuntime.jsx("p", {
+      role: "status",
+      "data-testid": "monitor-volume-hint",
+      style: { marginTop: 0 },
+      children: "モニター音量が0です。試聴する場合は音量を上げてください。"
     }), jsxRuntime.jsx(SettingsDialog, {
       open: isSettingsDialogOpen,
       onClose: () => setSettingsDialogOpen(false)
     })]
-  }), [setIsOutputRecording, setIsPassthrough, t, isOutputRecording, isPassthrough, isSettingsDialogOpen, setSettingsDialogOpen, serverConfiguration, serverGpuInfo, isServerInputMode, isConversionRunning, isConversionStopped, updateServerConfiguration, isPassthroughActive, isRecordingActive, recordForAnalysis, startConversion, stopConversion]);
+  }), [setIsOutputRecording, setIsPassthrough, t, isOutputRecording, isPassthrough, isSettingsDialogOpen, setSettingsDialogOpen, serverConfiguration, serverGpuInfo, isServerInputMode, isConversionRunning, isConversionStopped, isClientStarting, clientAudioStatus, monitorIsMuted, updateServerConfiguration, isPassthroughActive, isRecordingActive, recordForAnalysis, serverRecordingUnavailable, recordingUnavailable, recordingUnavailableReason, startConversion, stopConversion]);
 };
 export { MainControls };
