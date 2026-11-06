@@ -13,6 +13,7 @@ const useVoiceChangerClient = options => {
   const settings = options.globaSetting;
   const voiceChangerClient = ReactRuntime.useMemo(() => new VoiceChangerClient(), []);
   const [isClientInitialized, setClientInitialized] = ReactRuntime.useState(false);
+  const [clientAudioStatus, setClientAudioStatus] = ReactRuntime.useState({ phase: "stopped", error: null });
   const [outputBufferSizeHistory, setOutputBufferSizeHistory] = ReactRuntime.useState([]);
   const [outputBufferSizeMonitoringEnabled, setOutputBufferMonitoringEnabledState] = ReactRuntime.useState(false);
   const [audioState, setAudioState] = ReactRuntime.useState(backendClient.audioState ?? { revision: 0, blocked: false });
@@ -39,10 +40,10 @@ const useVoiceChangerClient = options => {
   const preflightStart = ReactRuntime.useCallback(() => {
     if (localVoiceChangerInterfaceInfo?.local_voice_changer_interface_active) throw new Error("Server Device が動作中です。停止してから Client Device を開始してください。");
     if (settings.inputAudioType === "microphone" && !inputReady) throw new Error("入力デバイスを選択してください。");
+    if ((!settings.outputAudio || settings.outputAudio === "none") && (!settings.monitorAudio || settings.monitorAudio === "none")) {
+      throw new Error("出力またはモニターデバイスを選択してください。音声設定から選択できます。");
+    }
     if (settings.isPassthrough === true) {
-      if ((!settings.outputAudio || settings.outputAudio === "none") && (!settings.monitorAudio || settings.monitorAudio === "none")) {
-        throw new Error("出力またはモニターデバイスを選択してください。");
-      }
       return;
     }
     const capability = VCRestClient.getInstance().getCapabilities?.().clientAudio;
@@ -53,7 +54,10 @@ const useVoiceChangerClient = options => {
     if (!ready) throw new Error("対応モデルを読み込んでから開始してください。");
     if (backendClient.state?.protocol === "legacy-vcc" && options.ctx &&
         (serverConfiguration.input_sample_rate !== options.ctx.sampleRate || serverConfiguration.output_sample_rate !== options.ctx.sampleRate)) {
-      throw new Error(`Server の入力・出力サンプルレートを Client の ${options.ctx.sampleRate} Hz に合わせてください。`);
+      const recovery = options.ctx.sampleRate === 48000
+        ? "停止中に音声設定で Server Device → Client Device とモードを選び直すと、Server の入力・出力が標準の 48000 Hz になります。その後、開始し直してください。"
+        : "Client の起動時サンプルレートと Server の入力・出力設定を一致させてから、開始し直してください。";
+      throw new Error(`サンプルレートが一致しません（Client ${options.ctx.sampleRate} Hz / Server 入力 ${serverConfiguration.input_sample_rate} Hz・出力 ${serverConfiguration.output_sample_rate} Hz）。${recovery}`);
     }
   }, [localVoiceChangerInterfaceInfo, settings.inputAudioType, inputReady, settings.isPassthrough, settings.outputAudio,
     settings.monitorAudio, currentSlotInfo, serverConfiguration, options.ctx]);
@@ -67,12 +71,14 @@ const useVoiceChangerClient = options => {
     voiceChangerClient.stop().catch(error => console.error("Audio stop failed", error));
     voiceChangerClient.dispose();
     setClientInitialized(false);
+    setClientAudioStatus({ phase: "stopped", error: null });
     settings.setIsStarted?.(false);
     settings.setIsOutputRecording?.(false);
   }, [voiceChangerClient, silenceRoutes, settings.setIsStarted, settings.setIsOutputRecording]);
   const failSession = ReactRuntime.useCallback(error => {
     lastErrorRef.current = error.message ?? String(error);
     stopSession();
+    setClientAudioStatus({ phase: "failed", error: lastErrorRef.current });
     options.triggerToast("error", "音声処理を停止しました。" + lastErrorRef.current);
   }, [stopSession, options.triggerToast]);
   const reportRouteError = ReactRuntime.useCallback(error => {
@@ -125,6 +131,7 @@ const useVoiceChangerClient = options => {
     let active = true;
     (async () => {
       preflightStart();
+      setClientAudioStatus({ phase: "preparing", error: null });
       if (audioState.blocked && backendClient.clearAudioError?.() !== true) throw new Error(audioState.error || "バックエンドの変更処理が完了していません。");
       if (typeof ensureAudioContext !== "function") throw new Error("音声コンテキストを作成できません。");
       await ensureAudioContext();
@@ -154,6 +161,11 @@ const useVoiceChangerClient = options => {
       return;
     }
     if (!inputReady) {
+      if (settings.inputAudioType === "microphone") {
+        failSession(new Error("入力デバイスを選択してください。音声設定から選択できます。"));
+        return;
+      }
+      setClientAudioStatus({ phase: "preparing", error: null });
       const timer = setTimeout(() => failSession(new Error("入力音声を準備できませんでした。ファイルやキャプチャを選び直して開始してください。")), 10000);
       return () => clearTimeout(timer);
     }
@@ -163,6 +175,7 @@ const useVoiceChangerClient = options => {
     }
     let active = true;
     setClientInitialized(false);
+    setClientAudioStatus({ phase: "preparing", error: null });
     lastErrorRef.current = null;
     (async () => {
       if (recordingFinalizationRef.current) await recordingFinalizationRef.current;
@@ -205,7 +218,10 @@ const useVoiceChangerClient = options => {
       const started = await voiceChangerClient.start();
       if (active && started && !voiceChangerClient.disposed) {
         await reloadDeviceInfo?.();
-        if (active && !voiceChangerClient.disposed) setClientInitialized(true);
+        if (active && !voiceChangerClient.disposed) {
+          setClientInitialized(true);
+          setClientAudioStatus({ phase: "running", error: null });
+        }
       } else if (active && !voiceChangerClient.disposed) throw new Error("音声セッションを開始できませんでした。開始し直してください。");
     })().catch(error => { if (active) failSession(error); });
     return () => {
@@ -321,6 +337,7 @@ const useVoiceChangerClient = options => {
 
   return {
     isClientInitialized,
+    clientAudioStatus,
     outputBufferSizeHistory,
     outputBufferSizeMonitoringEnabled,
     getLatestOutputBufferSize: () => outputBufferSizeHistory.at(-1)?.size ?? null,

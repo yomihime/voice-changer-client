@@ -5,6 +5,7 @@ import { useAppState } from "../../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../../domain/constants.js";
 import { WaitingDialog } from "../../components/common/WaitingDialog.js";
 import { capabilityProps } from "../../components/common/backend-capabilities.js";
+import { parameterValue } from "../../domain/numeric-display.js";
 const SettingsDialog = ({
   open,
   onClose
@@ -681,7 +682,8 @@ const SettingsDialog = ({
                     minWidth: "30px",
                     textAlign: "right"
                   },
-                  children: serverConfiguration.noise_gate ?? "未取得"
+                  title: serverConfiguration.noise_gate == null ? undefined : String(serverConfiguration.noise_gate),
+                  children: parameterValue(serverConfiguration.noise_gate)
                 })]
               }), jsxRuntime.jsxs("div", {
                 style: {
@@ -738,7 +740,8 @@ const SettingsDialog = ({
                       minWidth: "50px",
                       textAlign: "right"
                     },
-                    children: [serverConfiguration.high_pass_filter_cutoff ?? "未取得", " Hz"]
+                    title: serverConfiguration.high_pass_filter_cutoff == null ? undefined : String(serverConfiguration.high_pass_filter_cutoff),
+                    children: [parameterValue(serverConfiguration.high_pass_filter_cutoff, 0), " Hz"]
                   })]
                 })]
               }), jsxRuntime.jsxs("div", {
@@ -796,7 +799,8 @@ const SettingsDialog = ({
                       minWidth: "50px",
                       textAlign: "right"
                     },
-                    children: [serverConfiguration.low_pass_filter_cutoff ?? "未取得", " Hz"]
+                    title: serverConfiguration.low_pass_filter_cutoff == null ? undefined : String(serverConfiguration.low_pass_filter_cutoff),
+                    children: [parameterValue(serverConfiguration.low_pass_filter_cutoff, 0), " Hz"]
                   })]
                 })]
               })]

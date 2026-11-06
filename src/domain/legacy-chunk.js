@@ -1,3 +1,4 @@
+import { durationMilliseconds } from "./numeric-display.js";
 // Legacy VCC expresses chunk duration in 128-frame units at a nominal 48 kHz.
 const unitsPerSecond = 48000 / 128;
 const minUnits = Math.ceil(0.02 * unitsPerSecond);
@@ -19,4 +20,13 @@ export function chunkDurationOptions(presets, current, legacy) {
   }).filter(seconds => Number.isFinite(seconds) && seconds > 0);
   if (Number.isFinite(current)) values.push(current);
   return [...new Set(values)].sort((left, right) => left - right);
+}
+
+export function chunkDurationLabel(seconds, presets, legacy) {
+  const preset = presets.find(value => legacy
+    ? legacyChunkUnits(value) !== null && legacyChunkSeconds(legacyChunkUnits(value)) === seconds
+    : value === seconds);
+  const frames = Math.round(seconds * 48000);
+  const description = preset === undefined ? "カスタム" : `${preset} s プリセット`;
+  return `${durationMilliseconds(seconds)}（${frames} frames・${description}）`;
 }

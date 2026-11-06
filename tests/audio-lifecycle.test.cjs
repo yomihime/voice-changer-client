@@ -241,7 +241,7 @@ test('audio configuration enumerates without permission and closes a late explic
 
 function hookFixture({ started = false, mode = 'client', modelReady = true, serverActive = false,
   context = { sampleRate: 48000 }, outputRate = 48000, delayedInitialize = false,
-  inputType = 'microphone', inputAudio = 'synthetic-microphone' } = {}) {
+  inputType = 'microphone', inputAudio = 'synthetic-microphone', outputAudio = 'synthetic-output', monitorAudio = 'none' } = {}) {
   const effects = [];
   const writes = [];
   const startedWrites = [];
@@ -288,7 +288,7 @@ function hookFixture({ started = false, mode = 'client', modelReady = true, serv
   });
   useClient({ ctx: context, triggerToast: (type, message) => toasts.push(message), globaSetting: {
     isStarted: started, inputAudioType: inputType, inputAudio,
-    outputAudio: 'none', monitorAudio: 'none', setIsStarted: value => startedWrites.push(value) } });
+    outputAudio, monitorAudio, setIsStarted: value => startedWrites.push(value) } });
   return { effects, writes, startedWrites, initializations, clients, toasts, owner, deviceEvents, deviceList,
     contextsRequested: () => contextsRequested };
 }
@@ -321,8 +321,8 @@ test('Server Device and stopped Client modes never initialize local PCM', async 
   }
 });
 
-test('model, server writer and sample-rate preflight reject start before local initialization', async () => {
-  for (const options of [{ modelReady: false, context: null }, { serverActive: true }, { outputRate: 44100 }, { inputAudio: 'none', context: null }]) {
+test('model, server writer, devices and sample-rate preflight reject start before local initialization', async () => {
+  for (const options of [{ modelReady: false, context: null }, { serverActive: true }, { outputRate: 44100 }, { inputAudio: 'none', context: null }, { inputAudio: 'none' }, { outputAudio: 'none' }]) {
     const fixture = hookFixture({ started: true, ...options });
     const cleanups = fixture.effects.map(effect => effect());
     await new Promise(resolve => setImmediate(resolve));
@@ -330,8 +330,26 @@ test('model, server writer and sample-rate preflight reject start before local i
     assert.equal(fixture.contextsRequested(), 0);
     assert.ok(fixture.startedWrites.includes(false));
     assert.ok(fixture.toasts.length > 0);
+    assert.ok(fixture.writes.some(value => value?.phase === 'failed' && typeof value.error === 'string'), 'failure remains available to the controls after the toast closes');
     cleanups.forEach(cleanup => cleanup?.());
   }
+});
+
+test('a monitor-only route can start, while mismatched rates explain both values without opening input', async () => {
+  const monitorOnly = hookFixture({ started: true, outputAudio: 'none', monitorAudio: 'synthetic-monitor' });
+  const cleanups = monitorOnly.effects.map(effect => effect());
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(monitorOnly.initializations.length, 1);
+  assert.equal(monitorOnly.toasts.length, 0);
+  assert.ok(monitorOnly.writes.some(value => value?.phase === 'running'));
+  cleanups.forEach(cleanup => cleanup?.());
+
+  const mismatch = hookFixture({ started: true, outputRate: 44100 });
+  const mismatchCleanups = mismatch.effects.map(effect => effect());
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(mismatch.initializations.length, 0);
+  assert.ok(mismatch.toasts.some(message => message.includes('48000 Hz') && message.includes('44100 Hz') && message.includes('音声設定')));
+  mismatchCleanups.forEach(cleanup => cleanup?.());
 });
 
 test('audio revision synchronously disposes the client and requires another explicit start', () => {
@@ -625,7 +643,7 @@ test('a rendered hook stops capture immediately and saves a pending recording be
   const downloads = [];
   const toasts = [];
   const settings = { isStarted: false, inputAudioType: 'microphone', inputAudio: 'chosen', protocol: 'rest',
-    nodeInputGain: 1, nodeOutputGain: 1, nodeMonitorGain: 0, isOutputRecording: false, outputAudio: 'none', monitorAudio: 'none' };
+    nodeInputGain: 1, nodeOutputGain: 1, nodeMonitorGain: 0, isOutputRecording: false, outputAudio: 'synthetic-output', monitorAudio: 'none' };
   settings.setIsStarted = value => { settings.isStarted = value; };
   settings.setIsOutputRecording = value => { settings.isOutputRecording = value; };
   const context = audioContext();

@@ -4,6 +4,7 @@ import { useAppRoot } from "../../state/app-root-context.js";
 import { useAppState } from "../../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../../domain/constants.js";
 import { capabilityProps } from "../../components/common/backend-capabilities.js";
+import { parameterValue } from "../../domain/numeric-display.js";
 const AdvancedSettingDialog = ({
   open,
   onClose
@@ -182,7 +183,8 @@ const AdvancedSettingDialog = ({
                     minWidth: "40px",
                     textAlign: "right"
                   },
-                  children: ae ?? "未取得"
+                  title: ae == null ? undefined : String(ae),
+                  children: parameterValue(ae)
                 })]
               }), jsxRuntime.jsx("div", {
                 style: {
@@ -242,7 +244,8 @@ const AdvancedSettingDialog = ({
                       minWidth: "40px",
                       textAlign: "right"
                     },
-                    children: ce ?? "未取得"
+                    title: ce == null ? undefined : String(ce),
+                    children: parameterValue(ce)
                   })]
                 }), jsxRuntime.jsx("div", {
                   style: {

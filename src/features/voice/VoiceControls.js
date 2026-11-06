@@ -7,7 +7,8 @@ import { ExpandLess, ExpandMore, GraphicEq, Tune, WaveformIcon, WaveformPlusIcon
 import { useAppGuiSetting } from "../../hooks/useAppGuiSetting.js";
 import { capabilityProps } from "../../components/common/backend-capabilities.js";
 import { backendClient } from "../../api/BackendClient.js";
-import { chunkDurationOptions } from "../../domain/legacy-chunk.js";
+import { chunkDurationOptions, chunkDurationLabel } from "../../domain/legacy-chunk.js";
+import { parameterValue, durationWithFrames } from "../../domain/numeric-display.js";
 const VoiceControls = () => {
   const {
       currentSlotInfo,
@@ -267,7 +268,8 @@ const VoiceControls = () => {
             textAlign: "right",
             opacity: he ? 1 : 0.5
           },
-          children: he ? de?.toFixed(2) ?? "未取得" : "N/A"
+          title: de == null ? undefined : String(de),
+          children: he ? parameterValue(de) : "N/A"
         })]
       });
     }, [currentSlotInfo, t, updateServerSlotInfo]),
@@ -352,7 +354,7 @@ const VoiceControls = () => {
           alignItems: "center"
         },
         children: [jsxRuntime.jsx(Tooltip, {
-          title: t("common.controls.chunksec_adjust"),
+          title: `${t("common.controls.chunksec_adjust")}${legacyChunk ? " Legacy: 48 kHz の128フレーム単位です。プリセットに最も近い整数単位を使い、実際の時間を表示します。" : ""}`,
           children: jsxRuntime.jsx(WaveformIcon, {})
         }), jsxRuntime.jsx("span", {
           style: {
@@ -389,7 +391,8 @@ const VoiceControls = () => {
         children: [currentSlotInfo.chunk_sec == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }),
           chunkDurationOptions(guiSetting.inputChunkSec, currentSlotInfo.chunk_sec, legacyChunk).map(seconds => jsxRuntime.jsx("option", {
             value: seconds,
-            children: `${Math.round(48000 * seconds)} [${Number(seconds.toFixed(6))} sec]`
+            title: `${seconds} s`,
+            children: chunkDurationLabel(seconds, guiSetting.inputChunkSec, legacyChunk)
           }, seconds))]
       })]
     }), [guiSetting.inputChunkSec, currentSlotInfo, updateServerSlotInfo, legacyChunk, serverAudioBusy, chunkUpdatePending, triggerToast, t]),
@@ -433,12 +436,13 @@ const VoiceControls = () => {
           minWidth: "120px",
           padding: "4px"
         },
-        children: [serverConfiguration.extra_frame_sec == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), guiSetting.extraFrameSec.map(le => jsxRuntime.jsx("option", {
+        children: [serverConfiguration.extra_frame_sec == null && jsxRuntime.jsx("option", { value: "", children: "未取得" }), chunkDurationOptions(guiSetting.extraFrameSec, serverConfiguration.extra_frame_sec, false).map(le => jsxRuntime.jsx("option", {
           value: le,
-          children: `${Math.round(48e3 * le)} [${le} sec]`
+          title: `${le} s`,
+          children: `${durationWithFrames(le, legacyChunk ? serverConfiguration.input_sample_rate : 48000)}${guiSetting.extraFrameSec.includes(le) ? "" : "・カスタム"}`
         }, le))]
       })]
-    }), [guiSetting.extraFrameSec, serverConfiguration, updateServerConfiguration, t, currentSlotInfo?.voice_changer_type]),
+    }), [guiSetting.extraFrameSec, serverConfiguration, updateServerConfiguration, t, currentSlotInfo?.voice_changer_type, legacyChunk]),
     pe = ReactRuntime.useMemo(() => currentSlotInfo == null ? jsxRuntime.jsx(jsxRuntime.Fragment, {}) : jsxRuntime.jsxs("div", {
       style: {
         marginBottom: "20px"

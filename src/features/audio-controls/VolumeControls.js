@@ -5,6 +5,7 @@ import { useAppState } from "../../state/app-state-context.js";
 import { VoiceChangerInputMode } from "../../domain/constants.js";
 import { ExpandLess, ExpandMore, Mic, VolumeUp } from "../../components/icons.js";
 import { capabilityProps } from "../../components/common/backend-capabilities.js";
+import { parameterValue } from "../../domain/numeric-display.js";
 const VolumeControls = () => {
   const {
       t
@@ -118,7 +119,8 @@ const VolumeControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: inputGain?.toFixed(1) ?? "未取得"
+          title: inputGain == null ? undefined : String(inputGain),
+          children: parameterValue(inputGain)
         })]
       }), jsxRuntime.jsxs("div", {
         style: {
@@ -163,7 +165,8 @@ const VolumeControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: outputGain?.toFixed(1) ?? "未取得"
+          title: outputGain == null ? undefined : String(outputGain),
+          children: parameterValue(outputGain)
         })]
       }), jsxRuntime.jsxs("div", {
         style: {
@@ -208,7 +211,8 @@ const VolumeControls = () => {
             minWidth: "50px",
             textAlign: "right"
           },
-          children: monitorGain?.toFixed(1) ?? "未取得"
+          title: monitorGain == null ? undefined : String(monitorGain),
+          children: parameterValue(monitorGain)
         })]
       })]
     })]
