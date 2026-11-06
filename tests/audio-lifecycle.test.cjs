@@ -49,7 +49,7 @@ class SyntheticNode {
 function audioContext(addModule = async () => {}) {
   const nodes = [];
   const createNode = () => { const node = new SyntheticNode(); nodes.push(node); return node; };
-  return { nodes, sampleRate: 48000, audioWorklet: { addModule }, createGain: createNode, createAnalyser: createNode,
+  return { nodes, sampleRate: 48000, state: 'running', audioWorklet: { addModule }, createGain: createNode, createAnalyser: createNode,
     createMediaStreamDestination: createNode, createMediaStreamSource: createNode };
 }
 function clientClass(owner, mediaDevices = {}) {
@@ -240,7 +240,7 @@ test('audio configuration enumerates without permission and closes a late explic
 });
 
 function hookFixture({ started = false, mode = 'client', modelReady = true, serverActive = false,
-  context = { sampleRate: 48000 }, outputRate = 48000, delayedInitialize = false,
+  context = { sampleRate: 48000, state: 'running' }, outputRate = 48000, delayedInitialize = false,
   inputType = 'microphone', inputAudio = 'synthetic-microphone', outputAudio = 'synthetic-output', monitorAudio = 'none' } = {}) {
   const effects = [];
   const writes = [];
@@ -297,9 +297,11 @@ test('client hook ignores an older initialization result after StrictMode cleanu
   const fixture = hookFixture({ started: true, delayedInitialize: true });
   const initialize = fixture.effects.find(effect => effect.toString().includes('voiceChangerClient.initialize'));
   const cleanup = initialize();
+  await new Promise(resolve => setImmediate(resolve));
   cleanup();
   assert.equal(fixture.clients[0].disposed, true);
   const cleanupAgain = initialize();
+  await new Promise(resolve => setImmediate(resolve));
   fixture.initializations[0].resolve(true);
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(fixture.writes.filter(value => value === true).length, 0);
@@ -648,7 +650,8 @@ test('a rendered hook stops capture immediately and saves a pending recording be
   settings.setIsOutputRecording = value => { settings.isOutputRecording = value; };
   const context = audioContext();
   const root = { currentSlotInfo: { voice_changer_type: 'RVC', runtime_available: true, chunk_sec: 0.2 },
-    serverConfiguration: { voice_changer_input_mode: 'client', input_sample_rate: 48000, output_sample_rate: 48000, rvc_backend: 'legacy' } };
+    serverConfiguration: { voice_changer_input_mode: 'client', input_sample_rate: 48000, output_sample_rate: 48000, rvc_backend: 'legacy' },
+    ensureAudioContext: async () => context };
   const useClient = loadSource('hooks/useVoiceChangerClient.js', 'useVoiceChangerClient', {
     ReactRuntime: runner.ReactRuntime, backendClient: owner, VoiceChangerClient: Client,
     VCRestClient: { getInstance: () => ({ getCapabilities: () => ({ clientAudio: { supported: true } }) }) },
@@ -685,4 +688,189 @@ test('a rendered hook stops capture immediately and saves a pending recording be
   assert.equal(downloads[0].samples.length, 3);
   assert.ok(toasts.some(toast => toast.type === 'warning'));
   runner.cleanup();
+});
+
+function resumableConfigFixture(resume = context => { context.state = 'running'; }) {
+  const effects = [], contexts = [];
+  const owner = connectionOwner();
+  class AudioContext {
+    constructor() { this.state = 'suspended'; this.resumes = 0; contexts.push(this); }
+    async resume() { this.resumes++; await resume(this, this.resumes); }
+    async close() { this.state = 'closed'; }
+  }
+  const useConfig = loadSource('hooks/useAudioConfig.js', 'useAudioConfig', {
+    ReactRuntime: { useState: value => [value, () => {}], useRef: value => ({ current: value }),
+      useCallback: callback => callback, useEffect: callback => effects.push(callback) },
+    useTranslation: () => ({ t: key => key }), logMessage() {}, backendClient: owner, AudioContext,
+    URL, window: { location: { href: 'http://synthetic.invalid/' } }, navigator: { mediaDevices: {
+      enumerateDevices: async () => [], addEventListener() {}, removeEventListener() {} } }
+  });
+  const api = useConfig({});
+  const cleanup = effects[0]();
+  return { api, contexts, owner, cleanup };
+}
+
+test('audio configuration resumes a cached suspended context and coalesces concurrent resumes', async () => {
+  const gate = deferred();
+  const fixture = resumableConfigFixture(async (context, attempt) => {
+    if (attempt > 1) await gate.promise;
+    context.state = 'running';
+  });
+  try {
+    const cached = await fixture.api.ensureAudioContext();
+    cached.state = 'suspended';
+    const first = fixture.api.ensureAudioContext(), second = fixture.api.ensureAudioContext();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(cached.resumes, 2, 'cached suspended context requires one shared resume operation');
+    gate.resolve();
+    assert.equal(await first, cached); assert.equal(await second, cached);
+    assert.equal(cached.state, 'running'); assert.equal(fixture.contexts.length, 1);
+    await fixture.api.ensureAudioContext();
+    assert.equal(cached.resumes, 2, 'running cache must not resume again');
+  } finally { gate.resolve(); fixture.cleanup(); }
+});
+
+test('invalidating while a cached context resumes closes it and returns no usable context', async () => {
+  const gate = deferred();
+  const fixture = resumableConfigFixture(async (context, attempt) => {
+    if (attempt > 1) await gate.promise;
+    if (context.state !== 'closed') context.state = 'running';
+  });
+  try {
+    const cached = await fixture.api.ensureAudioContext(); cached.state = 'suspended';
+    const pending = fixture.api.ensureAudioContext();
+    await new Promise(resolve => setImmediate(resolve));
+    fixture.owner.invalidate(); gate.resolve();
+    assert.equal(await pending, null);
+    assert.equal(cached.state, 'closed');
+    assert.equal(await fixture.api.ensureAudioContext(), null);
+  } finally { gate.resolve(); fixture.cleanup(); }
+});
+
+test('a cached resume rejection is reported and can be retried explicitly without replacing the context', async () => {
+  const fixture = resumableConfigFixture((context, attempt) => {
+    if (attempt === 2) throw Error('synthetic resume rejected');
+    context.state = 'running';
+  });
+  try {
+    const cached = await fixture.api.ensureAudioContext(); cached.state = 'suspended';
+    await assert.rejects(fixture.api.ensureAudioContext(), /synthetic resume rejected/);
+    assert.equal(cached.state, 'suspended');
+    assert.equal(await fixture.api.ensureAudioContext(), cached);
+    assert.equal(cached.state, 'running'); assert.equal(cached.resumes, 3); assert.equal(fixture.contexts.length, 1);
+  } finally { fixture.cleanup(); }
+});
+
+function suspendedStartFixture(resume = async context => { context.state = 'running'; }) {
+  const owner = connectionOwner(); owner.state.protocol = 'legacy-vcc';
+  const runner = hookRenderer(), events = [], inputs = [], toasts = [];
+  const mediaDevices = { getUserMedia: async () => { events.push('capture'); const input = stream('chosen'); inputs.push(input); return input; },
+    addEventListener() {}, removeEventListener() {} };
+  const { Client, created } = clientClass(owner, mediaDevices);
+  const context = audioContext(async () => { events.push('worklet'); }); context.state = 'suspended';
+  const settings = { isStarted: false, inputAudioType: 'microphone', inputAudio: 'chosen', protocol: 'rest',
+    nodeInputGain: 1, nodeOutputGain: 1, nodeMonitorGain: 0.25, outputAudio: 'synthetic-output', monitorAudio: 'none' };
+  settings.setIsStarted = value => { settings.isStarted = value; };
+  settings.setIsOutputRecording = () => {};
+  const root = { currentSlotInfo: { voice_changer_type: 'RVC', runtime_available: true, chunk_sec: 0.2 },
+    serverConfiguration: { voice_changer_input_mode: 'client', input_sample_rate: 48000, output_sample_rate: 48000, rvc_backend: 'legacy' },
+    ensureAudioContext: async () => { events.push('resume'); await resume(context); return context; } };
+  const useClient = loadSource('hooks/useVoiceChangerClient.js', 'useVoiceChangerClient', {
+    ReactRuntime: runner.ReactRuntime, backendClient: owner, VoiceChangerClient: Client,
+    VCRestClient: { getInstance: () => ({ getCapabilities: () => ({ clientAudio: { supported: true } }) }) },
+    useAppRoot: () => root, OutputDeviceRouter: class {}, navigator: { mediaDevices },
+    setTimeout, clearTimeout, setInterval, clearInterval
+  });
+  const triggerToast = (type, message) => toasts.push({ type, message });
+  let api;
+  const render = () => { api = runner.render(() => useClient({ ctx: context, globaSetting: settings, triggerToast })); };
+  const flush = async () => { for (let count = 0; count < 8; count++) { await new Promise(resolve => setImmediate(resolve)); if (runner.dirty) render(); } };
+  render();
+  return { context, settings, events, inputs, created, owner, toasts, render, flush, runner, api: () => api };
+}
+
+test('explicit Start resumes a cached context before worklet and capture, including reuse after Stop', async () => {
+  const fixture = suspendedStartFixture();
+  try {
+    assert.deepEqual(fixture.events, [], 'stopped renders must never resume in the background');
+    fixture.settings.isStarted = true; fixture.render(); await fixture.flush();
+    assert.deepEqual(fixture.events, ['resume', 'worklet', 'capture']);
+    assert.equal(fixture.api().isClientInitialized, true);
+    fixture.settings.isStarted = false; fixture.render(); await fixture.flush();
+    assert.equal(fixture.inputs[0].track.readyState, 'ended');
+    fixture.context.state = 'suspended';
+    fixture.settings.isStarted = true; fixture.render(); await fixture.flush();
+    assert.deepEqual(fixture.events, ['resume', 'worklet', 'capture', 'resume', 'worklet', 'capture']);
+    assert.equal(fixture.context.state, 'running'); assert.equal(fixture.api().isClientInitialized, true);
+  } finally { fixture.runner.cleanup(); }
+});
+
+test('resume rejection or a context that remains suspended stops Start with a persistent error before capture', async () => {
+  for (const resume of [async () => { throw Error('synthetic resume rejected'); }, async () => {}]) {
+    const fixture = suspendedStartFixture(resume);
+    try {
+      fixture.settings.isStarted = true; fixture.render(); await fixture.flush();
+      assert.deepEqual(fixture.events, ['resume']);
+      assert.equal(fixture.created.length, 0); assert.equal(fixture.inputs.length, 0);
+      assert.equal(fixture.settings.isStarted, false);
+      assert.equal(fixture.api().clientAudioStatus.phase, 'failed');
+      assert.ok(fixture.api().clientAudioStatus.error); assert.equal(fixture.api().isClientInitialized, false);
+    } finally { fixture.runner.cleanup(); }
+  }
+});
+
+test('Stop or invalidation during cached resume prevents late initialization and capture', async () => {
+  for (const action of ['stop', 'invalidate']) {
+    const gate = deferred();
+    const fixture = suspendedStartFixture(async context => { await gate.promise; context.state = 'running'; });
+    try {
+      fixture.settings.isStarted = true; fixture.render(); await fixture.flush();
+      assert.deepEqual(fixture.events, ['resume']);
+      if (action === 'stop') fixture.settings.isStarted = false;
+      else fixture.owner.invalidate();
+      fixture.render(); gate.resolve(); await fixture.flush();
+      assert.equal(fixture.created.length, 0); assert.equal(fixture.inputs.length, 0);
+      assert.equal(fixture.api().isClientInitialized, false); assert.equal(fixture.settings.isStarted, false);
+    } finally { gate.resolve(); fixture.runner.cleanup(); }
+  }
+});
+
+test('audio diagnostics distinguish both post-gain branches, context state and safe stream lifetimes', async () => {
+  const { Client } = clientClass(connectionOwner());
+  const client = new Client();
+  const context = audioContext();
+  try {
+    await client.initialize(context, false);
+    await client.updateClientSetting({ ...client.setting, inputGain: 1, outputGain: 0.65, monitorGain: 0.25 });
+    for (const [analyser, value] of [[client.inputAnalyser, 0.4], [client.outputAnalyser, 0.26], [client.monitorAnalyser, 0.1]]) {
+      analyser.fftSize = 8;
+      analyser.getFloatTimeDomainData = samples => samples.fill(value);
+    }
+    const monitor = client.monitorStream;
+    monitor.id = 'private-native-stream-id'; monitor.active = true;
+    Object.assign(monitor.track, { id: 'private-native-track-id', label: 'private-track-label', enabled: false, muted: true });
+    context.state = 'suspended'; context.currentTime = 1.25;
+    const metrics = client.getAudioMetrics();
+    assert.ok(Math.abs(metrics.outputRms - 0.26) < 1e-7);
+    assert.ok(Math.abs(metrics.monitorRms - 0.1) < 1e-7);
+    assert.equal(metrics.actualGains.monitor, 0.25);
+    assert.equal(metrics.actualGains.output, 0.65);
+    assert.equal(metrics.context.state, 'suspended'); assert.equal(metrics.context.currentTime, 1.25);
+    assert.equal(metrics.monitorStream.active, true);
+    assert.equal(metrics.monitorStream.tracks[0].enabled, false);
+    assert.equal(metrics.monitorStream.tracks[0].muted, true);
+    const snapshot = JSON.stringify({ output: metrics.outputStream, monitor: metrics.monitorStream });
+    for (const privateValue of ['private-native-stream-id', 'private-native-track-id', 'private-track-label']) assert.ok(!snapshot.includes(privateValue));
+    assert.notEqual(metrics.outputStream.identity, metrics.monitorStream.identity);
+    await client.stop();
+    assert.equal(client.getAudioMetrics().monitorStream.identity, metrics.monitorStream.identity, 'Stop preserves object identity for diagnostic comparison');
+    monitor.track.stop();
+    assert.equal(client.getAudioMetrics().monitorStream.tracks[0].readyState, 'ended');
+    client.dispose();
+    assert.equal(client.getAudioMetrics().monitorRms, null, 'disposed analyser data must not appear live');
+    await client.initialize(audioContext(), false);
+    const next = client.getAudioMetrics();
+    assert.notEqual(next.monitorStream.identity, metrics.monitorStream.identity, 'new initialize publishes a new stream token');
+    assert.equal(next.monitorStream.tracks[0].readyState, 'live');
+  } finally { client.dispose(); }
 });

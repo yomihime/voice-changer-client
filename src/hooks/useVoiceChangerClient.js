@@ -181,7 +181,14 @@ const useVoiceChangerClient = options => {
       if (recordingFinalizationRef.current) await recordingFinalizationRef.current;
       if (!active) return;
       preflightStart();
-      const ready = await voiceChangerClient.initialize(options.ctx, false);
+      if (typeof ensureAudioContext !== "function") throw new Error("AudioContext を準備できませんでした。");
+      const context = await ensureAudioContext();
+      if (!active) return;
+      if (!context) throw new Error("AudioContext を準備できませんでした。開始し直してください。");
+      // A closed context may have been replaced; wait for its state to reach this hook.
+      if (context !== options.ctx) return;
+      if (context.state !== "running") throw new Error("AudioContext を再開できませんでした。開始し直してください。");
+      const ready = await voiceChangerClient.initialize(context, false);
       if (!active || !ready) return;
       voiceChangerClient.setVoiceChangerExceptionListener({ onException: (code, message) => {
         if (!active) return;
@@ -331,7 +338,9 @@ const useVoiceChangerClient = options => {
   }, [voiceChangerClient]);
   const getAudioMetrics = ReactRuntime.useCallback(() => {
     const metrics = voiceChangerClient.getAudioMetrics();
-    return { ...metrics, output: outputRouterRef.current?.state ?? null, monitor: monitorRouterRef.current?.state ?? null,
+    return { ...metrics,
+      output: outputRouterRef.current ? { ...outputRouterRef.current.state, diagnostics: outputRouterRef.current.getDiagnostics?.() ?? null } : null,
+      monitor: monitorRouterRef.current ? { ...monitorRouterRef.current.state, diagnostics: monitorRouterRef.current.getDiagnostics?.() ?? null } : null,
       lastError: lastErrorRef.current ?? metrics.lastError ?? null, audioState: backendClient.audioState };
   }, [voiceChangerClient]);
 

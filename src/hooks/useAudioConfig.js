@@ -35,28 +35,37 @@ const useAudioConfig = options => {
   const ensureAudioContext = ReactRuntime.useCallback(async () => {
     const lifecycle = lifecycleRef.current;
     if (!lifecycle?.active) return null;
-    if (lifecycle.context && lifecycle.context.state !== "closed") return lifecycle.context;
+    if (lifecycle.pending) return lifecycle.pending;
+    if (lifecycle.context?.state === "running") return lifecycle.context;
     if (!lifecycle.pending) {
       lifecycle.pending = Promise.resolve().then(async () => {
-        let context;
+        if (!lifecycle.active) return null;
+        let context = lifecycle.context?.state !== "closed" ? lifecycle.context : null;
+        const created = context == null;
         try {
-          const requested = new URL(window.location.href).searchParams.get("sample_rate");
-          context = requested === "default" ? new AudioContext() : new AudioContext({
-            sampleRate: requested == null ? 48000 : Number(requested)
-          });
-          lifecycle.context = context;
+          if (created) {
+            const requested = new URL(window.location.href).searchParams.get("sample_rate");
+            context = requested === "default" ? new AudioContext() : new AudioContext({
+              sampleRate: requested == null ? 48000 : Number(requested)
+            });
+            lifecycle.context = context;
+          }
           await context.resume?.();
           if (!lifecycle.active) {
             if (context.state !== "closed") await context.close();
             return null;
           }
-          await reloadDeviceInfo();
+          if (context.state !== "running") throw new Error("AudioContext を再開できませんでした。開始し直してください。");
+          if (created) await reloadDeviceInfo();
           if (!lifecycle.active) return null;
           setAudioContext(context);
           return context;
         } catch (error) {
-          if (context && context.state !== "closed") await context.close();
-          lifecycle.context = null;
+          if (created) {
+            if (context && context.state !== "closed") await context.close();
+            lifecycle.context = null;
+          }
+          if (!lifecycle.active) return null;
           throw error;
         } finally {
           lifecycle.pending = null;

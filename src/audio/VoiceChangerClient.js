@@ -42,6 +42,7 @@ class VoiceChangerClient {
   monitorGainNode;
   inputAnalyser;
   outputAnalyser;
+  monitorAnalyser;
   inputRms = 0;
   outputRms = 0;
   vcInNode;
@@ -82,6 +83,8 @@ class VoiceChangerClient {
   recordingClips = { input: null, output: null };
   dummyInput = null;
   unsubscribeInvalidation = null;
+  streamIdentities = new WeakMap();
+  nextStreamIdentity = 1;
   constructor() {}
   initialize(C, E) {
     this.dispose();
@@ -98,6 +101,7 @@ class VoiceChangerClient {
     this.monitorGainNode = this.ctx.createGain();
     this.inputAnalyser = this.ctx.createAnalyser();
     this.outputAnalyser = this.ctx.createAnalyser();
+    this.monitorAnalyser = this.ctx.createAnalyser();
     this.inputGainNode.gain.value = this.setting.inputGain;
     this.outputGainNode.gain.value = this.setting.outputGain;
     this.monitorGainNode.gain.value = this.setting.monitorGain;
@@ -123,6 +127,7 @@ class VoiceChangerClient {
         this.outputGainNode.connect(this.outputAnalyser);
         this.vcInNode.connect(this.monitorGainNode);
         this.monitorGainNode.connect(this.currentMediaStreamAudioDestinationMonitorNode);
+        this.monitorGainNode.connect(this.monitorAnalyser);
       } catch (error) {
         this.dispose();
         throw error;
@@ -170,7 +175,7 @@ class VoiceChangerClient {
       stream?.getTracks().forEach(track => track.stop());
     }
     for (const node of [this.currentMediaStreamAudioSourceNode, this.inputGainNode, this.outputGainNode,
-      this.monitorGainNode, this.inputAnalyser, this.outputAnalyser,
+      this.monitorGainNode, this.inputAnalyser, this.outputAnalyser, this.monitorAnalyser,
       this.currentMediaStreamAudioDestinationNode, this.currentMediaStreamAudioDestinationMonitorNode]) {
       node?.disconnect();
     }
@@ -484,6 +489,21 @@ class VoiceChangerClient {
   abortAllRequests = () => this.stop();
   isRequestPending = () => this.vcInNode?.isRequestPending() ?? false;
   getPendingRequestCount = () => this.vcInNode?.getPendingRequestCount() ?? 0;
+  streamIdentity = stream => {
+    if (!stream) return null;
+    if (!this.streamIdentities.has(stream)) this.streamIdentities.set(stream, this.nextStreamIdentity++);
+    return this.streamIdentities.get(stream);
+  };
+  streamSnapshot = (stream, role) => ({
+    // Local object identity survives Stop; no labels or native stream/track IDs.
+    identity: stream ? `${role}:${this.streamIdentity(stream)}` : null,
+    active: typeof stream?.active === 'boolean' ? stream.active : null,
+    tracks: stream?.getAudioTracks?.().map((track, index) => ({ index,
+      readyState: track.readyState ?? null,
+      enabled: typeof track.enabled === 'boolean' ? track.enabled : null,
+      muted: typeof track.muted === 'boolean' ? track.muted : null
+    })) ?? []
+  });
   getAudioMetrics = () => ({
     ...this.vcInNode?.getAudioMetrics?.(),
     inputDeviceId: typeof this.setting.audioInput === "string" ? this.setting.audioInput : null,
@@ -495,6 +515,16 @@ class VoiceChangerClient {
       ? this.getRms(this.inputAnalyser) : null,
     outputRms: !this.disposed && typeof this.outputAnalyser?.getFloatTimeDomainData === 'function'
       ? this.getRms(this.outputAnalyser) : null,
+    // Post-monitor-GainNode observation, not a hardware or listening measurement.
+    monitorRms: !this.disposed && typeof this.monitorAnalyser?.getFloatTimeDomainData === 'function'
+      ? this.getRms(this.monitorAnalyser) : null,
+    context: { state: this.ctx?.state ?? null,
+      currentTime: Number.isFinite(this.ctx?.currentTime) ? this.ctx.currentTime : null },
+    actualGains: { input: this.inputGainNode?.gain.value ?? null,
+      output: this.outputGainNode?.gain.value ?? null, monitor: this.monitorGainNode?.gain.value ?? null },
+    outputStream: this.streamSnapshot(this.stream, 'output'),
+    monitorStream: this.streamSnapshot(this.monitorStream, 'monitor'),
+    clientDisposed: this.disposed,
     clientSession: this.generation,
     captureGeneration: this.captureGeneration,
     sampleRate: this.ctx?.sampleRate ?? null
