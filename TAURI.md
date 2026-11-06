@@ -89,5 +89,27 @@ npm run test:desktop
   返回 Access denied，实际物理按键触发仍需手动确认。
 
 产物尚未签名，也没有自动更新；这是本地试用打包，不是正式发布。
+
+## HTTP 502 の切り分け
+
+ネイティブ HTTP proxy が転送に失敗した場合は、`backend_transport` 応答に安全な `diagnostic` を追加します。
+プロセス内の `request_id`、接続先設定の `generation`、`send` / `response_body`、分類、経過時間、
+HTTP メソッド、固定の経路名、取得できた I/O 種別・OS コードを記録します。同じ情報を標準エラーへ
+1行の JSON として出力します。応答ヘッダーを送信済みの本文エラーは標準エラーだけに記録します。
+URL、query、認証ヘッダー、モデル名、音声・要求・応答の本文、元の例外文字列は記録しません。
+通常起動の localhost:18888 探索と、手動接続後の障害を分けて確認してください。
+
+```powershell
+node tests/tauri-http-diagnostics.cjs
+```
+
+この Windows/WebView2 試験は独立 profile と `--deny-media` を使い、専用の HTTP テストサーバーで
+接続再利用、切断、上流502、本文の途中切断、アイドル接続の失効、拒否接続を確認します。既定は GET / POST 各1,000回です。
+`HTTP_TEST_REQUESTS` で回数、`TAURI_TEST_EXE` と `TAURI_TEST_OUTPUT` で候補と保存先を指定できます。
+`HTTP_TEST_PACED_POSTS=1` は5 ms間隔の生成 POST 対照も追加します。
+`VCC_TEST_URL` を明示した場合だけ、そのサービスへ追加で読み取り専用の `/info` を送り、
+本文を保存せず件数・状態を集計します。マイク、Windows 音声、モデル推論は開始しません。
+断続的な障害をこの短い試験で再現できなくても、根因が解決したことは意味しません。
+
 官方依据：[Windows 前置环境](https://v2.tauri.app/start/prerequisites/)、
 [Windows 安装包与 WebView2](https://v2.tauri.app/distribute/windows-installer/)。

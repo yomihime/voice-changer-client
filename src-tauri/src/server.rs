@@ -12,7 +12,12 @@ use axum::{
 };
 use futures_util::{SinkExt, StreamExt};
 use include_dir::{include_dir, Dir};
-use std::{error::Error, net::IpAddr, sync::Arc, time::Duration};
+use std::{
+    error::Error,
+    net::IpAddr,
+    sync::{atomic::{AtomicU64, Ordering}, Arc},
+    time::{Duration, Instant},
+};
 use tokio::{
     net::{TcpListener, TcpStream},
     sync::watch,
@@ -468,6 +473,83 @@ fn backend_headers(headers: &HeaderMap, target: &reqwest::Url) -> HeaderMap {
     headers
 }
 
+static NEXT_REQUEST_ID: AtomicU64 = AtomicU64::new(1);
+
+// Never format an upstream error: its Display/Debug may contain URLs or secrets.
+// A local ID, stage and typed I/O codes are sufficient to correlate failures.
+#[derive(Debug, serde::Serialize)]
+struct TransportDiagnostic {
+    request_id: u64,
+    generation: u64,
+    phase: &'static str,
+    category: &'static str,
+    elapsed_ms: u64,
+    method: &'static str,
+    path: &'static str,
+    io_kind: Option<String>,
+    os_code: Option<i32>,
+}
+
+fn diagnostic_method(method: &Method) -> &'static str {
+    match *method {
+        Method::GET => "GET",
+        Method::HEAD => "HEAD",
+        Method::POST => "POST",
+        Method::PUT => "PUT",
+        Method::PATCH => "PATCH",
+        Method::DELETE => "DELETE",
+        Method::OPTIONS => "OPTIONS",
+        _ => "OTHER",
+    }
+}
+
+fn diagnostic_path(path: &str) -> &'static str {
+    match path {
+        "/info" => "/info",
+        "/test" => "/test",
+        "/reset_audio" => "/reset_audio",
+        "/update_settings" => "/update_settings",
+        "/load_model_if_empty" => "/load_model_if_empty",
+        _ if path.starts_with("/api/") => "/api/*",
+        _ if path.starts_with("/socket.io/") => "/socket.io/*",
+        _ => "other",
+    }
+}
+
+fn io_details(error: &(dyn Error + 'static)) -> (Option<String>, Option<i32>) {
+    let mut source = Some(error);
+    let mut details = (None, None);
+    for _ in 0..16 {
+        let Some(error) = source else { break };
+        if let Some(io) = error.downcast_ref::<std::io::Error>() {
+            details = (Some(format!("{:?}", io.kind())), io.raw_os_error());
+            if details.1.is_some() { break; }
+        }
+        source = error.source();
+    }
+    details
+}
+
+impl TransportDiagnostic {
+    fn failure(&self, error: &reqwest::Error, phase: &'static str, started: Instant) -> Self {
+        let category = if error.is_timeout() { "timeout" }
+            else if error.is_connect() { "connect" }
+            else if error.is_body() { "body" }
+            else if error.is_decode() { "decode" }
+            else if error.is_request() { "request" }
+            else { "other" };
+        let (io_kind, os_code) = io_details(error);
+        Self { phase, category, io_kind, os_code,
+            elapsed_ms: started.elapsed().as_millis().min(u64::MAX as u128) as u64,
+            ..*self }
+    }
+
+    fn log(&self) {
+        // Failures only, bounded metadata; request/response bytes and addresses are excluded.
+        eprintln!("{}", serde_json::json!({ "event": "backend_transport", "diagnostic": self }));
+    }
+}
+
 async fn proxy_http(
     state: Arc<ServerState>,
     request: Request,
@@ -476,6 +558,18 @@ async fn proxy_http(
     changes: watch::Receiver<BackendTarget>,
 ) -> Response {
     let (parts, body) = request.into_parts();
+    let started = Instant::now();
+    let diagnostic = TransportDiagnostic {
+        request_id: NEXT_REQUEST_ID.fetch_add(1, Ordering::Relaxed),
+        generation: target.generation,
+        phase: "send",
+        category: "other",
+        elapsed_ms: 0,
+        method: diagnostic_method(&parts.method),
+        path: diagnostic_path(parts.uri.path()),
+        io_kind: None,
+        os_code: None,
+    };
     let upstream = target
         .client
         .request(parts.method, url.clone())
@@ -486,28 +580,28 @@ async fn proxy_http(
     let upstream = match upstream {
         Ok(response) => response,
         Err(error) => {
-            let category = if error.is_timeout() {
-                "timeout"
-            } else if error.is_connect() {
-                "connect"
-            } else if error.is_body() {
-                "body"
-            } else if error.is_request() {
-                "request"
-            } else {
-                "other"
-            };
+            let diagnostic = diagnostic.failure(&error, "send", started);
+            diagnostic.log();
             return (
                 StatusCode::BAD_GATEWAY,
                 [(header::CONTENT_TYPE, "application/json")],
-                format!(r#"{{"error":{{"code":"backend_transport","reason":"Backend request failed ({category})"}}}}"#),
+                serde_json::json!({ "error": {
+                    "code": "backend_transport",
+                    "reason": format!("Backend request failed ({})", diagnostic.category),
+                    "diagnostic": diagnostic,
+                }}).to_string(),
             )
                 .into_response();
         }
     };
     let status = upstream.status();
     let headers = end_to_end_headers(upstream.headers());
-    let stream = upstream.bytes_stream();
+    let stream = upstream.bytes_stream().map(move |chunk| {
+        if let Err(error) = &chunk {
+            diagnostic.failure(error, "response_body", started).log();
+        }
+        chunk
+    });
     // Dropping the response or closing the application cancels an unfinished upload/download.
     let stream = futures_util::stream::unfold(
         (
@@ -671,6 +765,121 @@ async fn bridge_websocket(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn transport_diagnostics_exclude_untrusted_paths_and_error_messages() {
+        assert_eq!(diagnostic_path("/info"), "/info");
+        assert_eq!(diagnostic_path("/api/private-model/name"), "/api/*");
+        assert_eq!(diagnostic_path("/model_dir/private-name"), "other");
+        assert_eq!(diagnostic_path("/info/private-name"), "other");
+        assert_eq!(diagnostic_method(&Method::from_bytes(b"PRIVATE").unwrap()), "OTHER");
+        let error = std::io::Error::new(std::io::ErrorKind::ConnectionReset,
+            "https://user:secret@private.invalid/audio?token=secret");
+        let (kind, code) = io_details(&error);
+        assert_eq!(kind.as_deref(), Some("ConnectionReset"));
+        assert_eq!(code, None);
+        let json = serde_json::to_string(&(kind, code)).unwrap();
+        assert!(!json.contains("secret"));
+        assert!(!json.contains("private"));
+    }
+
+    #[tokio::test]
+    async fn refused_backend_reports_safe_stage_and_os_code() {
+        let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).await.unwrap();
+        let address = format!("http://{}/", listener.local_addr().unwrap());
+        drop(listener);
+        let server = start(0, Some(address)).await.unwrap();
+        let response = reqwest::Client::builder().no_proxy().build().unwrap()
+            .get(format!("{}/info?token=secret", server.origin))
+            .header(header::AUTHORIZATION, "Bearer secret").send().await.unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
+        let text = response.text().await.unwrap();
+        assert!(!text.contains("secret"));
+        assert!(!text.contains("127.0.0.1"));
+        let value: serde_json::Value = serde_json::from_str(&text).unwrap();
+        assert_eq!(value["error"]["code"], "backend_transport");
+        let diagnostic = &value["error"]["diagnostic"];
+        assert_eq!(diagnostic["phase"], "send");
+        assert_eq!(diagnostic["category"], "connect");
+        assert_eq!(diagnostic["path"], "/info");
+        assert_eq!(diagnostic["method"], "GET");
+        assert!(diagnostic["request_id"].as_u64().unwrap() > 0);
+        assert!(diagnostic["elapsed_ms"].is_u64());
+        assert_eq!(diagnostic["io_kind"], "ConnectionRefused");
+        #[cfg(windows)]
+        assert_eq!(diagnostic["os_code"], 10061);
+        server.wait().await;
+    }
+
+    #[tokio::test]
+    async fn backend_status_is_not_a_native_transport_failure() {
+        let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).await.unwrap();
+        let address = format!("http://{}/", listener.local_addr().unwrap());
+        let backend = tokio::spawn(async {
+            axum::serve(listener, Router::new().fallback(|| async {
+                (StatusCode::BAD_GATEWAY, "fixture-upstream-status")
+            })).await.unwrap()
+        });
+        let server = start(0, Some(address)).await.unwrap();
+        let response = reqwest::Client::builder().no_proxy().build().unwrap()
+            .get(format!("{}/info", server.origin)).send().await.unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_GATEWAY);
+        assert_eq!(response.text().await.unwrap(), "fixture-upstream-status");
+        server.wait().await;
+        backend.abort();
+    }
+
+    #[tokio::test]
+    async fn stalled_headers_are_timeout_not_connect_refusal() {
+        let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).await.unwrap();
+        let address = format!("http://{}/", listener.local_addr().unwrap());
+        let backend = tokio::spawn(async {
+            axum::serve(listener, Router::new().fallback(|| async {
+                std::future::pending::<Response>().await
+            })).await.unwrap()
+        });
+        let server = start(0, Some(address)).await.unwrap();
+        // A test-local timeout; the application client's policy is unchanged.
+        server.backend.send_modify(|target| {
+            target.client = reqwest::Client::builder().no_proxy()
+                .timeout(Duration::from_millis(100)).build().unwrap();
+        });
+        let response = reqwest::Client::builder().no_proxy().build().unwrap()
+            .get(format!("{}/info", server.origin)).send().await.unwrap();
+        let value: serde_json::Value = serde_json::from_str(&response.text().await.unwrap()).unwrap();
+        assert_eq!(value["error"]["diagnostic"]["phase"], "send");
+        assert_eq!(value["error"]["diagnostic"]["category"], "timeout");
+        server.wait().await;
+        backend.abort();
+    }
+
+    #[tokio::test]
+    async fn truncated_response_is_a_body_failure_after_forwarded_headers() {
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let listener = TcpListener::bind((std::net::Ipv4Addr::LOCALHOST, 0)).await.unwrap();
+        let address = format!("http://{}/", listener.local_addr().unwrap());
+        let backend = tokio::spawn(async move {
+            let (mut socket, _) = listener.accept().await.unwrap();
+            let mut bytes = [0; 4096];
+            let _ = socket.read(&mut bytes).await.unwrap();
+            socket.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 20\r\n\r\nshort").await.unwrap();
+            socket.shutdown().await.unwrap();
+        });
+        let server = start(0, Some(address)).await.unwrap();
+        let response = reqwest::Client::builder().no_proxy().build().unwrap()
+            .get(format!("{}/info", server.origin)).send().await;
+        // Hyper may reject before the caller can observe headers, or fail while
+        // consuming the body. Neither is a newly generated HTTP 502 response.
+        match response {
+            Ok(response) => {
+                assert_eq!(response.status(), StatusCode::OK);
+                assert!(response.bytes().await.is_err());
+            }
+            Err(error) => assert!(!error.is_connect()),
+        }
+        backend.await.unwrap();
+        server.wait().await;
+    }
 
     #[test]
     fn restrict_backend_and_paths() {
