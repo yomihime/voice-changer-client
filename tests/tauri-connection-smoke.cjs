@@ -65,6 +65,17 @@ async function run() {
     await page.locator('#backend-address').fill(address);
     await page.getByRole('button',{name:'接続',exact:true}).click();
   };
+  const ready = async (page,address,protocol) => {
+    await page.locator('.connection-strip').waitFor();
+    await page.locator('#root h2').waitFor();
+    const state = await page.evaluate(async () => {
+      const { backendClient } = await import('/src/api/BackendClient.js');
+      return { phase: backendClient.state.phase, address: backendClient.state.address,
+        protocol: backendClient.state.protocol };
+    });
+    assert.deepEqual(state,{phase:'ready',address,protocol});
+    assert.equal(await page.locator('.connection-strip span').innerText(),address+' · '+protocol);
+  };
   try {
     let page=await launch();
     await page.locator('[data-connection-state="incompatible"]').waitFor({timeout:20000});
@@ -103,7 +114,7 @@ async function run() {
     // Real isolated VCC is not a mock. Recognition does not start/load audio or a model.
     if (process.env.VCC_TEST_URL) {
       await connect(page,process.env.VCC_TEST_URL);
-      await page.locator('[data-connection-state="ready"]').waitFor();
+      await ready(page,process.env.VCC_TEST_URL,'legacy-vcc');
       assert.match(await page.locator('#root').innerText(),/VCC/);
       await page.screenshot({path:path.join(output,'real-vcc-recognized.png'),animations:'disabled'});
     }
@@ -122,7 +133,7 @@ async function run() {
     });
     await new Promise((resolve,reject) => defaultForeign.once('error',reject).listen(18888,'127.0.0.1',resolve));
     await page.getByRole('button',{name:'localhost:18888 を再試行',exact:true}).click();
-    await page.locator('[data-connection-state="ready"]').waitFor();
+    await ready(page,'http://localhost:18888/','legacy-vcc');
     await page.screenshot({path:path.join(output,'late-backend-retry.png'),animations:'disabled'});
     await close(page);
     const result={passed:true,launchArguments:'no --backend or --port; isolated --profile-dir and --deny-media only',
